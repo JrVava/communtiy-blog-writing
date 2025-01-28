@@ -18,9 +18,18 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
+        'full_name',
         'email',
+        'user_name',
+        'city',
+        'home_town',
+        'university',
+        'passing_year',
+        'degree',
+        'working_or_business',
         'password',
+        'country',
+        'o_country'
     ];
 
     /**
@@ -42,4 +51,9 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    public function countryRecord()
+    {
+        return $this->hasOne(Country::class, 'id', 'country');
+    }
 }

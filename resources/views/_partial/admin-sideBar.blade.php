@@ -1,84 +1,178 @@
-<aside class="aside is-placed-left is-expanded">
-    <div class="aside-tools">
-      <div>
-        Community <b class="font-black">Blog</b>
-      </div>
-    </div>
-    <div class="menu is-menu-main">
-      <ul class="menu-list">
-        <li class="active">
-          <a href="index.html">
-            <span class="icon"><i class="mdi mdi-desktop-mac"></i></span>
-            <span class="menu-item-label">Dashboard</span>
-          </a>
-        </li>
-      </ul>
-      <p class="menu-label">Examples</p>
-      <ul class="menu-list">
-        <li class="--set-active-tables-html">
-          <a href="tables.html">
-            <span class="icon"><i class="mdi mdi-table"></i></span>
-            <span class="menu-item-label">Tables</span>
-          </a>
-        </li>
-        <li class="--set-active-forms-html">
-          <a href="forms.html">
-            <span class="icon"><i class="mdi mdi-square-edit-outline"></i></span>
-            <span class="menu-item-label">Forms</span>
-          </a>
-        </li>
-        <li class="--set-active-profile-html">
-          <a href="profile.html">
-            <span class="icon"><i class="mdi mdi-account-circle"></i></span>
-            <span class="menu-item-label">Profile</span>
-          </a>
-        </li>
-        <li>
-          <a href="login.html">
-            <span class="icon"><i class="mdi mdi-lock"></i></span>
-            <span class="menu-item-label">Login</span>
-          </a>
-        </li>
-        <li>
-          <a class="dropdown">
-            <span class="icon"><i class="mdi mdi-view-list"></i></span>
-            <span class="menu-item-label">Submenus</span>
-            <span class="icon"><i class="mdi mdi-plus"></i></span>
-          </a>
-          <ul>
-            <li>
-              <a href="#void">
-                <span>Sub-item One</span>
-              </a>
+<nav class="navbar navbar-expand navbar-light navbar-bg">
+    <a class="sidebar-toggle js-sidebar-toggle">
+        <i class="hamburger align-self-center"></i>
+    </a>
+
+    <div class="navbar-collapse collapse">
+        <ul class="navbar-nav navbar-align">
+            <li class="nav-item dropdown">
+                <a class="nav-icon dropdown-toggle" href="#" id="alertsDropdown" data-bs-toggle="dropdown">
+                    <div class="position-relative">
+                        <i class="align-middle" data-feather="bell"></i>
+                        <span class="indicator">4</span>
+                    </div>
+                </a>
+                <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end py-0" aria-labelledby="alertsDropdown">
+                    <div class="dropdown-menu-header">
+                        4 New Notifications
+                    </div>
+                    <div class="list-group">
+                        <a href="#" class="list-group-item">
+                            <div class="row g-0 align-items-center">
+                                <div class="col-2">
+                                    <i class="text-danger" data-feather="alert-circle"></i>
+                                </div>
+                                <div class="col-10">
+                                    <div class="text-dark">Update completed</div>
+                                    <div class="text-muted small mt-1">Restart server 12 to complete the
+                                        update.</div>
+                                    <div class="text-muted small mt-1">30m ago</div>
+                                </div>
+                            </div>
+                        </a>
+                        <a href="#" class="list-group-item">
+                            <div class="row g-0 align-items-center">
+                                <div class="col-2">
+                                    <i class="text-warning" data-feather="bell"></i>
+                                </div>
+                                <div class="col-10">
+                                    <div class="text-dark">Lorem ipsum</div>
+                                    <div class="text-muted small mt-1">Aliquam ex eros, imperdiet vulputate
+                                        hendrerit et.</div>
+                                    <div class="text-muted small mt-1">2h ago</div>
+                                </div>
+                            </div>
+                        </a>
+                        <a href="#" class="list-group-item">
+                            <div class="row g-0 align-items-center">
+                                <div class="col-2">
+                                    <i class="text-primary" data-feather="home"></i>
+                                </div>
+                                <div class="col-10">
+                                    <div class="text-dark">Login from 192.186.1.8</div>
+                                    <div class="text-muted small mt-1">5h ago</div>
+                                </div>
+                            </div>
+                        </a>
+                        <a href="#" class="list-group-item">
+                            <div class="row g-0 align-items-center">
+                                <div class="col-2">
+                                    <i class="text-success" data-feather="user-plus"></i>
+                                </div>
+                                <div class="col-10">
+                                    <div class="text-dark">New connection</div>
+                                    <div class="text-muted small mt-1">Christina accepted your request.
+                                    </div>
+                                    <div class="text-muted small mt-1">14h ago</div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="dropdown-menu-footer">
+                        <a href="#" class="text-muted">Show all notifications</a>
+                    </div>
+                </div>
             </li>
-            <li>
-              <a href="#void">
-                <span>Sub-item Two</span>
-              </a>
+            <li class="nav-item dropdown">
+                <a class="nav-icon dropdown-toggle" href="#" id="messagesDropdown" data-bs-toggle="dropdown">
+                    <div class="position-relative">
+                        <i class="align-middle" data-feather="message-square"></i>
+                    </div>
+                </a>
+                <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end py-0" aria-labelledby="messagesDropdown">
+                    <div class="dropdown-menu-header">
+                        <div class="position-relative">
+                            4 New Messages
+                        </div>
+                    </div>
+                    <div class="list-group">
+                        <a href="#" class="list-group-item">
+                            <div class="row g-0 align-items-center">
+                                <div class="col-2">
+                                    <img src="{{ asset('assets/img/avatars/avatar-5.jpg') }}"
+                                        class="avatar img-fluid rounded-circle" alt="Vanessa Tucker">
+                                </div>
+                                <div class="col-10 ps-2">
+                                    <div class="text-dark">Vanessa Tucker</div>
+                                    <div class="text-muted small mt-1">Nam pretium turpis et arcu. Duis arcu
+                                        tortor.</div>
+                                    <div class="text-muted small mt-1">15m ago</div>
+                                </div>
+                            </div>
+                        </a>
+                        <a href="#" class="list-group-item">
+                            <div class="row g-0 align-items-center">
+                                <div class="col-2">
+                                    <img src="{{ asset('assets/img/avatars/avatar-2.jpg') }}"
+                                        class="avatar img-fluid rounded-circle" alt="William Harris">
+                                </div>
+                                <div class="col-10 ps-2">
+                                    <div class="text-dark">William Harris</div>
+                                    <div class="text-muted small mt-1">Curabitur ligula sapien euismod
+                                        vitae.</div>
+                                    <div class="text-muted small mt-1">2h ago</div>
+                                </div>
+                            </div>
+                        </a>
+                        <a href="#" class="list-group-item">
+                            <div class="row g-0 align-items-center">
+                                <div class="col-2">
+                                    <img src="{{ asset('assets/img/avatars/avatar-4.jpg') }}"
+                                        class="avatar img-fluid rounded-circle" alt="Christina Mason">
+                                </div>
+                                <div class="col-10 ps-2">
+                                    <div class="text-dark">Christina Mason</div>
+                                    <div class="text-muted small mt-1">Pellentesque auctor neque nec urna.
+                                    </div>
+                                    <div class="text-muted small mt-1">4h ago</div>
+                                </div>
+                            </div>
+                        </a>
+                        <a href="#" class="list-group-item">
+                            <div class="row g-0 align-items-center">
+                                <div class="col-2">
+                                    <img src="{{ asset('assets/img/avatars/avatar-3.jpg') }}"
+                                        class="avatar img-fluid rounded-circle" alt="Sharon Lessman">
+                                </div>
+                                <div class="col-10 ps-2">
+                                    <div class="text-dark">Sharon Lessman</div>
+                                    <div class="text-muted small mt-1">Aenean tellus metus, bibendum sed,
+                                        posuere ac, mattis non.</div>
+                                    <div class="text-muted small mt-1">5h ago</div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="dropdown-menu-footer">
+                        <a href="#" class="text-muted">Show all messages</a>
+                    </div>
+                </div>
             </li>
-          </ul>
-        </li>
-      </ul>
-      <p class="menu-label">About</p>
-      <ul class="menu-list">
-        <li>
-          <a href="https://justboil.me" onclick="alert('Coming soon'); return false" target="_blank" class="has-icon">
-            <span class="icon"><i class="mdi mdi-credit-card-outline"></i></span>
-            <span class="menu-item-label">Premium Demo</span>
-          </a>
-        </li>
-        <li>
-          <a href="https://justboil.me/tailwind-admin-templates" class="has-icon">
-            <span class="icon"><i class="mdi mdi-help-circle"></i></span>
-            <span class="menu-item-label">About</span>
-          </a>
-        </li>
-        <li>
-          <a href="https://github.com/justboil/admin-one-tailwind" class="has-icon">
-            <span class="icon"><i class="mdi mdi-github-circle"></i></span>
-            <span class="menu-item-label">GitHub</span>
-          </a>
-        </li>
-      </ul>
+            <li class="nav-item dropdown">
+                <a class="nav-icon dropdown-toggle d-inline-block d-sm-none" href="#"
+                    data-bs-toggle="dropdown">
+                    <i class="align-middle" data-feather="settings"></i>
+                </a>
+
+                <a class="nav-link dropdown-toggle d-none d-sm-inline-block" href="#"
+                    data-bs-toggle="dropdown">
+                    <img src="{{ asset('assets/img/avatars/avatar.jpg') }}" class="avatar img-fluid rounded me-1"
+                        alt="Charles Hall" /> <span class="text-dark">Charles Hall</span>
+                </a>
+                <div class="dropdown-menu dropdown-menu-end">
+                    <a class="dropdown-item" href="pages-profile.html"><i class="align-middle me-1"
+                            data-feather="user"></i> Profile</a>
+                    <a class="dropdown-item" href="#"><i class="align-middle me-1"
+                            data-feather="pie-chart"></i> Analytics</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="index.html"><i class="align-middle me-1"
+                            data-feather="settings"></i> Settings & Privacy</a>
+                    <a class="dropdown-item" href="#"><i class="align-middle me-1"
+                            data-feather="help-circle"></i> Help Center</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="{{ route('logout') }}">Log out</a>
+                </div>
+            </li>
+        </ul>
     </div>
-  </aside>
+</nav>

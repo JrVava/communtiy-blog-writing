@@ -13,9 +13,18 @@ class AuthController extends Controller
 {
     public function index()
     {
-        return view('auth.login');
+        $this->loginRedirection();
+        return $this->loginRedirection() ?: view('auth.login');
     }
-
+    public function loginRedirection()
+    {
+        if (auth()->check()) {
+            $is_admin = auth()->user()->is_admin;
+            $adminRoute = redirect()->route('dashboard');
+            $userRoute = view('welcome');
+            return $is_admin ? $adminRoute : $userRoute;
+        }
+    }
     public function registration()
     {
         return view('auth.registration');
@@ -24,15 +33,15 @@ class AuthController extends Controller
     public function postLogin(Request $request)
     {
         $request->validate([
-            'email' => 'required',
+            'user_name' => 'required',
             'password' => 'required',
         ]);
 
-        $credentials = $request->only('email', 'password');
+        $credentials = $request->only('user_name', 'password');
 
         if (Auth::attempt($credentials)) {
             return redirect()->intended('dashboard')
-                        ->withSuccess('You have Successfully loggedin');
+                ->withSuccess('You have Successfully loggedin');
         }
 
         return redirect("login")->withSuccess('Oppes! You have entered invalid credentials');
@@ -41,39 +50,37 @@ class AuthController extends Controller
     public function postRegistration(Request $request)
     {
         $request->validate([
-            'name' => 'required',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|min:6',
+            'user_name' => 'required|unique:users',
+            'email' => 'nullable|email',
+            'password' => 'required|min:6|confirmed',
+
         ]);
 
-        $data = $request->all();
-        $check = $this->create($data);
+        // dd($request->all());
+
+        $request['password'] = Hash::make($request->password);
+        $user = new User;
+        $user->fill($request->all());
+        $user->save();
 
         return redirect("dashboard")->withSuccess('Great! You have Successfully loggedin');
     }
 
     public function dashboard()
     {
-        if(Auth::check()){
+        // dd("he;;");
+        if (Auth::check()) {
             return view('admin.dashboard');
         }
 
         return redirect("login")->withSuccess('Opps! You do not have access');
     }
 
-    public function create(array $data)
-    {
-      return User::create([
-        'name' => $data['name'],
-        'email' => $data['email'],
-        'password' => Hash::make($data['password'])
-      ]);
-    }
-
     public function logout()
     {
         Session::flush();
         Auth::logout();
-        return Redirect('login');
+
+        return redirect()->route('login');
     }
 }
