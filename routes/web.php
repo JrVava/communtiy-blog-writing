@@ -33,6 +33,8 @@ Route::middleware([
 ])->group(function () {
     Route::get('dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
     Route::get('users', [UserController::class, 'index'])->name('users');
+    Route::get('users-view/{id}', [UserController::class, 'viewUserProfile'])->name('users-view');
+    Route::get('users-approve-deny/{id}', [UserController::class, 'userProfileApproveDeny'])->name('users-approve-deny');
 });
 
 Route::middleware([

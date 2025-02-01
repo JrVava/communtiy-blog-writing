@@ -26,6 +26,7 @@ return new class extends Migration
             $table->string('degree')->nullable();
             $table->string('working_or_business')->nullable();
             $table->string('password');
+            $table->boolean('is_approve')->default(false);
             $table->rememberToken();
             $table->timestamps();
         });
