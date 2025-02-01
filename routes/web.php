@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\PostController as AdminPostController;
 use App\Http\Controllers\Auth\AuthController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\UserController;
@@ -36,6 +37,9 @@ Route::middleware([
     Route::get('users', [UserController::class, 'index'])->name('users');
     Route::get('users-view/{id}', [UserController::class, 'viewUserProfile'])->name('users-view');
     Route::get('users-approve-deny/{id}', [UserController::class, 'userProfileApproveDeny'])->name('users-approve-deny');
+    Route::get('users-post', [AdminPostController::class, 'index'])->name('users-post');
+    Route::get('view-post/{id}', [AdminPostController::class, 'viewPost'])->name('view-post');
+    Route::get('post-approve-deny/{id}', [AdminPostController::class, 'postApproveDeny'])->name('post-approve-deny');
 });
 
 Route::middleware([

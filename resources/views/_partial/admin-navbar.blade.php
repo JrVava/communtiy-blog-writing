@@ -20,5 +20,12 @@
                     <span class="align-middle">Users</span>
                 </a>
             </li>
+
+            <li class="sidebar-item @if (Route::currentRouteName() == 'users-post') active @endif">
+                <a class="sidebar-link" href="{{ route('users-post') }}">
+                    <i class="align-middle" data-feather="users-post"></i>
+                    <span class="align-middle">Posts</span>
+                </a>
+            </li>
         </ul>
 </nav>

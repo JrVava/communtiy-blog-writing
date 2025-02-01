@@ -1,24 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title')</title>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-<!-- Bootstrap Icons CDN -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+    <!-- Bootstrap Icons CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
 
-
+    
+    {{-- DataTable CDN Start Here --}}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    {{-- DataTable CDN END Here --}}
     <style>
         /* Custom Styles */
         body {
-            background-color: #f7f9fc; /* Light background */
+            background-color: #f7f9fc;
+            /* Light background */
             font-family: 'Arial', sans-serif;
         }
 
         .card {
-            border-radius: 15px; /* Rounded corners */
+            border-radius: 15px;
+            /* Rounded corners */
             transition: all 0.3s ease;
         }
 
@@ -38,12 +48,15 @@
             text-align: right;
         }
 
-        .form-control, .btn {
-            border-radius: 25px; /* Rounded input and button */
+        .form-control,
+        .btn {
+            border-radius: 25px;
+            /* Rounded input and button */
         }
 
         .post-card {
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Soft shadow for posts */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            /* Soft shadow for posts */
             margin-bottom: 20px;
             /* transition: all 0.3s ease; */
         }
@@ -65,12 +78,14 @@
             font-weight: bold;
         }
 
-        .btn-outline-primary, .btn-outline-secondary {
+        .btn-outline-primary,
+        .btn-outline-secondary {
             border-radius: 20px;
             padding: 8px 16px;
         }
 
-        .btn-outline-primary:hover, .btn-outline-secondary:hover {
+        .btn-outline-primary:hover,
+        .btn-outline-secondary:hover {
             background-color: #f0f0f0;
             border-color: #007bff;
         }
@@ -89,7 +104,8 @@
         }
 
         /* Typography */
-        h4, h6 {
+        h4,
+        h6 {
             font-weight: 600;
         }
 
@@ -98,14 +114,16 @@
         }
     </style>
 </head>
+
 <body>
 
-<div class="container py-5">
-    @yield('content')
-</div>
+    <div class="container py-5">
+        @yield('content')
+    </div>
 
-<!-- Bootstrap 5 JS and dependencies -->
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+    <!-- Bootstrap 5 JS and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
 </body>
+
 </html>
