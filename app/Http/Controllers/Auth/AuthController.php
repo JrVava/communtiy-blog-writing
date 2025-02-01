@@ -21,7 +21,8 @@ class AuthController extends Controller
         if (auth()->check()) {
             $is_admin = auth()->user()->is_admin;
             $adminRoute = redirect()->route('dashboard');
-            $userRoute = view('welcome');
+            $userRoute = redirect()->route('posts');
+            
             return $is_admin ? $adminRoute : $userRoute;
         }
     }
@@ -40,8 +41,13 @@ class AuthController extends Controller
         $credentials = $request->only('user_name', 'password');
 
         if (Auth::attempt($credentials)) {
-            return redirect()->intended('dashboard')
-                ->withSuccess('You have Successfully loggedin');
+            $user = Auth::user();
+            if(!$user->is_approve){
+                return redirect()->route('posts');
+            }else{
+                return redirect()->intended('dashboard')
+                    ->withSuccess('You have Successfully loggedin');
+            }
         }
 
         return redirect("login")->withSuccess('Oppes! You have entered invalid credentials');

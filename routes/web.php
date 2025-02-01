@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\AuthController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\PostController;
 
 /*
 |--------------------------------------------------------------------------
@@ -43,5 +44,6 @@ Route::middleware([
     'no.cache'
 ])->group(function () {
     // Below Route is for Example of user Route to define as a logged in user without Admin Role Remove for user Login.
-    Route::get('users', [UserController::class, 'index'])->name('users');
+    Route::get('posts',[PostController::class,'index'])->name('posts');
+    Route::post('create-post',[PostController::class,'createPost'])->name('create-post');
 });
