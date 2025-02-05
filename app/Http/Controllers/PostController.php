@@ -15,13 +15,12 @@ class PostController extends Controller
     }
 
     public function createPost(Request $request){
+        // dd($request->all());
         $request->validate([
-            'title' => 'required|string|max:255',
             'description' => 'required|string',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048', // Optional image validation
         ]);
         $post = new Post();
-        $post->title = $request->input('title');
         $post->description = $request->input('description');
         $post->created_by = Auth::user()->id;
         // Handle image upload and convert to base64

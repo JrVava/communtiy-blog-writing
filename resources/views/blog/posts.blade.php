@@ -13,9 +13,6 @@
             </div>
         </div>
 
-        <!-- Post Title -->
-        <h5 class="fw-semibold text-dark">{{ $post->title }}</h5>
-
         <!-- Post Image -->
         @if($post->image)
         <div class="mb-3">
