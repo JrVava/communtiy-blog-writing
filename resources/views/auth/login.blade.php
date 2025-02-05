@@ -17,7 +17,9 @@
 
     <title>Login</title>
 
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="{{ asset('assets/css/app.css') }}" rel="stylesheet">
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
 
@@ -34,17 +36,24 @@
                                 Sign in to your account to continue
                             </p>
                         </div>
-
+                        @if (session('error'))
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            {{ session('error') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
+                    
                         <div class="card">
                             <div class="card-body">
                                 <div class="m-sm-3">
+                                    
                                     <form action="{{ route('login.post') }}" method="post">
                                         @csrf
                                         <div class="mb-3">
-                                            <label class="form-label">User Name</label>
-                                            <input class="form-control form-control-lg" type="text" name="user_name"
+                                            <label class="form-label">Email</label>
+                                            <input class="form-control form-control-lg" type="email" name="email"
                                                 placeholder="Enter your user name" />
-                                            @error('user_name')
+                                            @error('email')
                                                 <span class="invalid-feedback"
                                                     style="display:block !important; font-size:100% !important;"
                                                     role="alert">
@@ -89,6 +98,7 @@
     </main>
 
     <script src="{{ asset('assets/js/app.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 

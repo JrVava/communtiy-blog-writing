@@ -19,11 +19,10 @@ class AuthController extends Controller
     public function loginRedirection()
     {
         if (auth()->check()) {
-            $is_admin = auth()->user()->is_admin;
+            $is_admin = auth()->user();
             $adminRoute = redirect()->route('dashboard');
             $userRoute = redirect()->route('posts');
-            
-            return $is_admin ? $adminRoute : $userRoute;
+            return $is_admin->is_admin ? $adminRoute : $userRoute;
         }
     }
     public function registration()
@@ -34,30 +33,39 @@ class AuthController extends Controller
     public function postLogin(Request $request)
     {
         $request->validate([
-            'user_name' => 'required',
+            'email' => 'required',
             'password' => 'required',
         ]);
 
-        $credentials = $request->only('user_name', 'password');
+        $credentials = $request->only('email', 'password');
 
         if (Auth::attempt($credentials)) {
-            $user = Auth::user();
-            if(!$user->is_approve){
+            $user = Auth::user(); // Fetch authenticated user AFTER login
+
+            // Debugging Step
+            \Log::info("Login Attempt: ", ['email' => $user->email, 'is_admin' => $user->is_admin, 'is_approve' => $user->is_approve]);
+
+            if ((int) $user->is_admin === 0 && (int) $user->is_approve === 1) {
                 return redirect()->route('posts');
-            }else{
-                return redirect()->intended('dashboard')
-                    ->withSuccess('You have Successfully loggedin');
+            } elseif ((int) $user->is_admin === 1 && (int) $user->is_approve === 1) {
+                return redirect()->intended('dashboard')->with('success','You have Successfully logged in');
             }
+
+            // If user is not approved, force logout
+            Auth::logout();
+            return redirect()->route('login')->with('error' ,'Sorry, Your account is not approved.');
         }
 
-        return redirect("login")->withSuccess('Oppes! You have entered invalid credentials');
+        return redirect()->route('login')->with('error' ,'Oops! You have entered invalid credentials.');
     }
+
 
     public function postRegistration(Request $request)
     {
         $request->validate([
-            'user_name' => 'required|unique:users',
-            'email' => 'nullable|email',
+            'full_name' => 'required|unique:users',
+            'email' => 'required|email',
+            'phone' => 'required|numeric',
             'password' => 'required|min:6|confirmed',
 
         ]);
