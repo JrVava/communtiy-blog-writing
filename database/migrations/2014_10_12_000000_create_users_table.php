@@ -12,7 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->id();
+            // $table->id();
+            $table->uuid('id')->primary();
             $table->string('full_name');
             $table->string('email')->unique();
             $table->string('phone');
@@ -22,6 +23,7 @@ return new class extends Migration
             $table->boolean('is_approve')->default(false);
             $table->rememberToken();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

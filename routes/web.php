@@ -6,6 +6,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\SearchController;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,7 +26,7 @@ Route::post('post-registration', [AuthController::class, 'postRegistration'])->n
 
 Route::get('logout', [AuthController::class, 'logout'])->name('logout');
 
-Route::get('/',  [AuthController::class, 'index'])->name('login');
+Route::get('/login',  [AuthController::class, 'index'])->name('login');
 
 
 Route::middleware([
@@ -49,7 +50,8 @@ Route::middleware([
     'no.cache'
 ])->group(function () {
     // Below Route is for Example of user Route to define as a logged in user without Admin Role Remove for user Login.
-    Route::get('posts',[PostController::class,'index'])->name('posts');
+    Route::get('/',[PostController::class,'index'])->name('posts');
     Route::post('create-post',[PostController::class,'createPost'])->name('create-post');
-    Route::get('profile',[ProfileController::class,'index'])->name('profile');
+    Route::get('profile/{user_id}',[ProfileController::class,'index'])->name('profile');
+    Route::post('search-user',[SearchController::class,'searchUser'])->name('search-user');
 });

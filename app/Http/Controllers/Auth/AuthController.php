@@ -42,9 +42,6 @@ class AuthController extends Controller
         if (Auth::attempt($credentials)) {
             $user = Auth::user(); // Fetch authenticated user AFTER login
 
-            // Debugging Step
-            \Log::info("Login Attempt: ", ['email' => $user->email, 'is_admin' => $user->is_admin, 'is_approve' => $user->is_approve]);
-
             if ((int) $user->is_admin === 0 && (int) $user->is_approve === 1) {
                 return redirect()->route('posts');
             } elseif ((int) $user->is_admin === 1 && (int) $user->is_approve === 1) {
@@ -62,6 +59,7 @@ class AuthController extends Controller
 
     public function postRegistration(Request $request)
     {
+        // dd($request->all());
         $request->validate([
             'full_name' => 'required|unique:users',
             'email' => 'required|email',

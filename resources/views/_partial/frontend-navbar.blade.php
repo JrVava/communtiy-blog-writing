@@ -6,9 +6,11 @@
         </a>
 
         <!-- Search Bar -->
-        <form class="d-flex ms-3">
-            <input class="form-control rounded-pill" type="search" placeholder="Search Facebook" aria-label="Search">
+        <form class="d-flex ms-3 position-relative">
+            <input class="form-control rounded-pill" type="search" id="searchUser" placeholder="Search Facebook" aria-label="Search">
+            <ul id="userList" class="list-group position-absolute w-100" style="z-index: 1000; display: none;"></ul>
         </form>
+        
 
         <!-- Navbar Toggler for Mobile -->
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -37,7 +39,7 @@
         <div class="d-flex align-items-center">
             @php
                 $user = Auth::user();
-                $initials = strtoupper(substr($user->full_name ?? 'U', 0, 1)); // Default to 'U' if no name
+                $initials = strtoupper(substr($user->full_name ?? 'U', 0, 1));
             @endphp
 
             @if($user && $user->image)
@@ -54,7 +56,7 @@
                     {{ $user->full_name ?? 'User' }}
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end">
-                    <li><a class="dropdown-item" href="{{ route('profile') }}">Profile</a></li>
+                    <li><a class="dropdown-item" href="{{ route('profile',['user_id' => Auth::user()->id]) }}">Profile</a></li>
                     <li><a class="dropdown-item" href="#">Settings</a></li>
                     <li><a class="dropdown-item text-danger" href="{{ route('logout') }}">Logout</a></li>
                 </ul>
