@@ -10,7 +10,6 @@
                 <thead>
                     <tr>
                         <th>No</th>
-                        <th>Title</th>
                         <th>Created By</th>
                         <th>Status</th>
                         <th width="100px">Action</th>
@@ -35,10 +34,6 @@
                 columns: [{
                         data: 'id',
                         name: 'id'
-                    },
-                    {
-                        data: 'title',
-                        name: 'title'
                     },
                     {
                         data: 'created_by',

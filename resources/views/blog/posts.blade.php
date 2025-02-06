@@ -16,9 +16,10 @@
         <!-- Post Image -->
         @if($post->image)
         <div class="mb-3">
-            <img src="{{ $post->image }}" class="img-fluid rounded" alt="Post Image">
+            <img src="{{ asset('storage/' . $post->image) }}" class="img-fluid rounded" alt="{{ $user->full_name }}" style="max-height: 400px; object-fit: cover;">
         </div>
         @endif
+        
 
         <!-- Post Content with "Read More" -->
         <p class="card-text text-muted short-content">
@@ -48,7 +49,7 @@
 @endforeach
 
 <!-- jQuery Script for Read More & Like/Dislike Buttons -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+@section('scripts')
 <script>
 $(document).ready(function(){
     // Read More / Read Less Toggle
@@ -113,3 +114,4 @@ $(document).ready(function(){
     });
 });
 </script>
+@endsection

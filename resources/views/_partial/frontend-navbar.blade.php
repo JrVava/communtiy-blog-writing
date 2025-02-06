@@ -54,7 +54,7 @@
                     {{ $user->full_name ?? 'User' }}
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end">
-                    <li><a class="dropdown-item" href="#">Profile</a></li>
+                    <li><a class="dropdown-item" href="{{ route('profile') }}">Profile</a></li>
                     <li><a class="dropdown-item" href="#">Settings</a></li>
                     <li><a class="dropdown-item text-danger" href="{{ route('logout') }}">Logout</a></li>
                 </ul>
