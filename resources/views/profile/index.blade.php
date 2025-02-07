@@ -1,5 +1,7 @@
 @php
     $initials = strtoupper(substr($user->full_name, 0, 1)); // Get the first letter of full_name
+    $followRequest = !empty($followRequest) ? 'Requested' : 'Follow';
+
 @endphp
 
 @extends('layouts.app-layout')
@@ -62,7 +64,7 @@
             padding-right: 14px;
         }
 
-        .camera-icon > i {
+        .camera-icon>i {
             color: white;
         }
 
@@ -105,8 +107,20 @@
                     <i class="bi bi-camera"></i>
                 </div>
 
-                <button class="btn btn-primary btn-follow" id="followBtn">Follow</button>
+                {{-- <button class="btn btn-primary btn-follow" id="followBtn">Follow</button> --}}
                 <input type="file" id="fileInput" class="file-input">
+
+                <button type="button" data-user-id="{{ Auth::id() }}" data-following-id="{{ $user->id }}"
+                    class="btn btn-primary btn-follow" id="followBtn">
+                    Follow
+                </button>
+                {{-- <a href="{{ route('follow-request', [
+                    'user_id' => Auth::user()->id,
+                    'following_id' => $user->id,
+                ]) }}"
+                    class="btn btn-primary btn-follow" id="followBtn">
+                    {{ $followRequest }}
+                </a> --}}
             </div>
         </div>
         <hr>
@@ -138,5 +152,72 @@
             </div>
         </div>
     </div>
+@endsection
+@section('scripts')
+    <script>
+        $(document).ready(function() {
+            // Read More / Read Less Toggle
+            $(".read-more-btn").click(function() {
+                let isExpanded = $(this).attr("data-expanded") === "true";
+                let card = $(this).closest(".post");
 
+                if (!isExpanded) {
+                    card.find(".short-content").hide();
+                    card.find(".full-content").removeClass("d-none");
+                    $(this).text("Read Less");
+                } else {
+                    card.find(".short-content").show();
+                    card.find(".full-content").addClass("d-none");
+                    $(this).text("Read More");
+                }
+
+                $(this).attr("data-expanded", !isExpanded);
+            });
+
+            $('#followBtn').on('click', function() {
+                let userId = $(this).data('user-id');
+                let followingId = $(this).data('following-id');
+                followFun(followingId, userId)
+                // $.ajax({
+                //     url: "{{ route('follow-request') }}",
+                //     type: "POST",
+                //     data: {
+                //         user_id: userId,
+                //         follower_id: followingId,
+                //         _token: "{{ csrf_token() }}"
+                //     },
+                //     success: function(response) {
+                //         $('#followBtn').text('Requested');
+                //     },
+                //     error: function(xhr) {
+                //         alert("Error: " + xhr.responseText);
+                //     }
+                // });
+            })
+            checkRequest()
+        });
+
+        function checkRequest() {
+            let userId = $('#followBtn').data('user-id');
+            let followingId = $('#followBtn').data('following-id');
+
+            $.ajax({
+                url: "{{ route('check-request') }}",
+                type: "POST",
+                data: {
+                    user_id: userId,
+                    follower_id: followingId,
+                    _token: "{{ csrf_token() }}"
+                },
+                success: function(response) {
+                    if(response.status === 200){
+                        $('#followBtn').text(response.message)
+                    }
+                },
+                error: function(xhr) {
+                    alert("Error: " + xhr.responseText);
+                }
+            });
+        }
+    </script>
 @endsection

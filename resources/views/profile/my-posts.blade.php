@@ -54,27 +54,3 @@
         </div>
     </div>
 @endforeach
-
-@section('scripts')
-    <script>
-        $(document).ready(function() {
-            // Read More / Read Less Toggle
-            $(".read-more-btn").click(function() {
-                let isExpanded = $(this).attr("data-expanded") === "true";
-                let card = $(this).closest(".post");
-
-                if (!isExpanded) {
-                    card.find(".short-content").hide();
-                    card.find(".full-content").removeClass("d-none");
-                    $(this).text("Read Less");
-                } else {
-                    card.find(".short-content").show();
-                    card.find(".full-content").addClass("d-none");
-                    $(this).text("Read More");
-                }
-
-                $(this).attr("data-expanded", !isExpanded);
-            });
-        });
-    </script>
-@endsection

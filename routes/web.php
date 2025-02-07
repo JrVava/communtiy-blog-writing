@@ -52,6 +52,12 @@ Route::middleware([
     // Below Route is for Example of user Route to define as a logged in user without Admin Role Remove for user Login.
     Route::get('/',[PostController::class,'index'])->name('posts');
     Route::post('create-post',[PostController::class,'createPost'])->name('create-post');
+
     Route::get('profile/{user_id}',[ProfileController::class,'index'])->name('profile');
+    Route::post('follow-request',[ProfileController::class,'followRequest'])->name('follow-request');
+    Route::post('check-request',[ProfileController::class,'checkRequest'])->name('check-request');
+    Route::post('friend-request',[ProfileController::class,'friendRequest'])->name('friend-request');
+    Route::post('friend-request-response',[ProfileController::class,'friendRequestResponse'])->name('friend-request-response');
+
     Route::post('search-user',[SearchController::class,'searchUser'])->name('search-user');
 });

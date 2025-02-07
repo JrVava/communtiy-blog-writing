@@ -40,6 +40,33 @@
             padding: 1px;
             margin-top: 3px;
         }
+
+
+        .people-badge {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: red;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            padding: 3px 7px;
+            border-radius: 50%;
+            min-width: 20px;
+            text-align: center;
+        }
+
+        .people-list {
+            display: none;
+            position: absolute;
+            background: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            list-style: none;
+            border-radius: 5px;
+            width: 200px;
+            z-index: 1000;
+        }
     </style>
 </head>
 
@@ -57,7 +84,11 @@
     @yield('scripts')
 
     <script>
+        const userId = "{{ Auth::id() }}";
         $(document).ready(function() {
+            $('.totalRequest').css({
+                display: 'none'
+            });
             $("#searchUser").on("keyup", function() {
                 let query = $(this).val();
                 if (query.length > 1) {
@@ -91,7 +122,122 @@
                     $("#userList").hide();
                 }
             });
+            getFriendRequest(userId)
+
+            $(document).on('click', '.accept-request, .deny-request', function() {
+                let requestId = $(this).data('request-id');
+                let action = $(this).hasClass('accept-request') ? 'accept' : 'deny';
+
+                $.ajax({
+                    url: "{{ route('friend-request-response') }}",
+                    method: "POST",
+                    data: {
+                        "_token": "{{ csrf_token() }}",
+                        action: action,
+                        requestId: requestId
+                    },
+                    success: function(response) {
+                        if (response.status === 200) {
+                            console.log(response.html);
+                            $('#' + requestId).find('button').remove();
+                            $('#' + requestId).html(response.html)
+                        }
+                    }
+                });
+            });
+
+            $(document).on('click', '.follow-back', function() {
+                let userId = $(this).data('user-id');
+                let  followBackId = $(this).data('follow-back-id');
+                followFun(userId, followBackId)
+                // $.ajax({
+                //     url: "{{ route('follow-request') }}",
+                //     type: "POST",
+                //     data: {
+                //         user_id: followBackId,
+                //         follower_id: userId,
+                //         _token: "{{ csrf_token() }}"
+                //     },
+                //     success: function(response) {
+                //         $('#followBtn').text('Requested');
+                //     },
+                //     error: function(xhr) {
+                //         alert("Error: " + xhr.responseText);
+                //     }
+                // });
+            });
+
         });
+
+        function followFun(followingId, userId) {
+            $.ajax({
+                url: "{{ route('follow-request') }}",
+                type: "POST",
+                data: {
+                    user_id: userId,
+                    follower_id: followingId,
+                    _token: "{{ csrf_token() }}"
+                },
+                success: function(response) {
+                    $('#followBtn').text('Requested');
+                },
+                error: function(xhr) {
+                    alert("Error: " + xhr.responseText);
+                }
+            });
+        }
+
+        let socket = new WebSocket("ws://127.0.0.1:8082?user_id=" + userId);
+
+        socket.onopen = function() {
+            console.log("✅ WebSocket connected");
+        };
+
+        socket.onmessage = function(event) {
+            let data = JSON.parse(event.data);
+
+            // Alert when another user refreshes
+            if (data.type === 'refresh_alert') {
+                console.log(userId);
+                getFriendRequest(userId)
+            }
+        };
+
+        socket.onclose = function() {
+            console.warn("⚠️ WebSocket connection closed");
+        };
+
+        socket.onerror = function(error) {
+            console.error("❌ WebSocket Error:", error);
+        };
+
+        $(document).ready(function() {
+            $(".people-toggle").click(function() {
+                $(".people-list").toggle();
+            });
+        });
+
+        function getFriendRequest(follower_id) {
+            $.ajax({
+                url: "{{ route('friend-request') }}",
+                method: "POST",
+                data: {
+                    "_token": "{{ csrf_token() }}",
+                    follower_id: follower_id
+                },
+                success: function(response) {
+                    if (response.status === 200) {
+                        if (response.totalCount > 0) {
+                            $('.totalRequest').css({
+                                display: 'block'
+                            });
+                            $('.totalRequest').text(response.totalCount)
+                            $('.people-list').html(response.html)
+                        }
+                    }
+                }
+            });
+        }
     </script>
 </body>
 
