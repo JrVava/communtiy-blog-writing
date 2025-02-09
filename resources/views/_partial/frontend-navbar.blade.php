@@ -43,7 +43,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-dark mx-2" href="#">
+                    <a class="nav-link text-dark mx-2" href="{{ route('messages') }}">
                         <i class="bi bi-chat-dots fs-4"></i>
                     </a>
                 </li>

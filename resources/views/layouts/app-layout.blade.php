@@ -16,6 +16,18 @@
             width: 12px;
         }
 
+        @media (min-width: 1400px) {
+
+            .container,
+            .container-lg,
+            .container-md,
+            .container-sm,
+            .container-xl,
+            .container-xxl {
+                max-width: 100%;
+            }
+        }
+
         /* Track (background of the scrollbar) */
         body::-webkit-scrollbar-track {
             background: white;
@@ -84,7 +96,7 @@
     @yield('scripts')
 
     <script>
-        const userId = "{{ Auth::id() }}";
+        let userId = "{{ Auth::id() }}";
         $(document).ready(function() {
             $('.totalRequest').css({
                 display: 'none'
@@ -122,122 +134,137 @@
                     $("#userList").hide();
                 }
             });
-            getFriendRequest(userId)
 
-            $(document).on('click', '.accept-request, .deny-request', function() {
-                let requestId = $(this).data('request-id');
-                let action = $(this).hasClass('accept-request') ? 'accept' : 'deny';
+            let socket = new WebSocket("ws://127.0.0.1:8082?user_id=" + "{{ Auth::user()->id }}");
+
+            socket.onopen = function() {
+                console.log("✅ WebSocket connected");
+            };
+
+            socket.onmessage = function(event) {
+                let data = JSON.parse(event.data);
+
+                if (data.type === 'follow_request') {
+                    getTotatRequest()
+                }
+            };
+
+            socket.onclose = function() {
+                console.warn("⚠️ WebSocket connection closed");
+            };
+
+            socket.onerror = function(error) {
+                console.error("❌ WebSocket Error:", error);
+            };
+
+            $(document).on('click', '#followBtn', function() {
+                let followingId = $(this).data('following-id');
+                let userId = $(this).data('user-id');
 
                 $.ajax({
-                    url: "{{ route('friend-request-response') }}",
-                    method: "POST",
+                    url: "{{ route('send-follow-request') }}",
+                    type: 'POST',
                     data: {
                         "_token": "{{ csrf_token() }}",
-                        action: action,
-                        requestId: requestId
+                        "followingId": followingId,
+                        "userId": userId
                     },
-                    success: function(response) {
-                        if (response.status === 200) {
-                            console.log(response.html);
-                            $('#' + requestId).find('button').remove();
-                            $('#' + requestId).html(response.html)
+                    success: function(res) {
+                        // Send WebSocket notification to the followed user
+                        let message = JSON.stringify({
+                            type: "follow_request",
+                            to_user_id: followingId,
+                            from_user_id: userId
+                        });
+
+                        if (socket.readyState === WebSocket.OPEN) {
+                            socket.send(message);
+                        } else {
+                            console.warn("⚠️ WebSocket not open yet");
                         }
+
+                        // Update button text (optional)
+                        $('#followBtn').text(res.data);
+                    },
+                    error: function(xhr) {
+                        console.error(xhr.responseText);
                     }
                 });
             });
+            $(document).on('click', '.accept-request, .deny-request', function() {
+                let action = $(this).hasClass('accept-request') ? 'accept' : 'deny';
+                let followId = $(this).data('request-id');
+
+                $.ajax({
+                    url: "{{ route('response-to-request') }}",
+                    type: "POST",
+                    data: {
+                        "_token": "{{ csrf_token() }}",
+                        "followId": followId,
+                        "action": action
+                    },
+                    success: function(res) {
+                        getRequestList()
+                    }
+                })
+            });
 
             $(document).on('click', '.follow-back', function() {
-                let userId = $(this).data('user-id');
-                let  followBackId = $(this).data('follow-back-id');
-                followFun(userId, followBackId)
-                // $.ajax({
-                //     url: "{{ route('follow-request') }}",
-                //     type: "POST",
-                //     data: {
-                //         user_id: followBackId,
-                //         follower_id: userId,
-                //         _token: "{{ csrf_token() }}"
-                //     },
-                //     success: function(response) {
-                //         $('#followBtn').text('Requested');
-                //     },
-                //     error: function(xhr) {
-                //         alert("Error: " + xhr.responseText);
-                //     }
-                // });
-            });
+                let followId = $(this).data('request-id');
 
+                $.ajax({
+                    url: "{{ route('response-to-request') }}",
+                    type: "POST",
+                    data: {
+                        "_token": "{{ csrf_token() }}",
+                        "followId": followId,
+                        "action": "Followed"
+                    },
+                    success: function(res) {
+                        getRequestList()
+                        getTotatRequest()
+                    }
+                })
+            });
+            getTotatRequest()
         });
 
-        function followFun(followingId, userId) {
+        function getTotatRequest() {
             $.ajax({
-                url: "{{ route('follow-request') }}",
-                type: "POST",
-                data: {
-                    user_id: userId,
-                    follower_id: followingId,
-                    _token: "{{ csrf_token() }}"
-                },
-                success: function(response) {
-                    $('#followBtn').text('Requested');
-                },
-                error: function(xhr) {
-                    alert("Error: " + xhr.responseText);
+                url: "{{ route('total-follow-request') }}",
+                type: "get",
+                success: function(res) {
+                    if (res.data > 0) {
+                        $('.totalRequest').css({
+                            display: 'block'
+                        })
+                        $('.totalRequest').text(res.data)
+                        getRequestList()
+                    } else {
+                        $('.totalRequest').css({
+                            display: 'none'
+                        })
+                        $('.totalRequest').text(0)
+                    }
                 }
-            });
+            })
         }
 
-        let socket = new WebSocket("ws://127.0.0.1:8082?user_id=" + userId);
-
-        socket.onopen = function() {
-            console.log("✅ WebSocket connected");
-        };
-
-        socket.onmessage = function(event) {
-            let data = JSON.parse(event.data);
-
-            // Alert when another user refreshes
-            if (data.type === 'refresh_alert') {
-                console.log(userId);
-                getFriendRequest(userId)
-            }
-        };
-
-        socket.onclose = function() {
-            console.warn("⚠️ WebSocket connection closed");
-        };
-
-        socket.onerror = function(error) {
-            console.error("❌ WebSocket Error:", error);
-        };
+        function getRequestList() {
+            $.ajax({
+                url: "{{ route('follow-request-list') }}",
+                type: "get",
+                success: function(res) {
+                    $('.people-list').html(res.data)
+                }
+            })
+        }
 
         $(document).ready(function() {
             $(".people-toggle").click(function() {
                 $(".people-list").toggle();
             });
         });
-
-        function getFriendRequest(follower_id) {
-            $.ajax({
-                url: "{{ route('friend-request') }}",
-                method: "POST",
-                data: {
-                    "_token": "{{ csrf_token() }}",
-                    follower_id: follower_id
-                },
-                success: function(response) {
-                    if (response.status === 200) {
-                        if (response.totalCount > 0) {
-                            $('.totalRequest').css({
-                                display: 'block'
-                            });
-                            $('.totalRequest').text(response.totalCount)
-                            $('.people-list').html(response.html)
-                        }
-                    }
-                }
-            });
-        }
     </script>
 </body>
 

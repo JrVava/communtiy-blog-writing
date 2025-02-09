@@ -17,6 +17,7 @@ return new class extends Migration
 
             $table->uuid('user_id');
             $table->uuid('following_id');
+            $table->enum('status', ['Pending', 'Accepted', 'Followed'])->default('Pending');
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');

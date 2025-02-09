@@ -17,7 +17,8 @@ class Follow extends Model
 
     protected $fillable = [
         'user_id',
-        'following_id'
+        'following_id',
+        'status'
     ];
 
     protected static function boot()
@@ -32,9 +33,5 @@ class Follow extends Model
 
     public function user(){
         return $this->hasOne(User::class,'id','user_id');
-    }
-
-    public function followBack(){
-        return $this->hasOne(User::class,'id','following_id');
     }
 }

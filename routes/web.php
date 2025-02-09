@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Admin\PostController as AdminPostController;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\FollowController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\UserController;
@@ -54,10 +56,13 @@ Route::middleware([
     Route::post('create-post',[PostController::class,'createPost'])->name('create-post');
 
     Route::get('profile/{user_id}',[ProfileController::class,'index'])->name('profile');
-    Route::post('follow-request',[ProfileController::class,'followRequest'])->name('follow-request');
-    Route::post('check-request',[ProfileController::class,'checkRequest'])->name('check-request');
-    Route::post('friend-request',[ProfileController::class,'friendRequest'])->name('friend-request');
-    Route::post('friend-request-response',[ProfileController::class,'friendRequestResponse'])->name('friend-request-response');
-
     Route::post('search-user',[SearchController::class,'searchUser'])->name('search-user');
+
+    Route::post('get-follow',[FollowController::class,'index'])->name('get-follow');
+    Route::post('send-follow-request',[FollowController::class,'sendFollowRequest'])->name('send-follow-request');
+    Route::get('total-follow-request',[FollowController::class,'totalFollowRequest'])->name('total-follow-request');
+    Route::get('follow-request-list',[FollowController::class,'getRequestList'])->name('follow-request-list');
+    Route::post('response-to-request',[FollowController::class,'responseToRequest'])->name('response-to-request');
+
+    Route::get('messages',[MessageController::class,'index'])->name('messages');
 });

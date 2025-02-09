@@ -14,7 +14,8 @@ class WebSocketServer implements MessageComponentInterface
         $this->clients = new SplObjectStorage;
     }
 
-    public function onOpen(ConnectionInterface $conn) {
+    public function onOpen(ConnectionInterface $conn)
+    {
         // Extract user_id from query string
         $queryString = $conn->httpRequest->getUri()->getQuery();
         parse_str($queryString, $queryParams);
@@ -36,10 +37,39 @@ class WebSocketServer implements MessageComponentInterface
         }
     }
 
-    public function onMessage(ConnectionInterface $from, $msg) {
-        echo "📩 Received Message: " . $msg . "\n"; // Debug incoming messages
+    // public function onMessage(ConnectionInterface $from, $msg) {
+    //     echo "📩 Received Message: " . $msg . "\n"; // Debug incoming messages
+    //     $data = json_decode($msg, true);
+
+    //     if (!$data || !isset($data['to_user_id'], $data['from_user_id'])) {
+    //         echo "⚠️ Invalid message format\n";
+    //         return;
+    //     }
+
+    //     $sent = false;
+    //     foreach ($this->clients as $client) {
+    //         $clientData = $this->clients[$client];
+
+    //         if (isset($clientData['user_id']) && $clientData['user_id'] == $data['to_user_id']) {
+    //             echo "📤 Sending message to user {$data['to_user_id']}\n";
+    //             $client->send(json_encode([
+    //                 'message' => 'You have a new follow request!',
+    //                 'from_user_id' => $data['from_user_id']
+    //             ]));
+    //             $sent = true;
+    //         }
+    //     }
+
+    //     if (!$sent) {
+    //         echo "⚠️ No active connection found for user {$data['to_user_id']}\n";
+    //     }
+    // }
+
+    public function onMessage(ConnectionInterface $from, $msg)
+    {
+        echo "📩 Received Message: " . $msg . "\n";
         $data = json_decode($msg, true);
-    
+
         if (!$data || !isset($data['to_user_id'], $data['from_user_id'])) {
             echo "⚠️ Invalid message format\n";
             return;
@@ -48,28 +78,32 @@ class WebSocketServer implements MessageComponentInterface
         $sent = false;
         foreach ($this->clients as $client) {
             $clientData = $this->clients[$client];
-    
+
             if (isset($clientData['user_id']) && $clientData['user_id'] == $data['to_user_id']) {
-                echo "📤 Sending message to user {$data['to_user_id']}\n";
+                echo "📤 Sending follow request notification to user {$data['to_user_id']}\n";
                 $client->send(json_encode([
+                    'type' => 'follow_request',
                     'message' => 'You have a new follow request!',
                     'from_user_id' => $data['from_user_id']
                 ]));
                 $sent = true;
             }
         }
-    
+
         if (!$sent) {
             echo "⚠️ No active connection found for user {$data['to_user_id']}\n";
         }
     }
 
-    public function onClose(ConnectionInterface $conn) {
+
+    public function onClose(ConnectionInterface $conn)
+    {
         $this->clients->detach($conn);
         echo "A user disconnected\n";
     }
 
-    public function onError(ConnectionInterface $conn, \Exception $e) {
+    public function onError(ConnectionInterface $conn, \Exception $e)
+    {
         echo "Error: " . $e->getMessage() . "\n";
         $conn->close();
     }

@@ -1,9 +1,6 @@
 @php
-    $initials = strtoupper(substr($user->full_name, 0, 1)); // Get the first letter of full_name
-    $followRequest = !empty($followRequest) ? 'Requested' : 'Follow';
-
+    $initials = strtoupper(substr($user->full_name, 0, 1));
 @endphp
-
 @extends('layouts.app-layout')
 @section('title', 'Dashboard')
 @section('content')
@@ -114,13 +111,6 @@
                     class="btn btn-primary btn-follow" id="followBtn">
                     Follow
                 </button>
-                {{-- <a href="{{ route('follow-request', [
-                    'user_id' => Auth::user()->id,
-                    'following_id' => $user->id,
-                ]) }}"
-                    class="btn btn-primary btn-follow" id="followBtn">
-                    {{ $followRequest }}
-                </a> --}}
             </div>
         </div>
         <hr>
@@ -174,50 +164,24 @@
                 $(this).attr("data-expanded", !isExpanded);
             });
 
-            $('#followBtn').on('click', function() {
-                let userId = $(this).data('user-id');
-                let followingId = $(this).data('following-id');
-                followFun(followingId, userId)
-                // $.ajax({
-                //     url: "{{ route('follow-request') }}",
-                //     type: "POST",
-                //     data: {
-                //         user_id: userId,
-                //         follower_id: followingId,
-                //         _token: "{{ csrf_token() }}"
-                //     },
-                //     success: function(response) {
-                //         $('#followBtn').text('Requested');
-                //     },
-                //     error: function(xhr) {
-                //         alert("Error: " + xhr.responseText);
-                //     }
-                // });
-            })
-            checkRequest()
-        });
-
-        function checkRequest() {
-            let userId = $('#followBtn').data('user-id');
             let followingId = $('#followBtn').data('following-id');
-
+            let userId = $('#followBtn').data('user-id');
             $.ajax({
-                url: "{{ route('check-request') }}",
-                type: "POST",
+                url: "{{ route('get-follow') }}",
+                type: "post",
                 data: {
-                    user_id: userId,
-                    follower_id: followingId,
-                    _token: "{{ csrf_token() }}"
+                    "_token": "{{ csrf_token() }}",
+                    "followingId": followingId,
+                    "userId": userId
                 },
-                success: function(response) {
-                    if(response.status === 200){
-                        $('#followBtn').text(response.message)
-                    }
+                success: function(res) {
+                    $('#followBtn').text(res.data);
                 },
                 error: function(xhr) {
-                    alert("Error: " + xhr.responseText);
+                    console.error(xhr.responseText);
                 }
-            });
-        }
+            })
+
+        });
     </script>
 @endsection
