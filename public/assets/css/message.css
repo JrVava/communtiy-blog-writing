@@ -1,6 +1,19 @@
 body {
     background-color: #f0f2f5;
 }
+.without-profile-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    background-color: #007bff;
+    color: white;
+    transition: transform 0.3s ease-in-out;
+    margin-right: 10px;
+}
 .chat-container {
     height: 85vh;
     padding: 20px;
@@ -100,6 +113,20 @@ body {
     background: #21559fd9;
     color: white;
     border-radius: 20px;
+}
+
+.chat-item:hover .without-profile-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    background-color: white;
+    color: black;
+    transition: transform 0.3s ease-in-out;
+    margin-right: 10px;
 }
 /* Responsive Styles */
 @media (max-width: 768px) {

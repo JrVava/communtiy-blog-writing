@@ -70,4 +70,23 @@ class User extends Authenticatable
             }
         });
     }
+
+    /**
+     * Get initials from the full name if the image is null
+     */
+    public function getInitialsAttribute()
+    {
+        if ($this->image) {
+            return null; // No need for initials if image exists
+        }
+        
+        $words = explode(' ', trim($this->full_name));
+        $initials = strtoupper(substr($words[0], 0, 1)); // First letter of first name
+
+        if (count($words) > 1) {
+            $initials .= strtoupper(substr(end($words), 0, 1)); // First letter of last name
+        }
+
+        return $initials;
+    }
 }
