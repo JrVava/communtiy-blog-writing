@@ -38,7 +38,7 @@
             </div>
         </div>
     </div>
-@endsection
+
 @section('scripts')
     <script>
         $(document).ready(function() {
@@ -54,16 +54,16 @@
                 $(".chat-header span").text(user);
 
                 $.ajax({
-                        url: "{{ route('get-messages') }}",
-                        type: "POST",
-                        data: {
-                            "_token": "{{ csrf_token() }}",
-                            receiver_id: receiver_id,
-                        },
-                        success: function(res) {
-                            $(".chat-body").html(res.html);
-                        }
-                    })
+                    url: "{{ route('get-messages') }}",
+                    type: "POST",
+                    data: {
+                        "_token": "{{ csrf_token() }}",
+                        receiver_id: receiver_id,
+                    },
+                    success: function(res) {
+                        $(".chat-body").html(res.html);
+                    }
+                })
                 // $(".chat-body").html("");
 
                 if ($(window).width() <= 768) {
@@ -97,7 +97,18 @@
                             messages: message
                         },
                         success: function(res) {
-                            console.log(res);
+                            
+                            let wsMessage = JSON.stringify({
+                                type: "chat_message",
+                                to_user_id: receiver_id,
+                                from_user_id: sender_id,
+                                message: message
+                            });
+                            if (socket.readyState === WebSocket.OPEN) {
+                                socket.send(wsMessage);
+                            } else {
+                                console.warn("⚠️ WebSocket not open yet");
+                            }
                         }
                     })
                 }
@@ -115,4 +126,5 @@
         });
     </script>
 
+@endsection
 @endsection
