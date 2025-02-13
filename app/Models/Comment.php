@@ -4,32 +4,25 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
-
-
-class Post extends Model
+class Comment extends Model
 {
     use HasFactory,SoftDeletes;
 
-    protected $table = 'posts';
+    protected $table = 'comments';
 
-    public $incrementing = false; // Disable auto-increment
-    protected $keyType = 'string'; // UUID is a string
+    public $incrementing = false;
+    protected $keyType = 'string';
 
     protected $fillable = [
-        'description',
-        'image',
-        'is_approve',
-        'created_by'
+        'user_id',
+        'post_id',
+        'comment'
     ];
 
     protected $dates = ['deleted_at'];
-
-    public function user(){
-        return $this->hasOne(User::class,'id','created_by');
-    }
 
     protected static function boot()
     {
@@ -41,7 +34,7 @@ class Post extends Model
         });
     }
 
-    public function comments(){
-        return $this->hasMany(Comment::class,'post_id','id');
+    public function user(){
+        return $this->hasOne(User::class,'id','user_id');
     }
 }

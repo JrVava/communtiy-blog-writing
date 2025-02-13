@@ -23,9 +23,9 @@ class PostController extends Controller
         // Merge both user lists and include the logged-in user's posts
         $allowedUserIds = $followingIds->merge($followerIds)->push($userId);
 
-        $posts = Post::whereIn('created_by', $allowedUserIds)->latest()->get();
+        $posts = Post::with('comments')->whereIn('created_by', $allowedUserIds)->latest()->get();
 
-
+        // dd($posts);
         return view('blog.index', ['posts' => $posts]);
     }
 

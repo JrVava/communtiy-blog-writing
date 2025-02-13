@@ -7,6 +7,7 @@ use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\CommentController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\SearchController;
 
@@ -67,4 +68,6 @@ Route::middleware([
     Route::get('messages',[MessageController::class,'index'])->name('messages');
     Route::post('send-message',[MessageController::class,'sendMessage'])->name('send-message');
     Route::post('get-messages',[MessageController::class,'getMessages'])->name('get-messages');
+
+    Route::post('save-comment',[CommentController::class,'saveComment'])->name('save-comment');
 });
