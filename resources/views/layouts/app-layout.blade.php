@@ -4,8 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Facebook Clone</title>
-
+    <title>On TRACK EDUCATION</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('assets/img/favicon/apple-touch-icon.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('assets/img/favicon/favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('assets/img/favicon/favicon-16x16.png') }}">
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
@@ -79,6 +81,27 @@
             width: 200px;
             z-index: 1000;
         }
+
+        .logo {
+            width: 100%;
+            max-width: 200px;
+            height: 100%;
+            min-height: 50px;
+        }
+
+        .btn-primary,
+        .bg-primary {
+            background-color: #374697 !important;
+            border: 1px solid transparent !important;
+        }
+
+        .text-primary::before {
+            color: #374697 !important;
+        }
+        .content-container{
+            position: absolute;
+            top: 52px;
+        }
     </style>
 </head>
 
@@ -86,7 +109,7 @@
 
     @include('_partial.frontend-navbar')
 
-    <div class="container mt-5 pt-5">
+    <div class="container content-container mt-5 pt-5">
         @yield('content')
     </div>
 
@@ -103,29 +126,29 @@
 
         let socket = new WebSocket(`ws://127.0.0.1:8082?user_id=${userId}`);
 
-            socket.onopen = function() {
-                console.log("✅ WebSocket connected");
-            };
+        socket.onopen = function() {
+            console.log("✅ WebSocket connected");
+        };
 
-            socket.onmessage = function(event) {
-                let data = JSON.parse(event.data);
-                console.log(data.type);
-                if (data.type === 'follow_request') {
-                    getTotatRequest()
-                } else if (data.type === 'chat_message') {
-                    // Append the received message to the chat UI
-                    $(".chat-body").append(`<div class="message received">${data.message}</div>`);
-                    $(".chat-body").scrollTop($(".chat-body")[0].scrollHeight);
-                }
-            };
+        socket.onmessage = function(event) {
+            let data = JSON.parse(event.data);
+            console.log(data.type);
+            if (data.type === 'follow_request') {
+                getTotatRequest()
+            } else if (data.type === 'chat_message') {
+                // Append the received message to the chat UI
+                $(".chat-body").append(`<div class="message received">${data.message}</div>`);
+                $(".chat-body").scrollTop($(".chat-body")[0].scrollHeight);
+            }
+        };
 
-            socket.onclose = function() {
-                console.warn("⚠️ WebSocket connection closed");
-            };
+        socket.onclose = function() {
+            console.warn("⚠️ WebSocket connection closed");
+        };
 
-            socket.onerror = function(error) {
-                console.error("❌ WebSocket Error:", error);
-            };
+        socket.onerror = function(error) {
+            console.error("❌ WebSocket Error:", error);
+        };
 
         $(document).ready(function() {
             $('.totalRequest').css({
@@ -165,7 +188,7 @@
                 }
             });
 
-            
+
 
             $(document).on('click', '#followBtn', function() {
                 let followingId = $(this).data('following-id');
@@ -186,7 +209,7 @@
                             to_user_id: followingId,
                             from_user_id: userId
                         });
-                        
+
                         if (socket.readyState === WebSocket.OPEN) {
                             socket.send(message);
                         } else {

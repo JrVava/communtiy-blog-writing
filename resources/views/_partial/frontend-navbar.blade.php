@@ -1,13 +1,14 @@
+<header>
 <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top">
     <div class="container">
         <!-- Left Section: Logo -->
-        <a class="navbar-brand fw-bold text-primary" href="#">
-            <i class="bi bi-facebook fs-2"></i> <!-- Facebook Logo Icon -->
+        <a class="navbar-brand fw-bold text-primary" href="{{ route('posts') }}">
+            <img src="{{ asset('assets/img/logo.png') }}" alt="logo" class="logo">
         </a>
 
         <!-- Search Bar -->
         <form class="d-flex ms-3 position-relative">
-            <input class="form-control rounded-pill" type="search" id="searchUser" placeholder="Search Facebook"
+            <input class="form-control rounded-pill" type="search" id="searchUser" placeholder="Search User"
                 aria-label="Search">
             <ul id="userList" class="list-group position-absolute w-100" style="z-index: 1000; display: none;"></ul>
         </form>
@@ -22,7 +23,7 @@
         <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
             <ul class="navbar-nav">
                 <li class="nav-item">
-                    <a class="nav-link text-dark mx-2" href="#">
+                    <a class="nav-link text-dark mx-2" href="{{ route('posts') }}">
                         <i class="bi bi-house-door fs-4"></i>
                     </a>
                 </li>
@@ -57,7 +58,7 @@
                 $user = Auth::user();
                 $initials = strtoupper(substr($user->full_name ?? 'U', 0, 1));
             @endphp
-
+    
             @if ($user && $user->image)
                 <img src="{{ asset('uploads/profile/' . $user->image) }}" class="rounded-circle me-2" width="40"
                     height="40" alt="User">
@@ -67,15 +68,15 @@
                     {{ $initials }}
                 </div>
             @endif
-
+    
             <div class="dropdown">
                 <button class="btn btn-light border-0 dropdown-toggle" type="button" id="profileDropdown"
                     data-bs-toggle="dropdown">
                     {{ $user->full_name ?? 'User' }}
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end">
-                    <li><a class="dropdown-item"
-                            href="{{ route('profile', ['user_id' => Auth::user()->id]) }}">Profile</a></li>
+                    <li><a class="dropdown-item" href="{{ route('profile', ['user_id' => Auth::user()->id]) }}">Profile</a>
+                    </li>
                     <li><a class="dropdown-item" href="#">Settings</a></li>
                     <li><a class="dropdown-item text-danger" href="{{ route('logout') }}">Logout</a></li>
                 </ul>
@@ -83,3 +84,4 @@
         </div>
     </div>
 </nav>
+</header>
