@@ -102,6 +102,9 @@
             position: absolute;
             top: 52px;
         }
+        .bi-hand-thumbs-up-fill.active{
+            color:white;
+        }
     </style>
 </head>
 

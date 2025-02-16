@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\PostController as AdminPostController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\FollowController;
 use App\Http\Controllers\MessageController;
+use App\Http\Controllers\PostReactionController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\UserController;
@@ -70,4 +71,8 @@ Route::middleware([
     Route::post('get-messages',[MessageController::class,'getMessages'])->name('get-messages');
 
     Route::post('save-comment',[CommentController::class,'saveComment'])->name('save-comment');
+
+    Route::post('/post/{postId}/like', [PostReactionController::class, 'likePost'])->name('post.like');
+    Route::post('/post/{postId}/dislike', [PostReactionController::class, 'dislikePost'])->name('post.dislike');
+    Route::get('/post/{postId}/reactions', [PostReactionController::class, 'getReactions'])->name('post.reactions');
 });

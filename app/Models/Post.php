@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Post extends Model
 {
-    use HasFactory,SoftDeletes;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'posts';
 
@@ -27,8 +27,9 @@ class Post extends Model
 
     protected $dates = ['deleted_at'];
 
-    public function user(){
-        return $this->hasOne(User::class,'id','created_by');
+    public function user()
+    {
+        return $this->hasOne(User::class, 'id', 'created_by');
     }
 
     protected static function boot()
@@ -41,7 +42,14 @@ class Post extends Model
         });
     }
 
-    public function comments(){
-        return $this->hasMany(Comment::class,'post_id','id');
+    public function comments()
+    {
+        return $this->hasMany(Comment::class, 'post_id', 'id');
     }
+
+    public function reactions()
+    {
+        return $this->hasOne(PostReaction::class, 'post_id');
+    }
+
 }
