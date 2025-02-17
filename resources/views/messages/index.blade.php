@@ -21,6 +21,11 @@
             @endforeach
         </div>
 
+        <div class="card no-chat-available w-100 ms-2">
+            <div class="card-body">
+                <h1 class="text-center d-flex justify-content-center align-items-center h-100">No Chat Available</h1>
+            </div>
+        </div>
         <!-- Chat Box -->
         <div class="chat-box">
             <div class="chat-header">
@@ -45,6 +50,7 @@
             $(".chat-box").hide();
             $(".chat-item").click(function() {
                 $(".chat-box").show();
+                $(".no-chat-available").hide();
 
                 let user = $(this).data("user");
                 let receiver_id = $(this).data("receiver-id");

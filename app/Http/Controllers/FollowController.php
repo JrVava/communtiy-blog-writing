@@ -10,7 +10,8 @@ class FollowController extends Controller
 {
     public function index(Request $request)
     {
-        $follow = Follow::where('following_id', '=', $request->followingId)->first();
+        $follow = Follow::where('following_id', '=', $request->followingId)->oRWhere('user_id' , '=',$request->followingId)->first();
+        // dd($follow);
         return response()->json([
             'data' => isset($follow) ? $follow->status : "Follow"
         ], 200);

@@ -52,11 +52,13 @@ class MessageController extends Controller
 
         $html = '';
         foreach($messages as $message){
-            if($message->sender_id == Auth::id()){
-                $html .='<div class="message sent">'.$message->messages .'</div>';
-            }else{
-                $html .='<div class="message received">'.$message->messages .'</div>';
-            }
+            $readTick = ($message->is_read) ? '<i class="bi bi-check-all text-white"></i>' : '<i class="bi bi-check"></i>';
+        
+        if ($message->sender_id == Auth::id()) {
+            $html .= '<div class="message sent">'.$message->messages . ' ' . $readTick . '</div>';
+        } else {
+            $html .= '<div class="message received">'.$message->messages.'</div>';
+        }
         }
         
         return response()->json(['html' => $html]);

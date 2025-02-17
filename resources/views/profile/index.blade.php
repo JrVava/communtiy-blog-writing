@@ -136,7 +136,11 @@
             <div class="col-12 col-md-8 col-lg-8">
                 <div class="card">
                     <div class="card-body">
+                        @if(count($posts) > 0)
                         @include('profile.my-posts')
+                        @else
+                        <h1 class="text-center">No Post</h1>
+                        @endif
                     </div>
                 </div>
             </div>
