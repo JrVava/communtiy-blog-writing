@@ -5,7 +5,7 @@
                 <div class="d-flex align-items-center mb-3">
                     <!-- Profile Picture -->
                     @if ($user->image)
-                        <img src="{{ asset('uploads/profile/' . $user->image) }}" class="rounded-circle me-2"
+                        <img src="{{ asset('storage/' . $user->image) }}" class="rounded-circle me-2"
                             width="50" height="50" alt="User Profile">
                     @else
                         <div class="rounded-circle d-flex align-items-center justify-content-center bg-primary text-white me-2"

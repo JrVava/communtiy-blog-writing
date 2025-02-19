@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Follow;
-use App\Models\FollowRequest;
 use App\Models\Post;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -25,13 +24,31 @@ class ProfileController extends Controller
             ->pluck('user_id');
         // Merge both user lists and include the logged-in user's posts
         $allowedUserIds = $followingIds->merge($followerIds);
-        
+
         $posts = Post::with('comments', 'reactions')->whereIn('created_by', $allowedUserIds)->latest()->get();
-        
-        
+
+
         return view('profile.index', [
             'posts' => $posts,
             'user' => $user,
         ]);
+    }
+
+    public function uploadAvatar(Request $request)
+    {
+        $request->validate([
+            'image' => 'required|mimes:jpg,jpeg,png|max:10240',
+        ]);
+
+        $user = Auth::id();
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            $extension = $file->getClientOriginalExtension();
+
+            // Store the file in storage/app/public/uploads/posts
+            $filename = time() . '.' . $extension;
+            $path = $file->storeAs('uploads/user/' . $user . '/', $filename, 'public');
+            User::where('id', '=', $user)->update(['image' => $path]);
+        }
     }
 }

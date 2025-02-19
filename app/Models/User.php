@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable,SoftDeletes;
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
 
     public $incrementing = false; // Disable auto-increment
     protected $keyType = 'string'; // UUID is a string
@@ -31,7 +31,8 @@ class User extends Authenticatable
         'phone',
         'dob',
         'is_admin',
-        'is_approve'
+        'is_approve',
+        'image'
     ];
 
     protected $dates = ['deleted_at'];
@@ -79,7 +80,7 @@ class User extends Authenticatable
         if ($this->image) {
             return null; // No need for initials if image exists
         }
-        
+
         $words = explode(' ', trim($this->full_name));
         $initials = strtoupper(substr($words[0], 0, 1)); // First letter of first name
 

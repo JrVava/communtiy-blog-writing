@@ -70,7 +70,8 @@
             text-align: center;
         }
 
-        .people-list {
+        .people-list,
+        .notification-lists {
             display: none;
             position: absolute;
             background: white;
@@ -78,7 +79,8 @@
             padding: 10px;
             list-style: none;
             border-radius: 5px;
-            width: 200px;
+            width: 100%;
+            min-width: 400px;
             z-index: 1000;
         }
 
@@ -98,12 +100,14 @@
         .text-primary::before {
             color: #374697 !important;
         }
-        .content-container{
+
+        .content-container {
             position: absolute;
             top: 52px;
         }
-        .bi-hand-thumbs-up-fill.active{
-            color:white;
+
+        .bi-hand-thumbs-up-fill.active {
+            color: white;
         }
     </style>
 </head>
@@ -142,6 +146,9 @@
                 // Append the received message to the chat UI
                 $(".chat-body").append(`<div class="message received">${data.message}</div>`);
                 $(".chat-body").scrollTop($(".chat-body")[0].scrollHeight);
+            } else if (data.type === 'get_notification') {
+                console.log("hello");
+                getNotification()
             }
         };
 
@@ -153,8 +160,37 @@
             console.error("❌ WebSocket Error:", error);
         };
 
+        function getNotification() {
+            $.ajax({
+                url: "{{ route('get-notification') }}",
+                type: "GET",
+                success: function(res) {
+                    if (res.status === 200) {
+                        $('.notification-lists').html(res.html)
+                        if (res.totalCount > 0) {
+                            $('.totalNotification').css({
+                                display: 'block'
+                            })
+                            $('.totalNotification').text(res.totalCount)
+                        } else {
+                            let html =
+                                '<li class="p-2 border-bottom d-flex align-items-center"><h5>No Notification</h3></h5>';
+                            $('.notification-lists').html(html)
+                            $('.totalNotification').css({
+                                display: 'none'
+                            })
+                            $('.totalNotification').text(0)
+                        }
+                    }
+                }
+            })
+        }
         $(document).ready(function() {
+            getNotification()
             $('.totalRequest').css({
+                display: 'none'
+            });
+            $('.totalNotification').css({
                 display: 'none'
             });
             $("#searchUser").on("keyup", function() {
@@ -277,6 +313,9 @@
                         $('.totalRequest').text(res.data)
                         getRequestList()
                     } else {
+                        let html =
+                            '<li class="p-2 border-bottom d-flex align-items-center"><h5>No Follow Request</h3></h5>';
+                        $('.people-list').html(html)
                         $('.totalRequest').css({
                             display: 'none'
                         })
@@ -291,6 +330,8 @@
                 url: "{{ route('follow-request-list') }}",
                 type: "get",
                 success: function(res) {
+                    let html = '<li class="class="p-2 border-bottom"><h5>No Follow Request</h5>';
+                    $('.people-list').html(html)
                     $('.people-list').html(res.data)
                 }
             })
@@ -298,7 +339,24 @@
 
         $(document).ready(function() {
             $(".people-toggle").click(function() {
+                $(".notification-lists").hide(); // Close notification list when people list opens
                 $(".people-list").toggle();
+            });
+
+            $(".notification-toggle").click(function() {
+                $.ajax({
+                    url: "{{ route('clear-notification') }}",
+                    type: "GET",
+                    success: function(res) {
+                        $('.totalNotification').css({
+                            display: 'none'
+                        });
+                        $('.totalNotification').text(0);
+                    }
+                });
+
+                $(".people-list").hide(); // Close people list when notification list opens
+                $(".notification-lists").toggle();
             });
         });
     </script>

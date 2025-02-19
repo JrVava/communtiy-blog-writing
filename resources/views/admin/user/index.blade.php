@@ -12,9 +12,6 @@
                         <th>No</th>
                         <th>Full Name</th>
                         <th>Email</th>
-                        <th>User Name</th>
-                        <th>City</th>
-                        <th>Country</th>
                         <th width="100px">Action</th>
                     </tr>
                 </thead>
@@ -45,18 +42,6 @@
                     {
                         data: 'email',
                         name: 'email'
-                    },
-                    {
-                        data: 'user_name',
-                        name: 'user_name'
-                    },
-                    {
-                        data: 'city',
-                        name: 'city'
-                    },
-                    {
-                        data: 'country',
-                        name: 'country'
                     },
                     {
                         data: 'action',

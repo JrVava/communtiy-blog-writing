@@ -1,4 +1,5 @@
 <?php
+
 namespace App\WebSocket;
 
 use Ratchet\MessageComponentInterface;
@@ -31,7 +32,7 @@ class WebSocketServer implements MessageComponentInterface
     public function onMessage(ConnectionInterface $from, $msg)
     {
         $data = json_decode($msg, true);
-        
+
         if ($data['type'] === 'follow_request') {
             $toUserId = $data['to_user_id'] ?? null;
 
@@ -43,6 +44,12 @@ class WebSocketServer implements MessageComponentInterface
 
             if (isset($this->users[$toUserId])) {
                 $this->users[$toUserId]->send(json_encode($data));
+            }
+        } elseif ($data['type'] === 'get_notification') {
+            $userId = $data['userId'] ?? null;
+
+            if (isset($this->users[$userId])) {
+                $this->users[$userId]->send(json_encode($data));
             }
         }
     }

@@ -15,7 +15,7 @@ class PostController extends Controller
         $followingIds = Follow::where('user_id', $userId)
             ->whereIn('status', ['Accepted', 'Followed'])
             ->pluck('following_id');
-            
+
         // Get users that follow the current user with "Followed" status (mutual following)
         $followerIds = Follow::where('following_id', $userId)
             ->where('status', 'Followed')
@@ -23,20 +23,18 @@ class PostController extends Controller
         // Merge both user lists and include the logged-in user's posts
         $allowedUserIds = $followingIds->merge($followerIds)->push($userId);
 
-        $posts = Post::with('comments','reactions')->whereIn('created_by', $allowedUserIds)->latest()->get();
+        $posts = Post::with('comments', 'reactions')->whereIn('created_by', $allowedUserIds)->latest()->get();
         foreach ($posts as $post) {
             $post->user_liked = false;
             $post->user_disliked = false;
-    
             if ($post->reactions) {
                 $likes = $post->reactions->likes ?? '[]';
                 $dislikes = $post->reactions->dislikes ?? '[]';
-    
+
                 $post->user_liked = in_array($userId, $likes);
                 $post->user_disliked = in_array($userId, $dislikes);
             }
         }
-        // dd($posts);
         return view('blog.index', ['posts' => $posts]);
     }
 

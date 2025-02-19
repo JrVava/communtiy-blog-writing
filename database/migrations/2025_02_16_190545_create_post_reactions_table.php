@@ -16,6 +16,9 @@ return new class extends Migration
             $table->uuid('post_id');
             $table->json('likes')->nullable();
             $table->json('dislikes')->nullable();
+            $table->json('recent_likes')->nullable();
+            $table->json('recent_dislikes')->nullable();
+            $table->boolean('is_read')->default(false);
             $table->timestamps();
             $table->foreign('post_id')->references('id')->on('posts')->onDelete('cascade');
         });

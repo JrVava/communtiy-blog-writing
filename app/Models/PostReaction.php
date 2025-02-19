@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+
 class PostReaction extends Model
 {
     use HasFactory;
@@ -12,11 +13,13 @@ class PostReaction extends Model
 
     public $incrementing = false; // Disable auto-increment
     protected $keyType = 'string'; // UUID is a string
-    protected $fillable = ['post_id', 'likes', 'dislikes'];
+    protected $fillable = ['post_id', 'likes', 'dislikes', 'recent_likes', 'recent_dislikes'];
 
     protected $casts = [
         'likes' => 'array',
         'dislikes' => 'array',
+        'recent_likes' => 'array',
+        'recent_dislikes' => 'array'
     ];
 
     protected static function boot()

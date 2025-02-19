@@ -91,21 +91,23 @@
         <div class="card-body">
             <div class="profile-cover">
                 @if ($user->image)
-                    <img src="{{ asset('uploads/profile/' . $user->image) }}" class="profile-avatar" alt="User Profile"
-                        id="profileImage" onclick="document.getElementById('fileInput').click();">
+                    <img src="{{ asset("storage/".$user->image) }}" class="profile-avatar" alt="User Profile"
+                        id="profileImage" @if(Auth::id() == $user->id) onclick="document.getElementById('fileInput').click();" @endif>
                 @else
                     <div class="without-profile-avatar" id="profileImage"
                         onclick="document.getElementById('fileInput').click();">
                         {{ $initials }}
                     </div>
                 @endif
-
+                
+                @if(Auth::id() == $user->id)
                 <div class="camera-icon" onclick="document.getElementById('fileInput').click();">
                     <i class="bi bi-camera"></i>
                 </div>
+                <input type="file" id="fileInput" class="file-input">
+                @endif
 
                 {{-- <button class="btn btn-primary btn-follow" id="followBtn">Follow</button> --}}
-                <input type="file" id="fileInput" class="file-input">
 
                 <button type="button" data-user-id="{{ Auth::id() }}" data-following-id="{{ $user->id }}"
                     class="btn btn-primary btn-follow" id="followBtn">
@@ -136,10 +138,10 @@
             <div class="col-12 col-md-8 col-lg-8">
                 <div class="card">
                     <div class="card-body">
-                        @if(count($posts) > 0)
-                        @include('profile.my-posts')
+                        @if (count($posts) > 0)
+                            @include('profile.my-posts')
                         @else
-                        <h1 class="text-center">No Post</h1>
+                            <h1 class="text-center">No Post</h1>
                         @endif
                     </div>
                 </div>
@@ -186,6 +188,40 @@
                 }
             })
 
+            $("#fileInput").change(function() {
+                var file = this.files[0];
+                if (file) {
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        $("#profileImage").attr("src", e.target.result).show();
+                    };
+                    reader.readAsDataURL(file);
+
+                    // Create FormData object for AJAX
+                    var formData = new FormData();
+                    formData.append("image", file);
+                    formData.append("_token", "{{ csrf_token() }}"); // CSRF Token
+
+                    // AJAX call to upload the image
+                    $.ajax({
+                        url: "{{ route('upload-avatar') }}",
+                        type: "POST",
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        success: function(response) {
+                            if (response.status === 200) {
+                                alert("Profile image updated successfully!");
+                            } else {
+                                alert("Error uploading image.");
+                            }
+                        },
+                        error: function() {
+                            alert("Something went wrong!");
+                        }
+                    });
+                }
+            });
         });
     </script>
 @endsection

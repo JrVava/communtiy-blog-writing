@@ -27,6 +27,8 @@ class PostReactionController extends Controller
         $reaction->update([
             'likes' => array_values($likes),
             'dislikes' => array_values($dislikes),
+            'recent_likes' => array_values($likes),
+            'recent_dislikes' => array_values($dislikes),
         ]);
 
         return response()->json(['message' => 'Reaction updated successfully', 'data' => $reaction]);
@@ -52,6 +54,8 @@ class PostReactionController extends Controller
         $reaction->update([
             'likes' => array_values($likes),
             'dislikes' => array_values($dislikes),
+            'recent_likes' => array_values($likes),
+            'recent_dislikes' => array_values($dislikes),
         ]);
 
         return response()->json(['message' => 'Reaction updated successfully', 'data' => $reaction]);

@@ -103,7 +103,7 @@
                             messages: message
                         },
                         success: function(res) {
-                            
+
                             let wsMessage = JSON.stringify({
                                 type: "chat_message",
                                 to_user_id: receiver_id,
