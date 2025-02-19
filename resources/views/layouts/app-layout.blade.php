@@ -42,6 +42,9 @@
             border: 3px solid white;
         }
 
+        .main-wrapper{
+            padding-top: 105px;
+        }
         #userList {
             max-height: 200px;
             overflow-y: auto;
@@ -101,13 +104,31 @@
             color: #374697 !important;
         }
 
-        .content-container {
-            position: absolute;
-            top: 52px;
-        }
-
         .bi-hand-thumbs-up-fill.active {
             color: white;
+        }
+
+        @media screen and (max-width:991px){
+            .main-wrapper{
+                padding-top: 160px;
+            }
+            .user-avatar-btn.dropdown-toggle::after{
+                display: none;
+            }
+            .navigation-wrapper {
+                position: absolute;
+                left: 0%;
+                right: 0%;
+                top: 84px;
+                background-color: #ffffff;
+                box-shadow: 0px 0px 6px 0px #f3ecec;
+                padding: 15px 15px;
+            }
+        }
+        @media screen and (max-width:767px){
+            .navigation-wrapper {
+                top: 124px;
+            }
         }
     </style>
 </head>
@@ -115,10 +136,11 @@
 <body>
 
     @include('_partial.frontend-navbar')
-
-    <div class="container content-container mt-5 pt-5">
+    <div class="main-wrapper">
+    <div class="container content-container">
         @yield('content')
     </div>
+</div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Bootstrap JS -->

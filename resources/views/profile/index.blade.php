@@ -91,7 +91,7 @@
         <div class="card-body">
             <div class="profile-cover">
                 @if ($user->image)
-                    <img src="{{ asset("storage/".$user->image) }}" class="profile-avatar" alt="User Profile"
+                    <img src="{{ asset("storage/".$user->image) }}" class="profile-avatar" alt="{{ $user->full_name }}"
                         id="profileImage" @if(Auth::id() == $user->id) onclick="document.getElementById('fileInput').click();" @endif>
                 @else
                     <div class="without-profile-avatar" id="profileImage"

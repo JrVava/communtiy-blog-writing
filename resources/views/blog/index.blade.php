@@ -9,8 +9,8 @@
 @include('blog.form')
 
 <!-- Post Listings -->
-<div class="row">
-    <div class="col-md-8 offset-md-2">
+<div class="row justify-content-center">
+    <div class="col-xl-8 col-lg-10 col-12">
         @include('blog.posts')
     </div>
 </div>

@@ -5,7 +5,7 @@
             <div class="d-flex align-items-center mb-3">
                 @if ($post->user->image)
                     <img src="{{ asset('storage/' . $post->user->image) }}" class="rounded-circle border me-3"
-                        width="50" height="50" alt="User Image">
+                        width="50" height="50" alt="{{ $post->user->full_name }}">
                 @else
                     <div class="rounded-circle d-flex align-items-center justify-content-center bg-primary text-white me-2"
                         style="width: 40px; height: 40px; font-size: 1rem; font-weight: bold;">
@@ -64,7 +64,7 @@
                     <div class="d-flex align-items-start mb-2">
                         @if ($commentData->user->image)
                             <img src="{{ asset('storage/' . $commentData->user->image) }}"
-                                class="rounded-circle border me-2" width="40" height="40" alt="User Image">
+                                class="rounded-circle border me-2" width="40" height="40" alt="{{ $commentData->user->full_name }}">
                         @else
                             <div class="rounded-circle d-flex align-items-center justify-content-center bg-primary text-white me-2"
                                 style="width: 40px; height: 40px; font-size: 1rem; font-weight: bold;">

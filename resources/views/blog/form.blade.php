@@ -1,5 +1,5 @@
-<div class="row mb-4">
-    <div class="col-md-8 offset-md-2">
+<div class="row mb-4 justify-content-center">
+    <div class="col-xl-8 col-lg-10 col-12">
         <div class="card mb-3 shadow-sm rounded-3">
             <div class="card-body">
                 <div class="d-flex align-items-center mb-3">

@@ -4,7 +4,7 @@
             <div class="d-flex">
                 @if ($user->image)
                     <img src="{{ asset('uploads/profile/' . $user->image) }}" class="rounded-circle me-3"
-                        alt="User Profile" style="width: 50px; height: 50px;">
+                        alt="User Profile" style="width: 50px; height: 50px;" alt="{{ $user->full_name }}">
                 @else
                     <div class="rounded-circle d-flex align-items-center justify-content-center bg-primary text-white me-2"
                         style="width: 50px; height: 50px; font-size: 1.2rem; font-weight: bold;">
