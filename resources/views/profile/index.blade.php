@@ -4,224 +4,133 @@
 @extends('layouts.app-layout')
 @section('title', 'Dashboard')
 @section('content')
+
     <style>
-        .profile-info {
-            position: sticky;
-            top: 20px;
+        /* Cover Photo */
+        .cover-photo {
+            background: url('https://cdn-ilapbah.nitrocdn.com/IMXLyaGRiKeYrzbMzkhtxIIrOEPefEBF/assets/images/optimized/rev-c1630ed/iitianguide.com/wp-content/uploads/2023/12/Dummy-School-for-IIT-JEE.png') no-repeat center center;
         }
 
-        a,
-        button {
-            text-decoration: none !important;
-        }
-
-        .profile-cover {
-            position: relative;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 20px;
-            background: linear-gradient(135deg, #6e8efb, #a777e3);
-            border-radius: 10px;
-        }
-
-        .profile-avatar,
-        .without-profile-avatar {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            border: 4px solid white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 4rem;
-            font-weight: bold;
-            background-color: #007bff;
-            color: white;
-            transition: transform 0.3s ease-in-out;
-        }
-
-        .profile-avatar:hover,
-        .without-profile-avatar:hover {
-            transform: scale(1.05);
-            cursor: pointer;
-        }
-
-        .camera-icon {
-            position: absolute;
-            left: 130px;
-            bottom: 15px;
-            font-size: 2rem;
-            background: rgb(16 16 16 / 80%);
-            border-radius: 50%;
-            cursor: pointer;
-            padding-top: 10px;
-            padding-bottom: 10px;
-            padding-left: 14px;
-            padding-right: 14px;
-        }
-
-        .camera-icon>i {
-            color: white;
-        }
-
-        .file-input {
-            display: none;
-        }
-
-        .btn-follow {
-            padding: 10px 20px;
-            font-weight: bold;
-            border-radius: 20px;
-            transition: all 0.3s;
-        }
-
-        .btn-follow:hover {
-            background: white;
-            color: black;
-        }
-
-        .card {
-            border-radius: 10px;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-        }
     </style>
+    </head>
 
-    <div class="card pb-4">
-        <div class="card-body">
-            <div class="profile-cover">
-                @if ($user->image)
-                    <img src="{{ asset("storage/".$user->image) }}" class="profile-avatar" alt="{{ $user->full_name }}"
-                        id="profileImage" @if(Auth::id() == $user->id) onclick="document.getElementById('fileInput').click();" @endif>
-                @else
-                    <div class="without-profile-avatar" id="profileImage"
-                        onclick="document.getElementById('fileInput').click();">
+    <body>
+
+        <div class="container-fluid p-0">
+            <!-- Cover Photo -->
+            <div class="cover-photo" id="coverPhoto">
+                <button class="edit-cover-btn" id="editCoverBtn">Edit Cover Photo</button>
+
+                <!-- Profile Photo -->
+                <div class="profile-photo-wrapper">
+                   
+                    <img id="profileImage" src="https://cdn-icons-png.flaticon.com/512/847/847969.png" alt="Profile"
+                        class="profile-photo @if (!$user->image) d-none @endif" onclick="document.getElementById('avatarInput').click()">
+
+                    <div class="without-profile-avatar @if ($user->image) d-none @endif" id="profileImage"
+                        onclick="document.getElementById('avatarInput').click()">
                         {{ $initials }}
                     </div>
-                @endif
-                
-                @if(Auth::id() == $user->id)
-                <div class="camera-icon" onclick="document.getElementById('fileInput').click();">
-                    <i class="bi bi-camera"></i>
-                </div>
-                <input type="file" id="fileInput" class="file-input">
-                @endif
-
-                {{-- <button class="btn btn-primary btn-follow" id="followBtn">Follow</button> --}}
-
-                <button type="button" data-user-id="{{ Auth::id() }}" data-following-id="{{ $user->id }}"
-                    class="btn btn-primary btn-follow" id="followBtn">
-                    Follow
-                </button>
-            </div>
-        </div>
-        <hr>
-        <div class="row mt-2 me-2 mx-2 g-3">
-            <div class="col-12 col-md-4 col-lg-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h4 class="fw-bold">Intro</h4>
-                        <hr>
-                        <h5 class="fw-bold">Places Lived</h5>
-                        <p>Current Country <strong>{{ $user->location ?? 'Unknown' }}</strong></p>
-                        <p>Current City <strong>{{ $user->location ?? 'Unknown' }}</strong></p>
-                        <p>Original Country <strong>{{ $user->workplace ?? 'Not specified' }}</strong></p>
-                        <p>Home Town <strong>{{ $user->workplace ?? 'Not specified' }}</strong></p>
-                        <hr>
-                        <h5 class="fw-bold">Education</h5>
-                        <p>Current University <strong>{{ $user->location ?? 'Unknown' }}</strong></p>
-                        <p>Batch Year <strong>{{ $user->location ?? 'Unknown' }}</strong></p>
-                        <p>Pursuing Degree <strong>{{ $user->workplace ?? 'Not specified' }}</strong></p>
-                    </div>
+                    {{-- <img id="profileImage" src="https://cdn-icons-png.flaticon.com/512/847/847969.png" alt="Profile"
+                        class="profile-photo" onclick="document.getElementById('avatarInput').click()"> --}}
+                    <button class="edit-avatar-btn" onclick="document.getElementById('avatarInput').click()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                            class="bi bi-camera" viewBox="0 0 16 16">
+                            <path
+                                d="M10.5 4a.5.5 0 0 0-.5.5V5H6v-.5a.5.5 0 0 0-.5-.5h-3A.5.5 0 0 0 2 4v8a.5.5 0 0 0 .5.5h11a.5.5 0 0 0 .5-.5v-8a.5.5 0 0 0-.5-.5h-3zM3 5h2v.5a.5.5 0 0 0 .5.5H10a.5.5 0 0 0 .5-.5V5h2v7H3V5zm6.5 3a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
+                        </svg>
+                    </button>
+                    <input type="file" id="avatarInput" accept="image/*" onchange="changeAvatar(event)">
                 </div>
             </div>
-            <div class="col-12 col-md-8 col-lg-8">
-                <div class="card">
-                    <div class="card-body">
+
+            <!-- Hidden Cover Input -->
+            <input type="file" id="coverInput" accept="image/*" onchange="changeCover(event)">
+
+            <!-- Profile Info -->
+            <div class="container profile-info">
+                <h2>{{ $user->full_name }}</h2>
+                <p>Web Developer | Photographer</p>
+
+                <!-- Navigation Tabs -->
+                <ul class="nav nav-tabs" id="profileTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="posts-tab" data-bs-toggle="tab" data-bs-target="#posts"
+                            type="button" role="tab">Posts</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="about-tab" data-bs-toggle="tab" data-bs-target="#about" type="button"
+                            role="tab">About</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="friends-tab" data-bs-toggle="tab" data-bs-target="#friends"
+                            type="button" role="tab">Friends</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="photos-tab" data-bs-toggle="tab" data-bs-target="#photos"
+                            type="button" role="tab">Photos</button>
+                    </li>
+                </ul>
+
+                <!-- Tab Content -->
+                <div class="tab-content" id="profileTabsContent">
+                    <div class="tab-pane fade show active" id="posts" role="tabpanel">
                         @if (count($posts) > 0)
                             @include('profile.my-posts')
                         @else
                             <h1 class="text-center">No Post</h1>
                         @endif
                     </div>
+                    <div class="tab-pane fade" id="about" role="tabpanel">
+                        <h4>About</h4>
+                        <p>This is where about info will appear...</p>
+                    </div>
+                    <div class="tab-pane fade" id="friends" role="tabpanel">
+                        <h4>Friends</h4>
+                        <p>This is where friends list will appear...</p>
+                    </div>
+                    <div class="tab-pane fade" id="photos" role="tabpanel">
+                        <h4>Photos</h4>
+                        <p>This is where photos will appear...</p>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-@endsection
-@section('scripts')
-    <script>
-        $(document).ready(function() {
-            // Read More / Read Less Toggle
-            $(".read-more-btn").click(function() {
-                let isExpanded = $(this).attr("data-expanded") === "true";
-                let card = $(this).closest(".post");
 
-                if (!isExpanded) {
-                    card.find(".short-content").hide();
-                    card.find(".full-content").removeClass("d-none");
-                    $(this).text("Read Less");
-                } else {
-                    card.find(".short-content").show();
-                    card.find(".full-content").addClass("d-none");
-                    $(this).text("Read More");
+        <!-- Bootstrap JS Bundle -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+        <script>
+            // Change Avatar
+            function changeAvatar(event) {
+                const input = event.target;
+                if (input.files && input.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const profileImage = document.getElementById('profileImage');
+                        profileImage.src = e.target.result;
+                    };
+                    reader.readAsDataURL(input.files[0]);
+                    $('.without-profile-avatar').addClass('d-none');
+                    $('#profileImage').removeClass('d-none');
                 }
+            }
 
-                $(this).attr("data-expanded", !isExpanded);
+            // Change Cover Photo
+            document.getElementById('editCoverBtn').addEventListener('click', function() {
+                document.getElementById('coverInput').click();
             });
 
-            let followingId = $('#followBtn').data('following-id');
-            let userId = $('#followBtn').data('user-id');
-            $.ajax({
-                url: "{{ route('get-follow') }}",
-                type: "post",
-                data: {
-                    "_token": "{{ csrf_token() }}",
-                    "followingId": followingId,
-                    "userId": userId
-                },
-                success: function(res) {
-                    $('#followBtn').text(res.data);
-                },
-                error: function(xhr) {
-                    console.error(xhr.responseText);
-                }
-            })
-
-            $("#fileInput").change(function() {
-                var file = this.files[0];
+            function changeCover(event) {
+                const file = event.target.files[0];
                 if (file) {
-                    var reader = new FileReader();
+                    const reader = new FileReader();
                     reader.onload = function(e) {
-                        $("#profileImage").attr("src", e.target.result).show();
+                        document.getElementById('coverPhoto').style.backgroundImage = `url('${e.target.result}')`;
                     };
                     reader.readAsDataURL(file);
-
-                    // Create FormData object for AJAX
-                    var formData = new FormData();
-                    formData.append("image", file);
-                    formData.append("_token", "{{ csrf_token() }}"); // CSRF Token
-
-                    // AJAX call to upload the image
-                    $.ajax({
-                        url: "{{ route('upload-avatar') }}",
-                        type: "POST",
-                        data: formData,
-                        processData: false,
-                        contentType: false,
-                        success: function(response) {
-                            if (response.status === 200) {
-                                alert("Profile image updated successfully!");
-                            } else {
-                                alert("Error uploading image.");
-                            }
-                        },
-                        error: function() {
-                            alert("Something went wrong!");
-                        }
-                    });
                 }
-            });
-        });
-    </script>
-@endsection
+            }
+        </script>
+
+    @endsection

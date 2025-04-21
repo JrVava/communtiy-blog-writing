@@ -13,6 +13,7 @@
 
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ asset('/assets/css/profile.css') }}">
     <style>
         body::-webkit-scrollbar {
             width: 12px;
