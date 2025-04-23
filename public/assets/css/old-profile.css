@@ -1,0 +1,123 @@
+
+.edit-cover-btn {
+    position: absolute;
+    right: 20px;
+    bottom: 20px;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    border: none;
+}
+
+.profile-photo-wrapper {
+    position: absolute;
+    bottom: -90px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 180px;
+    height: 180px;
+    overflow: hidden;
+}
+.profile-photo {
+    width: 100%;
+    height: 100%;
+    object-position: center;
+    border-radius: 50%;
+    border: 5px solid white;
+    transition: opacity 0.3s;
+    cursor: pointer;
+}
+
+.profile-photo-wrapper:hover .profile-photo {
+    opacity: 0.8;
+}
+.edit-avatar-btn {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background-color: rgba(0, 0, 0, 0.6);
+    border: none;
+    border-radius: 50%;
+    padding: 6px;
+    cursor: pointer;
+}
+.edit-avatar-btn svg {
+    pointer-events: none;
+    color: white;
+}
+.profile-info {
+    margin-top: 100px;
+    text-align: center;
+}
+
+.profile-info h2 {
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+.profile-info p {
+    color: gray;
+    margin-bottom: 10px;
+}
+
+.action-buttons {
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+/* Nav Tabs */
+.nav-tabs {
+    margin-top: 30px;
+    border-bottom: 2px solid #ccc;
+    justify-content: center;
+}
+
+.nav-tabs .nav-link {
+    border: none;
+    font-weight: 500;
+    color: #555;
+}
+
+.nav-tabs .nav-link.active {
+    border-bottom: 3px solid #0d6efd;
+    color: #0d6efd;
+    background: none;
+}
+
+.tab-content {
+    padding-top: 20px;
+}
+#coverInput,
+#avatarInput {
+    display: none;
+}
+
+.without-profile-avatar {
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+    font-weight: bold;
+    background-color: #007bff;
+    color: white;
+    transition: transform 0.3s ease-in-out;
+    width: 100%;
+    height: 100%;
+    border: 5px solid white;
+}
+.without-profile-avatar:hover {
+    transform: scale(1.02);
+    cursor: pointer;
+}
+
+.cover-photo {
+    height: 350px;
+    background-size: cover !important;
+    position: relative;
+}

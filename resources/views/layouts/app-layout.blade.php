@@ -43,9 +43,10 @@
             border: 3px solid white;
         }
 
-        .main-wrapper{
+        .main-wrapper {
             padding-top: 105px;
         }
+
         #userList {
             max-height: 200px;
             overflow-y: auto;
@@ -109,13 +110,15 @@
             color: white;
         }
 
-        @media screen and (max-width:991px){
-            .main-wrapper{
+        @media screen and (max-width:991px) {
+            .main-wrapper {
                 padding-top: 160px;
             }
-            .user-avatar-btn.dropdown-toggle::after{
+
+            .user-avatar-btn.dropdown-toggle::after {
                 display: none;
             }
+
             .navigation-wrapper {
                 position: absolute;
                 left: 0%;
@@ -126,10 +129,15 @@
                 padding: 15px 15px;
             }
         }
-        @media screen and (max-width:767px){
+
+        @media screen and (max-width:767px) {
             .navigation-wrapper {
                 top: 124px;
             }
+        }
+
+        .postImageUpload {
+            cursor: pointer;
         }
     </style>
 </head>
@@ -138,10 +146,10 @@
 
     @include('_partial.frontend-navbar')
     <div class="main-wrapper">
-    <div class="container content-container">
-        @yield('content')
+        <div class="container content-container">
+            @yield('content')
+        </div>
     </div>
-</div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Bootstrap JS -->

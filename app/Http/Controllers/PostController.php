@@ -42,7 +42,7 @@ class PostController extends Controller
     {
         $request->validate([
             'description' => 'required|string',
-            'image' => 'nullable|file|mimes:jpg,jpeg,png,gif,mp4,mov,avi,wmv|max:10240',
+            'image' => 'nullable|file|mimes:jpg,jpeg,webp,png,gif,mp4,mov,avi,wmv|max:10240',
         ]);
 
         // dd($request->all());
@@ -63,6 +63,6 @@ class PostController extends Controller
         }
 
         $post->save();
-        return redirect()->route('posts')->with('success', 'Post created successfully!');
+        return redirect()->back()->with('success', 'Post created successfully!');
     }
 }

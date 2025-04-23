@@ -25,8 +25,10 @@ class ProfileController extends Controller
         // Merge both user lists and include the logged-in user's posts
         $allowedUserIds = $followingIds->merge($followerIds);
 
+        if ($user->id == $userId) {
+            $allowedUserIds = [$userId];
+        }
         $posts = Post::with('comments', 'reactions')->whereIn('created_by', $allowedUserIds)->latest()->get();
-
 
         return view('profile.index', [
             'posts' => $posts,
@@ -37,7 +39,7 @@ class ProfileController extends Controller
     public function uploadAvatar(Request $request)
     {
         $request->validate([
-            'image' => 'required|mimes:jpg,jpeg,png|max:10240',
+            'image' => 'required|mimes:jpg,webp,jpeg,png|max:10240',
         ]);
 
         $user = Auth::id();
