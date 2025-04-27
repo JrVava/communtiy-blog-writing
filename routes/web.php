@@ -60,6 +60,7 @@ Route::middleware([
 
     Route::get('profile/{user_id}', [ProfileController::class, 'index'])->name('profile');
     Route::post('upload-avatar', [ProfileController::class, 'uploadAvatar'])->name('upload-avatar');
+    Route::post('upload-cover-image', [ProfileController::class, 'uploadCoverImage'])->name('upload-cover-image');
 
     Route::post('search-user', [SearchController::class, 'searchUser'])->name('search-user');
 

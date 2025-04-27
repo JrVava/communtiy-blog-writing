@@ -50,7 +50,26 @@ class ProfileController extends Controller
             // Store the file in storage/app/public/uploads/posts
             $filename = time() . '.' . $extension;
             $path = $file->storeAs('uploads/user/' . $user . '/', $filename, 'public');
-            User::where('id', '=', $user)->update(['image' => $path]);
+            User::where('id', '=', $user)
+                ->update([
+                    'image' => $path
+                ]);
+
+            return response()->json([
+                'status' => 200,
+                'message' => 'Profile image updated successfully.',
+                'path' => asset('storage/' . $path) // if you want to return full URL too
+            ]);
         }
+        return response()->json([
+            'status' => 400,
+            'message' => 'No image uploaded.',
+        ], 400);
+    }
+
+    public function uploadCoverImage(Request $request){
+        $request->validate([
+            'image' => 'required|mimes:jpg,webp,jpeg,png|max:10240',
+        ]);
     }
 }

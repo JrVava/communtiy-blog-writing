@@ -27,7 +27,8 @@
     <div class="container-fluid p-0">
         <!-- Cover Section -->
         <div class="cover-photo" id="coverPhoto">
-            <button class="edit-cover-btn" id="editCoverBtn">Edit Cover Photo</button>
+            <button class="edit-cover-btn" id="editCoverBtn" onclick="document.getElementById('coverInput').click()">Edit Cover
+                Photo</button>
 
             <!-- Profile Image -->
             <div class="profile-photo-wrapper">
@@ -104,42 +105,66 @@
             {{-- About Code Start Here --}}
             <div class="tab-pane fade" id="about" role="tabpanel">
                 <div class="row mb-4">
-                    <div class="col-4 col-md-4 col-lg-4 p-0 m-0">
-                        <div class="card">
+                    <!-- Sidebar Menu -->
+                    <div class="col-12 col-md-4 mb-3 mb-md-0">
+                        <div class="card h-100">
                             <div class="card-body">
-                                <h1 class="text-start">About</h1>
+                                <h1 class="text-start fs-4">About</h1>
                                 <hr>
-                                <ul class="list-unstyled m-0 p-0">
+                                <ul class="list-unstyled">
                                     <li>
-                                        <a href="javascript:void(0);"
-                                            class="d-block text-start text-decoration-none m-2">Overview</a>
+                                        <a href="javascript:void(0);" class="d-block text-start text-decoration-none m-2"
+                                            data-tab-id="overview">Overview</a>
                                     </li>
                                     <li>
-                                        <a href="javascript:void(0);"
-                                            class="d-block text-start text-decoration-none m-2">Work and Education</a>
+                                        <a href="javascript:void(0);" class="d-block text-start text-decoration-none m-2"
+                                            data-tab-id="work-and-education">Work and Education</a>
                                     </li>
                                     <li>
-                                        <a href="javascript:void(0);"
-                                            class="d-block text-start text-decoration-none m-2">Place Lived</a>
+                                        <a href="javascript:void(0);" class="d-block text-start text-decoration-none m-2"
+                                            data-tab-id="place-lived">Place Lived</a>
                                     </li>
                                     <li>
-                                        <a href="javascript:void(0);"
-                                            class="d-block text-start text-decoration-none m-2">Contact and Basic info</a>
+                                        <a href="javascript:void(0);" class="d-block text-start text-decoration-none m-2"
+                                            data-tab-id="contact-basic-info">Contact and Basic info</a>
                                     </li>
                                     <li>
-                                        <a href="javascript:void(0);"
-                                            class="d-block text-start text-decoration-none m-2">Family and Relationship</a>
-                                    </li>
-                                    <li>
-                                        <a href="javascript:void(0);"
-                                            class="d-block text-start text-decoration-none m-2">Details ABout Self</a>
+                                        <a href="javascript:void(0);" class="d-block text-start text-decoration-none m-2"
+                                            data-tab-id="family-and-relationship">Family and Relationship</a>
                                     </li>
                                 </ul>
                             </div>
                         </div>
                     </div>
+
+                    <!-- Tab Content -->
+                    <div class="col-12 col-md-8">
+                        <div class="tab-contents">
+                            <div class="tab-pane" id="overview" role="tabpanel">
+                                @include('profile.overview')
+                            </div>
+
+                            <div class="tab-pane d-none" id="work-and-education" role="tabpanel">
+                                @include('profile.work-and-education')
+                            </div>
+
+                            <div class="tab-pane d-none" id="place-lived" role="tabpanel">
+                                @include('profile.place-lived')
+                            </div>
+
+                            <div class="tab-pane d-none" id="contact-basic-info" role="tabpanel">
+                                @include('profile.contact-basic-info')
+                            </div>
+
+                            <div class="tab-pane d-none" id="family-and-relationship" role="tabpanel">
+                                @include('profile.family-and-relationship')
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
+
+
             {{-- About Code End Here --}}
             {{-- Friends List Code Start Here --}}
             <div class="tab-pane fade" id="friends" role="tabpanel">
@@ -177,6 +202,87 @@
 @endsection
 @section('scripts')
     <script>
+        $(document).on('click', 'a[data-tab-id]', function() {
+            var activeTabId = $(this).data('tab-id');
+            $('a[data-tab-id]').each(function() {
+                var tabId = $(this).data('tab-id');
+                if (activeTabId !== tabId) {
+                    $(`#${tabId}`).addClass('d-none');
+                }
+            });
+            $(`#${activeTabId}`).removeClass('d-none');
+        });
+
+        $(document).ready(function() {
+            $('#addWorkplaceBtn').on('click', function() {
+                $('#workplaceFormCard').removeClass('d-none');
+            });
+
+            $('#cancelWorkplaceBtn').on('click', function() {
+                $('#workplaceFormCard').addClass('d-none');
+            });
+
+
+            $('#addPlaceLivedBtn').on('click', function() {
+                $('#placeLivedFormCard').removeClass('d-none');
+            });
+
+            $('#cancelPlaceLivedBtn').on('click', function() {
+                $('#placeLivedFormCard').addClass('d-none');
+            });
+        });
+
+        document.getElementById('addSocialMediaUrlBtn').addEventListener('click', function() {
+            // Create a new input group for social media URL
+            const newSocialMediaInput = document.createElement('div');
+            newSocialMediaInput.classList.add('input-group', 'mb-3', 'social-media-group');
+            newSocialMediaInput.innerHTML = `
+            <input type="url" class="form-control" placeholder="Enter Social Media URL">
+            <button class="btn btn-danger remove-social" type="button">-</button>
+        `;
+
+            // Append the new input group to the social media container
+            document.getElementById('socialMediaUrls').appendChild(newSocialMediaInput);
+        });
+
+        // Event delegation to handle the removal of social media input fields
+        document.getElementById('socialMediaUrls').addEventListener('click', function(e) {
+            if (e.target && e.target.classList.contains('remove-social')) {
+                // Remove the parent input group (the social media URL input)
+                e.target.closest('.social-media-group').remove();
+            }
+        });
+
+        document.getElementById('addFamilyMemberBtn').addEventListener('click', function() {
+            // Create a new input group for a family member name and relationship
+            const newFamilyMemberInput = document.createElement('div');
+            newFamilyMemberInput.classList.add('input-group', 'mb-3', 'family-member-group');
+            newFamilyMemberInput.innerHTML = `
+            <input type="text" class="form-control" placeholder="Enter family member name">
+            <select class="form-select ms-2">
+                <option value="">Select relationship</option>
+                <option value="parent">Parent</option>
+                <option value="sibling">Sibling</option>
+                <option value="child">Child</option>
+                <option value="spouse">Spouse</option>
+                <option value="friend">Friend</option>
+            </select>
+            <button class="btn btn-danger remove-family-member" type="button">-</button>
+        `;
+
+            // Append the new input group to the family members list
+            document.getElementById('familyMembersList').appendChild(newFamilyMemberInput);
+        });
+
+        // Event delegation to handle the removal of family member input fields
+        document.getElementById('familyMembersList').addEventListener('click', function(e) {
+            if (e.target && e.target.classList.contains('remove-family-member')) {
+                // Remove the parent input group (the family member input)
+                e.target.closest('.family-member-group').remove();
+            }
+        });
+
+
         $(document).ready(function() {
             $(".read-more-btn").click(function() {
                 let isExpanded = $(this).attr("data-expanded") === "true";
@@ -212,62 +318,69 @@
                     console.error(xhr.responseText);
                 }
             })
-
-            $("#fileInput").change(function() {
-                var file = this.files[0];
-                if (file) {
-                    var reader = new FileReader();
-                    reader.onload = function(e) {
-                        $("#profileImage").attr("src", e.target.result).show();
-                    };
-                    reader.readAsDataURL(file);
-
-                    // Create FormData object for AJAX
-                    var formData = new FormData();
-                    formData.append("image", file);
-                    formData.append("_token", "{{ csrf_token() }}"); // CSRF Token
-
-                    // AJAX call to upload the image
-                    $.ajax({
-                        url: "{{ route('upload-avatar') }}",
-                        type: "POST",
-                        data: formData,
-                        processData: false,
-                        contentType: false,
-                        success: function(response) {
-                            if (response.status === 200) {
-                                alert("Profile image updated successfully!");
-                            } else {
-                                alert("Error uploading image.");
-                            }
-                        },
-                        error: function() {
-                            alert("Something went wrong!");
-                        }
-                    });
-                }
-            });
         });
 
         function changeAvatar(event) {
             const input = event.target;
             if (input.files && input.files[0]) {
+                const file = input.files[0];
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     let profileImage = document.getElementById('profileImage');
                     if (profileImage.tagName.toLowerCase() === 'img') {
                         profileImage.src = e.target.result;
                     } else {
-                        // Replace div with img
                         let newImage = document.createElement('img');
                         newImage.src = e.target.result;
                         newImage.className = 'profile-photo';
                         newImage.id = 'profileImage';
                         newImage.onclick = function() {
-                            document.getElementById('avatarInput').click();
+                            document.getElementById('fileInput').click();
                         };
                         profileImage.replaceWith(newImage);
                     }
+                };
+                reader.readAsDataURL(file);
+
+                // AJAX here too
+                const formData = new FormData();
+                formData.append("image", file);
+                formData.append("_token", "{{ csrf_token() }}");
+
+                $.ajax({
+                    url: "{{ route('upload-avatar') }}",
+                    type: "POST",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        if (response.status === 200) {
+                            window.location.reload()
+                        } else {
+                            alert("Error uploading image.");
+                        }
+                    },
+                    error: function() {
+                        alert("Something went wrong!");
+                    }
+                });
+            }
+        }
+
+        function changeCover(event) {
+            const input = event.target;
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    let coverImageUrl = e.target.result;
+                    // Set background-image properly
+                    $('.cover-photo').css({
+                        'background-image': 'url(' + coverImageUrl + ')',
+                        'background-size': 'cover',
+                        'background-position': 'center',
+                        'background-repeat': 'no-repeat'
+                    });
                 };
                 reader.readAsDataURL(input.files[0]);
             }

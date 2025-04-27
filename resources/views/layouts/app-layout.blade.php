@@ -112,7 +112,7 @@
 
         @media screen and (max-width:991px) {
             .main-wrapper {
-                padding-top: 160px;
+                padding-top: 95px;
             }
 
             .user-avatar-btn.dropdown-toggle::after {
