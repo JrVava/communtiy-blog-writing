@@ -90,4 +90,9 @@ class User extends Authenticatable
 
         return $initials;
     }
+
+    public function workPlace()
+    {
+        return $this->hasMany(WorkPlace::class, 'user_id', 'id');
+    }
 }

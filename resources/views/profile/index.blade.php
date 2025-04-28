@@ -283,6 +283,90 @@
         });
 
 
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const editButtons = document.querySelectorAll('.edit-button');
+
+            editButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    document.getElementById('editWorkplace').value = this.dataset.workplace;
+                    document.getElementById('editPosition').value = this.dataset.position;
+                    document.getElementById('editStartDate').value = this.dataset.start_date;
+                    document.getElementById('editEndDate').value = this.dataset.end_date;
+                    document.getElementById('editCity').value = this.dataset.city;
+                    document.getElementById('editDescription').value = this.dataset.description;
+                    document.getElementById('editWorkplaceId').value = this.dataset.workplace_id;
+                });
+            });
+        });
+
+        $(document).ready(function() {
+            $(".workplaceForm").each(function() { // Loop if multiple forms
+                $(this).validate({
+                    rules: {
+                        workplace: {
+                            required: true,
+                            maxlength: 255
+                        },
+                        position: {
+                            required: true,
+                            maxlength: 255
+                        },
+                        start_date: {
+                            required: true,
+                            date: true
+                        },
+                        end_date: {
+                            date: true
+                        },
+                        city: {
+                            required: true,
+                            maxlength: 100
+                        },
+                        description: {
+                            required: true,
+                            maxlength: 500
+                        }
+                    },
+                    messages: {
+                        workplace: {
+                            required: "Please enter the workplace.",
+                            maxlength: "Workplace must not exceed 255 characters."
+                        },
+                        position: {
+                            required: "Please enter the position.",
+                            maxlength: "Position must not exceed 255 characters."
+                        },
+                        start_date: {
+                            required: "Please select the start date.",
+                            date: "Please enter a valid date."
+                        },
+                        end_date: {
+                            date: "Please enter a valid date."
+                        },
+                        city: {
+                            required: "Please enter the city or town.",
+                            maxlength: "City/Town must not exceed 100 characters."
+                        },
+                        description: {
+                            required: "Please enter the description.",
+                            maxlength: "Description must not exceed 500 characters."
+                        }
+                    },
+                    errorClass: 'text-danger',
+                    errorElement: 'div',
+                    highlight: function(element) {
+                        $(element).addClass('is-invalid');
+                    },
+                    unhighlight: function(element) {
+                        $(element).removeClass('is-invalid');
+                    }
+                });
+            });
+        });
+
+
+
         $(document).ready(function() {
             $(".read-more-btn").click(function() {
                 let isExpanded = $(this).attr("data-expanded") === "true";

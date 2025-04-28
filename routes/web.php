@@ -61,6 +61,8 @@ Route::middleware([
     Route::get('profile/{user_id}', [ProfileController::class, 'index'])->name('profile');
     Route::post('upload-avatar', [ProfileController::class, 'uploadAvatar'])->name('upload-avatar');
     Route::post('upload-cover-image', [ProfileController::class, 'uploadCoverImage'])->name('upload-cover-image');
+    Route::post('add-update-workplace', [ProfileController::class, 'addUpdateWorkPlace'])->name('add-update-workplace');
+    Route::get('delete-workplace/{id}', [ProfileController::class, 'deleteWorkPlace'])->name('delete-workplace');
 
     Route::post('search-user', [SearchController::class, 'searchUser'])->name('search-user');
 

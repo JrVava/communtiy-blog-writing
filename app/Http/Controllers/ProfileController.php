@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Follow;
 use App\Models\Post;
 use App\Models\User;
+use App\Models\WorkPlace;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -12,7 +13,8 @@ class ProfileController extends Controller
 {
     public function index($user_id)
     {
-        $user = User::where('id', '=', $user_id)->first();
+        $user = User::where('id', '=', $user_id)->with('workPlace')->first();
+        // dd($user);
         $userId = Auth::user()->id;
         $followingIds = Follow::where('user_id', $userId)
             ->whereIn('status', ['Accepted', 'Followed'])
@@ -67,9 +69,34 @@ class ProfileController extends Controller
         ], 400);
     }
 
-    public function uploadCoverImage(Request $request){
+    public function uploadCoverImage(Request $request)
+    {
         $request->validate([
             'image' => 'required|mimes:jpg,webp,jpeg,png|max:10240',
         ]);
+    }
+
+    public function addUpdateWorkPlace(Request $request)
+    {
+        $request['end_date'] = $request['end_date'] == '' ? 'Present' : $request->end_date;
+
+        if (isset($request->id)) {
+            unset($request['_token']);
+            WorkPlace::where('id', '=', $request->id)->update($request->all());
+            $msg = 'Work place and Education has been Update';
+        } else {
+            $request['user_id'] = Auth::id();
+            $workplace = new WorkPlace();
+            $workplace->fill($request->all());
+            $workplace->save();
+            $msg = 'Work place and Education has been added';
+        }
+        return redirect()->back()->with('message', $msg);
+    }
+
+    public function deleteWorkPlace($id)
+    {
+        WorkPlace::where('id', '=', $id)->delete();
+        return redirect()->back()->with('message', 'Work place and Education has been deleted.');
     }
 }
