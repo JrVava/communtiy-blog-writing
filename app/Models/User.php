@@ -95,4 +95,8 @@ class User extends Authenticatable
     {
         return $this->hasMany(WorkPlace::class, 'user_id', 'id');
     }
+
+    public function placeLived(){
+        return $this->hasMany(PlaceLived::class, 'user_id', 'id');
+    }
 }

@@ -300,6 +300,18 @@
             });
         });
 
+        document.addEventListener('DOMContentLoaded', function() {
+            const editButtons = document.querySelectorAll('.editPlaceLiveModal');
+
+            editButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    document.getElementById('editPlace').value = this.dataset.place;
+                    document.getElementById('editDateMoved').value = this.dataset.date_moved;
+                    document.getElementById('editPlaceLiveId').value = this.dataset.place_lived_id;
+                });
+            });
+        });
+
         $(document).ready(function() {
             $(".workplaceForm").each(function() { // Loop if multiple forms
                 $(this).validate({

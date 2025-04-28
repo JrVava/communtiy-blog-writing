@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Follow;
+use App\Models\PlaceLived;
 use App\Models\Post;
 use App\Models\User;
 use App\Models\WorkPlace;
@@ -13,7 +14,7 @@ class ProfileController extends Controller
 {
     public function index($user_id)
     {
-        $user = User::where('id', '=', $user_id)->with('workPlace')->first();
+        $user = User::where('id', '=', $user_id)->with('workPlace','placeLived')->first();
         // dd($user);
         $userId = Auth::user()->id;
         $followingIds = Follow::where('user_id', $userId)
@@ -98,5 +99,25 @@ class ProfileController extends Controller
     {
         WorkPlace::where('id', '=', $id)->delete();
         return redirect()->back()->with('message', 'Work place and Education has been deleted.');
+    }
+
+    public function addUpdatePlaceLived(Request $request){
+        if (isset($request->id)) {
+            unset($request['_token']);
+            PlaceLived::where('id', '=', $request->id)->update($request->all());
+            $msg = 'Place lived has been Update';
+        } else {
+            $request['user_id'] = Auth::id();
+            $workplace = new PlaceLived();
+            $workplace->fill($request->all());
+            $workplace->save();
+            $msg = 'Place lived has been added';
+        }
+        return redirect()->back()->with('message', $msg);
+    }
+
+    public function deletePlaceLived($id){
+        PlaceLived::where('id', '=', $id)->delete();
+        return redirect()->back()->with('message', 'Place Lived has been deleted.');
     }
 }
