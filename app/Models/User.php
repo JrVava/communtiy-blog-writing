@@ -105,4 +105,9 @@ class User extends Authenticatable
     {
         return $this->hasOne(ContactBasicInfo::class, 'user_id', 'id');
     }
+
+    public function familyRelationShip()
+    {
+        return $this->hasMany(FamilyRelationShip::class, 'user_id', 'id');
+    }
 }

@@ -69,6 +69,8 @@ Route::middleware([
     Route::post('add-update-contact-basic-info', [ProfileController::class, 'addUpdateContactBasicInfo'])->name('add-update-contact-basic-info');
     Route::get('delete-social-media-url/{id}', [ProfileController::class, 'deleteSocialMediaURL'])->name('delete-social-media-url');
 
+    Route::post('add-update-family-relationship', [ProfileController::class, 'addUpdateFamilyRelationShip'])->name('add-update-family-relationship');
+
     Route::post('search-user', [SearchController::class, 'searchUser'])->name('search-user');
 
     Route::post('get-follow', [FollowController::class, 'index'])->name('get-follow');

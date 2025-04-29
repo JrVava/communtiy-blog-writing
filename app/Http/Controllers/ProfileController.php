@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ContactBasicInfo;
 use App\Models\ContactBasicSocialMedia;
+use App\Models\FamilyRelationShip;
 use App\Models\Follow;
 use App\Models\PlaceLived;
 use App\Models\Post;
@@ -16,8 +17,8 @@ class ProfileController extends Controller
 {
     public function index($user_id)
     {
-        $user = User::where('id', '=', $user_id)->with('workPlace', 'placeLived', 'contactBasicInfo.socialMedia')->first();
-        // dd($user->contactBasicInfo);
+        $user = User::where('id', '=', $user_id)->with('workPlace', 'placeLived', 'contactBasicInfo.socialMedia', 'familyRelationShip')->first();
+        // dd($user);
         $userId = Auth::user()->id;
         $followingIds = Follow::where('user_id', $userId)
             ->whereIn('status', ['Accepted', 'Followed'])
@@ -35,9 +36,23 @@ class ProfileController extends Controller
         }
         $posts = Post::with('comments', 'reactions')->whereIn('created_by', $allowedUserIds)->latest()->get();
 
+        $follows = Follow::where('status', 'Followed')
+            ->where(function ($query) use ($userId) {
+                $query->where('user_id', $userId)
+                    ->orWhere('following_id', $userId);
+            })
+            ->get();
+
+        $relatedUserIds = $follows->pluck('user_id')
+            ->merge($follows->pluck('following_id'))
+            ->unique()
+            ->filter(fn($id) => $id != $userId);
+        $forRelationShips = User::whereIn('id', $relatedUserIds)->get();
+
         return view('profile.index', [
             'posts' => $posts,
             'user' => $user,
+            'forRelationShips' => $forRelationShips
         ]);
     }
 
@@ -162,5 +177,21 @@ class ProfileController extends Controller
     {
         ContactBasicSocialMedia::where('id', '=', $id)->delete();
         return redirect()->back()->with('message', 'Social Media has been deleted.');
+    }
+
+    public function addUpdateFamilyRelationShip(Request $request)
+    {
+        $user_id = Auth::id();
+        $relations = $request->relationship;
+        foreach ($relations as $key => $relation) {
+            $family = new FamilyRelationShip();
+            $family->fill([
+                'relationship' => $relation,
+                'family_id' => $request['family_id'][$key],
+                'user_id' => $user_id
+            ]);
+            $family->save();
+        }
+        return redirect()->back()->with('message', 'Family Relationship has been updated.');
     }
 }
