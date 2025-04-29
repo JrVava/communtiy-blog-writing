@@ -375,6 +375,39 @@
                     }
                 });
             });
+
+            $(".placeLiveFrom").each(function() { // Loop if multiple forms
+                $(this).validate({
+                    rules: {
+                        place: {
+                            required: true,
+                            maxlength: 255
+                        },
+                        date_moved: {
+                            required: true,
+                            date: true
+                        }
+                    },
+                    messages: {
+                        place: {
+                            required: "Please enter the place.",
+                            maxlength: "place must not exceed 255 characters."
+                        },
+                        date_moved: {
+                            required: "Please select the date moved.",
+                            date: "Please enter a valid date."
+                        },
+                    },
+                    errorClass: 'text-danger',
+                    errorElement: 'div',
+                    highlight: function(element) {
+                        $(element).addClass('is-invalid');
+                    },
+                    unhighlight: function(element) {
+                        $(element).removeClass('is-invalid');
+                    }
+                });
+            });
         });
 
 

@@ -9,7 +9,7 @@
         <div class="card shadow-sm d-none" id="placeLivedFormCard">
             <div class="card-body">
                 <!-- Place Lived Form -->
-                <form action="{{route('add-update-place-lived')}}" method="post">
+                <form action="{{route('add-update-place-lived')}}" method="post" class="placeLiveFrom">
                     @csrf
                     <div class="mb-3 text-start">
                         <label for="place" class="form-label">Place</label>
@@ -85,7 +85,7 @@
 <div class="modal fade" id="editPlaceLiveModal" tabindex="-1" aria-labelledby="editPlaceLiveModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
-        <form id="editPlaceLiveForm" method="post" action="{{ route('add-update-place-lived') }}" class="placeLiveForm">
+        <form id="editPlaceLiveForm" method="post" action="{{ route('add-update-place-lived') }}" class="placeLiveFrom">
             @csrf
             <input type="hidden" class="form-control" name="id" id="editPlaceLiveId">
           <div class="modal-header">
