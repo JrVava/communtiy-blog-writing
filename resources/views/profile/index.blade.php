@@ -237,7 +237,7 @@
             const newSocialMediaInput = document.createElement('div');
             newSocialMediaInput.classList.add('input-group', 'mb-3', 'social-media-group');
             newSocialMediaInput.innerHTML = `
-            <input type="url" class="form-control" placeholder="Enter Social Media URL">
+            <input type="text" class="form-control" name="social_media_url[]" placeholder="Enter Social Media URL">
             <button class="btn btn-danger remove-social" type="button">-</button>
         `;
 

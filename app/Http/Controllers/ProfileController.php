@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ContactBasicInfo;
+use App\Models\ContactBasicSocialMedia;
 use App\Models\Follow;
 use App\Models\PlaceLived;
 use App\Models\Post;
@@ -14,8 +16,8 @@ class ProfileController extends Controller
 {
     public function index($user_id)
     {
-        $user = User::where('id', '=', $user_id)->with('workPlace','placeLived')->first();
-        // dd($user);
+        $user = User::where('id', '=', $user_id)->with('workPlace', 'placeLived', 'contactBasicInfo.socialMedia')->first();
+        // dd($user->contactBasicInfo);
         $userId = Auth::user()->id;
         $followingIds = Follow::where('user_id', $userId)
             ->whereIn('status', ['Accepted', 'Followed'])
@@ -101,7 +103,8 @@ class ProfileController extends Controller
         return redirect()->back()->with('message', 'Work place and Education has been deleted.');
     }
 
-    public function addUpdatePlaceLived(Request $request){
+    public function addUpdatePlaceLived(Request $request)
+    {
         if (isset($request->id)) {
             unset($request['_token']);
             PlaceLived::where('id', '=', $request->id)->update($request->all());
@@ -116,8 +119,48 @@ class ProfileController extends Controller
         return redirect()->back()->with('message', $msg);
     }
 
-    public function deletePlaceLived($id){
+    public function deletePlaceLived($id)
+    {
         PlaceLived::where('id', '=', $id)->delete();
         return redirect()->back()->with('message', 'Place Lived has been deleted.');
+    }
+
+    public function addUpdateContactBasicInfo(Request $request)
+    {
+        // dd($request->all());
+        $socialMedias = $request->social_media_url;
+        unset($request['social_media_url']);
+        $contactId = null;
+        if (isset($request->contact_basic_id)) {
+            $contactId = $request->contact_basic_id;
+            unset($request['_token']);
+            unset($request['contact_basic_id']);
+            ContactBasicInfo::where('id', '=', $contactId)->update($request->all());
+            ContactBasicSocialMedia::where('contact_basic_id', '=', $contactId)->delete();
+        } else {
+            $request['user_id'] = Auth::id();
+            $contactBasicInfo = new ContactBasicInfo();
+            $contactBasicInfo->fill($request->all());
+            $contactBasicInfo->save();
+            $contactId = $contactBasicInfo->id;
+        }
+
+        foreach ($socialMedias as $socialMedia) {
+            $socialMediaObj = new ContactBasicSocialMedia();
+            $socialMediaObj->fill(
+                [
+                    'social_media_url' => $socialMedia,
+                    'contact_basic_id' => $contactId
+                ]
+            );
+            $socialMediaObj->save();
+        }
+        return redirect()->back()->with('message', 'Contact Basic Info has been updated.');
+    }
+
+    public function deleteSocialMediaURL($id)
+    {
+        ContactBasicSocialMedia::where('id', '=', $id)->delete();
+        return redirect()->back()->with('message', 'Social Media has been deleted.');
     }
 }

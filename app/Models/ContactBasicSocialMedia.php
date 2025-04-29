@@ -6,22 +6,17 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
-class WorkPlace extends Model
+class ContactBasicSocialMedia extends Model
 {
     use HasFactory;
 
-    protected $table = 'workplaces';
+    protected $table = 'contact_basic_social_medias';
 
     public $incrementing = false; // Disable auto-increment
     protected $keyType = 'string'; // UUID is a string
     protected $fillable = [
-        'workplace',
-        'position',
-        'start_date',
-        'end_date',
-        'city',
-        'description',
-        'user_id',
+        'social_media_url',
+        'contact_basic_id',
     ];
 
     protected static function boot()

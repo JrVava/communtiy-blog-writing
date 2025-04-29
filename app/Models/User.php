@@ -96,7 +96,13 @@ class User extends Authenticatable
         return $this->hasMany(WorkPlace::class, 'user_id', 'id');
     }
 
-    public function placeLived(){
+    public function placeLived()
+    {
         return $this->hasMany(PlaceLived::class, 'user_id', 'id');
+    }
+
+    public function contactBasicInfo()
+    {
+        return $this->hasOne(ContactBasicInfo::class, 'user_id', 'id');
     }
 }

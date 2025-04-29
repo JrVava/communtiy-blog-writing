@@ -10,9 +10,6 @@ class PlaceLived extends Model
 {
     use HasFactory;
 
-    use HasFactory;
-
-    use HasFactory;
     protected $table = 'place_lives';
 
     public $incrementing = false; // Disable auto-increment
