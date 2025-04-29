@@ -31,6 +31,7 @@ class ProfileController extends Controller
             ->pluck('user_id');
         // Merge both user lists and include the logged-in user's posts
         $allowedUserIds = $followingIds->merge($followerIds);
+        
 
         if ($user->id == $userId) {
             $allowedUserIds = [$userId];
@@ -45,8 +46,12 @@ class ProfileController extends Controller
             })
             ->get();
 
+
+            $friendFollowLists = $this->getFriendList($userId);
+            
         $relatedFamilyUserIds = FamilyRelationShip::where('user_id', $userId)
             ->pluck('family_id');
+
         $relatedUserIds = $follows->pluck('user_id')
             ->merge($follows->pluck('following_id'))
             ->unique()
@@ -55,12 +60,36 @@ class ProfileController extends Controller
         $forRelationShips = User::whereIn('id', $relatedUserIds)
             ->whereNotIn('id', $relatedFamilyUserIds)
             ->get();
-
+            // dd($friendFollowLists);
         return view('profile.index', [
             'posts' => $posts,
             'user' => $user,
-            'forRelationShips' => $forRelationShips
+            'forRelationShips' => $forRelationShips,
+            'friendFollowLists' => $friendFollowLists
         ]);
+    }
+
+    private function getFriendList($userId){
+        $friendFollowLists = Follow::where(function ($query) use ($userId) {
+            $query->where('user_id', $userId)
+                  ->orWhere('following_id', $userId);
+        })
+        ->with([
+            'follower:id,full_name,image',      // assuming 'user_id' is follower
+            'following:id,full_name,image'      // assuming 'following_id' is followee
+        ])
+        ->get()
+        ->map(function ($follow) use ($userId) {
+            $friend = $follow->user_id == $userId ? $follow->following : $follow->follower;
+            return [
+                'id' => $follow->id,
+                'user_id' => $friend->id,
+                'name' => $friend->full_name,
+                'image' => $friend->image,
+                'status' => $follow->status,
+            ];
+        });
+        return $friendFollowLists;
     }
 
     public function uploadAvatar(Request $request)

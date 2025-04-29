@@ -50,7 +50,7 @@ class PostController extends Controller
         $post->description = $request->input('description');
         $post->created_by = Auth::user()->id;
         // Handle image upload and convert to base64
-        if ($request->hasFile('image')) {
+        if (isset($request->image) && $request->hasFile('image')) {
             $file = $request->file('image');
             $extension = $file->getClientOriginalExtension();
 

@@ -80,6 +80,9 @@ Route::middleware([
     Route::get('follow-request-list', [FollowController::class, 'getRequestList'])->name('follow-request-list');
     Route::post('response-to-request', [FollowController::class, 'responseToRequest'])->name('response-to-request');
 
+    Route::get('unfollow/{id}', [FollowController::class, 'unfollow'])->name('unfollow');
+
+
     Route::get('messages', [MessageController::class, 'index'])->name('messages');
     Route::post('send-message', [MessageController::class, 'sendMessage'])->name('send-message');
     Route::post('get-messages', [MessageController::class, 'getMessages'])->name('get-messages');

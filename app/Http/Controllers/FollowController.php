@@ -90,4 +90,9 @@ class FollowController extends Controller
 
         return response()->json(['data' => $action], 200);
     }
+
+    public function unfollow($id){
+        Follow::where('id', '=', $id)->delete();     
+        return redirect()->back();   
+    }
 }

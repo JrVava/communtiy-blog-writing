@@ -31,7 +31,20 @@ class Follow extends Model
         });
     }
 
-    public function user(){
-        return $this->hasOne(User::class,'id','user_id');
+    public function user()
+    {
+        return $this->hasOne(User::class, 'id', 'user_id');
     }
+
+    // Follow.php
+    public function follower()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function following()
+    {
+        return $this->belongsTo(User::class, 'following_id');
+    }
+
 }

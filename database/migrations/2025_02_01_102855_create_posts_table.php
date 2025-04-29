@@ -15,7 +15,7 @@ return new class extends Migration
             // $table->id();
             $table->uuid('id')->primary();
             $table->longText('description');
-            $table->longText('image');
+            $table->longText('image')->nullable();
             $table->boolean('is_approve')->default(false);
             $table->uuid('created_by');
 
