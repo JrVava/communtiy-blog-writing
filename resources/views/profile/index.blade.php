@@ -254,25 +254,41 @@
         });
 
         document.getElementById('addFamilyMemberBtn').addEventListener('click', function() {
-            // Create a new input group for a family member name and relationship
+            // Get all currently selected family IDs
+            const selectedIds = Array.from(document.querySelectorAll('select[name="family_id[]"]'))
+                .map(select => select.value)
+                .filter(val => val !== "");
+
+            // Build dropdown options, excluding selected IDs
+            let optionsHtml = `<option value="">--Select Family Member--</option>`;
+            @foreach ($forRelationShips as $forRelationShip)
+                if (!selectedIds.includes('{{ $forRelationShip->id }}')) {
+                    optionsHtml +=
+                        `<option value="{{ $forRelationShip->id }}">{{ $forRelationShip->full_name }}</option>`;
+                }
+            @endforeach
+
+            // Create the new input group
             const newFamilyMemberInput = document.createElement('div');
             newFamilyMemberInput.classList.add('input-group', 'mb-3', 'family-member-group');
             newFamilyMemberInput.innerHTML = `
-            <input type="text" class="form-control" placeholder="Enter family member name">
-            <select class="form-select ms-2">
-                <option value="">Select relationship</option>
-                <option value="parent">Parent</option>
-                <option value="sibling">Sibling</option>
-                <option value="child">Child</option>
-                <option value="spouse">Spouse</option>
-                <option value="friend">Friend</option>
-            </select>
-            <button class="btn btn-danger remove-family-member" type="button">-</button>
-        `;
+        <select name="family_id[]" class="form-select ms-2">
+            ${optionsHtml}
+        </select>
+        <select class="form-select ms-2" name="relationship[]">
+            <option value="">Select relationship</option>
+            <option value="Parent">Parent</option>
+            <option value="Sibling">Sibling</option>
+            <option value="Child">Child</option>
+            <option value="Spouse">Spouse</option>
+            <option value="Friend">Friend</option>
+        </select>
+        <button class="btn btn-danger remove-family-member" type="button">-</button>
+    `;
 
-            // Append the new input group to the family members list
             document.getElementById('familyMembersList').appendChild(newFamilyMemberInput);
         });
+
 
         // Event delegation to handle the removal of family member input fields
         document.getElementById('familyMembersList').addEventListener('click', function(e) {
@@ -308,6 +324,19 @@
                     document.getElementById('editPlace').value = this.dataset.place;
                     document.getElementById('editDateMoved').value = this.dataset.date_moved;
                     document.getElementById('editPlaceLiveId').value = this.dataset.place_lived_id;
+                });
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const editButtons = document.querySelectorAll('.editFamilyRelationShipModal');
+
+            editButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    document.getElementById('editFamilyId').value = this.dataset.family_id;
+                    document.getElementById('editRelationShip').value = this.dataset.relationship;
+                    document.getElementById('editFamilyRelationShipId').value = this.dataset
+                        .family_relationship_id;
                 });
             });
         });

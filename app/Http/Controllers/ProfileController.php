@@ -17,8 +17,9 @@ class ProfileController extends Controller
 {
     public function index($user_id)
     {
-        $user = User::where('id', '=', $user_id)->with('workPlace', 'placeLived', 'contactBasicInfo.socialMedia', 'familyRelationShip')->first();
+        $user = User::where('id', '=', $user_id)->with('workPlace', 'placeLived', 'contactBasicInfo.socialMedia', 'familyRelationShip.relatedUser')->first();
         // dd($user);
+
         $userId = Auth::user()->id;
         $followingIds = Follow::where('user_id', $userId)
             ->whereIn('status', ['Accepted', 'Followed'])
@@ -34,6 +35,7 @@ class ProfileController extends Controller
         if ($user->id == $userId) {
             $allowedUserIds = [$userId];
         }
+
         $posts = Post::with('comments', 'reactions')->whereIn('created_by', $allowedUserIds)->latest()->get();
 
         $follows = Follow::where('status', 'Followed')
@@ -43,11 +45,16 @@ class ProfileController extends Controller
             })
             ->get();
 
+        $relatedFamilyUserIds = FamilyRelationShip::where('user_id', $userId)
+            ->pluck('family_id');
         $relatedUserIds = $follows->pluck('user_id')
             ->merge($follows->pluck('following_id'))
             ->unique()
             ->filter(fn($id) => $id != $userId);
-        $forRelationShips = User::whereIn('id', $relatedUserIds)->get();
+
+        $forRelationShips = User::whereIn('id', $relatedUserIds)
+            ->whereNotIn('id', $relatedFamilyUserIds)
+            ->get();
 
         return view('profile.index', [
             'posts' => $posts,
@@ -181,17 +188,29 @@ class ProfileController extends Controller
 
     public function addUpdateFamilyRelationShip(Request $request)
     {
-        $user_id = Auth::id();
-        $relations = $request->relationship;
-        foreach ($relations as $key => $relation) {
-            $family = new FamilyRelationShip();
-            $family->fill([
-                'relationship' => $relation,
-                'family_id' => $request['family_id'][$key],
-                'user_id' => $user_id
-            ]);
-            $family->save();
+        // dd($request->all());
+        if (isset($request->id)) {
+            unset($request['_token']);
+            FamilyRelationShip::where('id', '=', $request->id)->update($request->all());
+        } else {
+            $user_id = Auth::id();
+            $relations = $request->relationship;
+            foreach ($relations as $key => $relation) {
+                $family = new FamilyRelationShip();
+                $family->fill([
+                    'relationship' => $relation,
+                    'family_id' => $request['family_id'][$key],
+                    'user_id' => $user_id
+                ]);
+                $family->save();
+            }
         }
         return redirect()->back()->with('message', 'Family Relationship has been updated.');
+    }
+
+    public function deleteFamilyMember($id)
+    {
+        FamilyRelationShip::where('id', '=', $id)->delete();
+        return redirect()->back()->with('message', 'Social Media has been deleted.');
     }
 }

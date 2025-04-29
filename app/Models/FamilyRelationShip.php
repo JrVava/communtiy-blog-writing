@@ -29,4 +29,9 @@ class FamilyRelationShip extends Model
             }
         });
     }
+
+    public function relatedUser()
+    {
+        return $this->belongsTo(User::class, 'family_id');
+    }
 }

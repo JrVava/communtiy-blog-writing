@@ -70,6 +70,7 @@ Route::middleware([
     Route::get('delete-social-media-url/{id}', [ProfileController::class, 'deleteSocialMediaURL'])->name('delete-social-media-url');
 
     Route::post('add-update-family-relationship', [ProfileController::class, 'addUpdateFamilyRelationShip'])->name('add-update-family-relationship');
+    Route::get('delete-family-member/{id}', [ProfileController::class, 'deleteFamilyMember'])->name('delete-family-member');
 
     Route::post('search-user', [SearchController::class, 'searchUser'])->name('search-user');
 
