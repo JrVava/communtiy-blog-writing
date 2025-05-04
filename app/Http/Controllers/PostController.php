@@ -6,6 +6,7 @@ use App\Models\Follow;
 use App\Models\Post;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class PostController extends Controller
 {
@@ -65,4 +66,37 @@ class PostController extends Controller
         $post->save();
         return redirect()->back()->with('success', 'Post created successfully!');
     }
+
+    public function updatePost(Request $request)
+    {
+        $request->validate([
+            'description' => 'required|string',
+            'image' => 'nullable|file|mimes:jpg,jpeg,webp,png,gif,mp4,mov,avi,wmv|max:10240',
+        ]);
+        $folderPath = $request->old_post_image;
+        if (isset($request->image) && $request->hasFile('image')) {
+            if ($folderPath && Storage::disk('public')->exists($folderPath)) {
+                Storage::disk('public')->delete($folderPath);
+            }
+
+            $file = $request->file('image');
+            $extension = $file->getClientOriginalExtension();
+
+            // Store the file in storage/app/public/uploads/posts
+            $filename = time() . '.' . $extension;
+            $path = $file->storeAs('uploads/posts', $filename, 'public');
+
+            // Save file path in the database
+            $image = $path;
+        }else{
+            $image = $folderPath;
+        }
+
+        Post::where('id', '=', $request->id)->update([
+            'description' => $request->description,
+            'image' => $image
+        ]);
+        return redirect()->back()->with('success', 'Post updated successfully!');
+    }
+
 }

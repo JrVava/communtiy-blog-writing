@@ -57,6 +57,7 @@ Route::middleware([
     // Below Route is for Example of user Route to define as a logged in user without Admin Role Remove for user Login.
     Route::get('/', [PostController::class, 'index'])->name('posts');
     Route::post('create-post', [PostController::class, 'createPost'])->name('create-post');
+    Route::post('update-post', [PostController::class, 'updatePost'])->name('update-post');
 
     Route::get('profile/{user_id}', [ProfileController::class, 'index'])->name('profile');
     Route::post('upload-avatar', [ProfileController::class, 'uploadAvatar'])->name('upload-avatar');
@@ -71,6 +72,11 @@ Route::middleware([
 
     Route::post('add-update-family-relationship', [ProfileController::class, 'addUpdateFamilyRelationShip'])->name('add-update-family-relationship');
     Route::get('delete-family-member/{id}', [ProfileController::class, 'deleteFamilyMember'])->name('delete-family-member');
+
+    Route::post('get-overview-by-user-id', [ProfileController::class, 'getOverViewByUserId'])->name('get-overview-by-user-id');
+
+    Route::get('delete-post/{id}', [ProfileController::class, 'deletePost'])->name('delete-post');
+    
 
     Route::post('search-user', [SearchController::class, 'searchUser'])->name('search-user');
 

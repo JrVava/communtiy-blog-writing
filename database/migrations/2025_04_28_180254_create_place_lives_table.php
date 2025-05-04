@@ -15,6 +15,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('place')->nullable();
             $table->string('date_moved')->nullable();
+            $table->enum('place_type',['Moved','Currently Living','Hometown'])->default('Currently Living');
             $table->uuid('user_id');
             $table->timestamps();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');

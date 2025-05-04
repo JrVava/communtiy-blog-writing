@@ -46,4 +46,6 @@ class PostController extends Controller
 
         return redirect()->route('view-post',['id' => $id]);
     }
+
+   
 }

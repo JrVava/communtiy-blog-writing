@@ -139,6 +139,22 @@
         .postImageUpload {
             cursor: pointer;
         }
+
+        a[data-tab-id].active {
+            font-weight: bold;
+            color: #0d6efd;
+            /* Bootstrap primary */
+        }
+
+        .btn-sm.btn-light {
+            background-color: #374697;
+            color: white;
+        }
+
+        .dropdown-item.active,
+        .dropdown-item:active {
+            background-color: #374697;
+        }
     </style>
 </head>
 
@@ -216,6 +232,24 @@
                 }
             })
         }
+        document.getElementById('postImage').addEventListener('change', function() {
+            const file = this.files[0];
+            const imagePreview = document.getElementById('addImagePreview');
+            const previewContainer = document.getElementById('addImagePreviewContainer');
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    previewContainer.classList.remove('d-none');
+                };
+                reader.readAsDataURL(file);
+            } else {
+                imagePreview.src = '';
+                previewContainer.classList.add('d-none');
+            }
+        });
+        
         $(document).ready(function() {
             getNotification()
             $('.totalRequest').css({
@@ -389,6 +423,191 @@
                 $(".people-list").hide(); // Close people list when notification list opens
                 $(".notification-lists").toggle();
             });
+        });
+
+
+
+        $(document).ready(function() {
+            $('.comment-btn').on('click', function() {
+                let commentSection = $(this).closest('.d-flex').next('.comments-section');
+                commentSection.toggleClass('d-none');
+            });
+
+            $(".read-more-btn").click(function() {
+                let isExpanded = $(this).attr("data-expanded") === "true";
+
+                let card = $(this).closest(".card-body");
+
+                if (!isExpanded) {
+                    card.find(".short-content").hide();
+                    card.find(".full-content").removeClass("d-none");
+                    $(this).text("Read Less");
+                } else {
+                    card.find(".short-content").show();
+                    card.find(".full-content").addClass("d-none");
+                    $(this).text("Read More");
+                }
+
+                $(this).attr("data-expanded", !isExpanded);
+            });
+
+            $(".like-btn").click(function() {
+                let postId = $(this).data("post-id");
+                let isLiked = $(this).attr("data-liked") === "true";
+                let dislikeBtn = $(this).siblings(".dislike-btn");
+                let postedId = $(this).data('posted-id')
+                // Toggle UI
+                if (!isLiked) {
+                    $(this).addClass("btn-primary").removeClass("btn-light");
+                    $(this).find("i").addClass("bi-hand-thumbs-up-fill").removeClass("bi-hand-thumbs-up");
+
+                    // Reset dislike button if selected
+                    dislikeBtn.removeClass("btn-danger").addClass("btn-light");
+                    dislikeBtn.find(".bi").removeClass("bi-hand-thumbs-down-fill").addClass(
+                        "bi-hand-thumbs-down");
+                    dislikeBtn.attr("data-disliked", "false");
+                } else {
+                    $(this).removeClass("btn-primary").removeClass("active").addClass("btn-light");
+                    $(this).find("i").removeClass("bi-hand-thumbs-up-fill").addClass("bi-hand-thumbs-up");
+                }
+
+                $(this).attr("data-liked", !isLiked);
+
+                // AJAX request to Laravel
+                $.ajax({
+                    url: `/post/${postId}/like`,
+                    method: "POST",
+                    data: {
+                        "_token": "{{ csrf_token() }}"
+                    },
+                    success: function(response) {
+                        console.log(response.data.likes.length);
+                        console.log("dislikes", response.data.dislikes.length);
+                        $("#likes-count-" + postId).text(response.data.likes.length);
+                        $("#dislikes-count-" + postId).text(response.data.dislikes.length);
+
+                        let notification = JSON.stringify({
+                            type: "get_notification",
+                            userId: postedId
+                        });
+
+                        if (socket.readyState === WebSocket.OPEN) {
+                            socket.send(notification);
+                        } else {
+                            console.warn("⚠️ WebSocket not open yet");
+                        }
+                    }
+                });
+            });
+
+
+            $(".dislike-btn").click(function() {
+                let postId = $(this).data("post-id");
+                let isDisliked = $(this).attr("data-disliked") === "true";
+                let likeBtn = $(this).siblings(".like-btn");
+                let postedId = $(this).data('posted-id')
+                // Toggle UI
+                if (!isDisliked) {
+                    $(this).addClass("btn-danger").removeClass("btn-light");
+                    $(this).find("i").addClass("bi-hand-thumbs-down-fill").removeClass(
+                        "bi-hand-thumbs-down");
+
+                    // Reset like button if selected
+                    likeBtn.removeClass("btn-primary").addClass("btn-light");
+                    likeBtn.find(".bi").removeClass("bi-hand-thumbs-up-fill").addClass("bi-hand-thumbs-up");
+                    likeBtn.attr("data-liked", "false");
+                } else {
+                    $(this).removeClass("btn-danger").removeClass("active").addClass("btn-light");
+                    $(this).find("i").removeClass("bi-hand-thumbs-down-fill").addClass(
+                        "bi-hand-thumbs-down");
+                }
+
+                $(this).attr("data-disliked", !isDisliked);
+
+                // AJAX request to Laravel
+                $.ajax({
+                    url: `/post/${postId}/dislike`,
+                    method: "POST",
+                    data: {
+                        "_token": "{{ csrf_token() }}"
+                    },
+                    success: function(response) {
+                        $("#likes-count-" + postId).text(response.data.likes.length);
+                        $("#dislikes-count-" + postId).text(response.data.dislikes.length);
+                        let notification = JSON.stringify({
+                            type: "get_notification",
+                            userId: postedId
+                        });
+
+                        if (socket.readyState === WebSocket.OPEN) {
+                            socket.send(notification);
+                        } else {
+                            console.warn("⚠️ WebSocket not open yet");
+                        }
+                    }
+                });
+            });
+
+            $(".send-comment-btn").click(function() {
+                let commentInput = $(this).siblings(".send-comment");
+                let postId = commentInput.data('post-id');
+                let postedId = commentInput.data('posted-id')
+                let userId = "{{ Auth::user()->id }}"
+                let message = commentInput.val().trim();
+
+                if (message !== "") {
+                    let commentSection = $(this).closest(".comments-section");
+                    let commentBlock = commentSection.find(".comment-block");
+                    $.ajax({
+                        url: "{{ route('save-comment') }}",
+                        type: "POST",
+                        data: {
+                            "_token": "{{ csrf_token() }}",
+                            postId: postId,
+                            userId: userId,
+                            message: message
+                        },
+                        success: function(res) {
+                            console.log(res);
+                        }
+                    })
+                    let newComment = `
+                        <div class="d-flex align-items-start mb-2">
+                            <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
+                                class="rounded-circle border me-2" width="40" height="40" alt="User Image">
+                            <div class="bg-light p-2 rounded w-100">
+                                <h6 class="mb-1 fw-bold">Ashish</h6>
+                                <p class="comment-text mb-1">${message}</p>
+                                <small class="text-muted">Just now</small>
+                            </div>
+                        </div>
+                    `;
+                    // Append the new comment
+                    commentBlock.append(newComment);
+                    commentInput.val("");
+
+                    let notification = JSON.stringify({
+                        type: "get_notification",
+                        userId: postedId
+                    });
+
+                    if (socket.readyState === WebSocket.OPEN) {
+                        socket.send(notification);
+                    } else {
+                        console.warn("⚠️ WebSocket not open yet");
+                    }
+                } else {
+                    console.log("No comment entered.");
+                }
+            });
+
+            $(".send-comment").keypress(function(e) {
+                if (e.which === 13) {
+                    $(this).siblings(".send-comment-btn").click();
+                }
+            });
+
+
         });
     </script>
     @yield('scripts')

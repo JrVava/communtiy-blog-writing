@@ -18,6 +18,7 @@ class PlaceLived extends Model
         'place',
         'date_moved',
         'user_id',
+        'place_type'
     ];
 
     protected static function boot()

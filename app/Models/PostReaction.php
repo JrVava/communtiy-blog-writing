@@ -13,7 +13,13 @@ class PostReaction extends Model
 
     public $incrementing = false; // Disable auto-increment
     protected $keyType = 'string'; // UUID is a string
-    protected $fillable = ['post_id', 'likes', 'dislikes', 'recent_likes', 'recent_dislikes'];
+    protected $fillable = [
+        'post_id',
+        'likes',
+        'dislikes',
+        'recent_likes',
+        'recent_dislikes'
+    ];
 
     protected $casts = [
         'likes' => 'array',

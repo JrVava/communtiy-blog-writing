@@ -3,7 +3,7 @@
         <div class="card shadow-sm" id="contactInfoFormCard">
             <div class="card-body">
                 <!-- Contact and Basic Info Form -->
-                <form method="post" action="{{ route('add-update-contact-basic-info') }}">
+                <form method="post" action="{{ route('add-update-contact-basic-info') }}" class="contactBasicFrom">
                     @csrf
                     @if(isset($user->contactBasicInfo->id))
                     <input type="hidden" name="contact_basic_id" value="{{ $user->contactBasicInfo->id }}">

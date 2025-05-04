@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Comment;
 use App\Models\ContactBasicInfo;
 use App\Models\ContactBasicSocialMedia;
 use App\Models\FamilyRelationShip;
 use App\Models\Follow;
 use App\Models\PlaceLived;
 use App\Models\Post;
+use App\Models\PostReaction;
 use App\Models\User;
 use App\Models\WorkPlace;
 use Illuminate\Http\Request;
@@ -241,5 +243,60 @@ class ProfileController extends Controller
     {
         FamilyRelationShip::where('id', '=', $id)->delete();
         return redirect()->back()->with('message', 'Social Media has been deleted.');
+    }
+
+    public function getOverViewByUserId(Request $request)
+    {
+        $user = User::where('id', $request->userId)
+            ->with([
+                'contactBasicInfo'
+            ])
+            ->first();
+    
+        // Manually assign 'hometown' with one record where place_type = 'Hometown'
+        $hometown = $user->placeLived()->where('place_type', 'Hometown')->first();
+
+        $currentLiving = $user->placeLived()
+        ->where('place_type', 'Currently Living')
+        ->orderByDesc('created_at') // or 'created_at' if there's no 'date' column
+        ->first();
+
+        $work = $user->workPlace()
+        ->where('type','=','Workplace')
+        ->orderByDesc('created_at')
+        ->first();
+    
+
+        $college = $user->workPlace()
+        ->where('type','=','College')
+        ->orderByDesc('created_at')
+        ->first();
+        $education = $college;
+
+        if (!$college) {
+            $education = $user->workPlace()
+                ->where('type', 'High School')
+                ->orderByDesc('created_at')
+                ->first();
+        }
+        // Add the alias to the user object
+        $user->hometown = $hometown;
+        $user->currentLiving = $currentLiving;
+        $user->workplace = $work;
+        $user->education = $education;
+        
+        return response()->json([
+            'status' => 200,
+            'user' => $user,
+        ]);
+    }
+    
+    public function deletePost($id){
+        $post = Post::findOrFail($id);
+        Comment::where('post_id','=',$post->id)->delete();
+        PostReaction::where('post_id','=',$post->id)->delete();
+        $post->delete();
+
+        return redirect()->back()->with('message', 'Post has been deleted.');
     }
 }

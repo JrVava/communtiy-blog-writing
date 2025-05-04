@@ -22,6 +22,7 @@ class WorkPlace extends Model
         'city',
         'description',
         'user_id',
+        'type'
     ];
 
     protected static function boot()

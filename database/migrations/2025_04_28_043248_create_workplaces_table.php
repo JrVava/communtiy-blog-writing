@@ -18,7 +18,8 @@ return new class extends Migration
             $table->string('start_date')->nullable();
             $table->string('end_date')->nullable();
             $table->string('city')->nullable();
-            $table->string('description')->nullable();
+            $table->longText('description')->nullable();
+            $table->enum('type',['Workplace','College','High School'])->nullable();
             $table->uuid('user_id');
             $table->timestamps();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');

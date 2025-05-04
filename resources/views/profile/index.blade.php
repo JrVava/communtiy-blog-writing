@@ -1,24 +1,5 @@
 @php
     $initials = strtoupper(substr($user->full_name, 0, 1));
-
-    $friends = (object) [
-        [
-            'name' => 'John Cena',
-            'profile_picture' => 'https://upload.wikimedia.org/wikipedia/commons/6/60/John_Cena_July_2018.jpg',
-            'location' => 'West Newbury, MA',
-        ],
-        [
-            'name' => 'Dwayne Johnson',
-            'profile_picture' => 'https://upload.wikimedia.org/wikipedia/commons/e/e0/Dwayne_The_Rock_Johnson_2013.jpg',
-            'location' => 'Hayward, CA',
-        ],
-        [
-            'name' => 'Emma Watson',
-            'profile_picture' => 'https://upload.wikimedia.org/wikipedia/commons/5/5a/Emma_Watson_2013.jpg',
-            'location' => 'Paris, France',
-        ],
-    ];
-
 @endphp
 @extends('layouts.app-layout')
 @section('title', 'Dashboard')
@@ -81,10 +62,6 @@
                 <button class="nav-link" id="friends-tab" data-bs-toggle="tab" data-bs-target="#friends" type="button"
                     role="tab">Friends</button>
             </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="photos-tab" data-bs-toggle="tab" data-bs-target="#photos" type="button"
-                    role="tab">Photos</button>
-            </li>
         </ul>
 
         <div class="tab-content" id="profileTabsContent">
@@ -94,7 +71,8 @@
                 <div class="row mt-2 me-2 mx-2 g-3 justify-content-center">
                     <div class="col-12 col-md-8 col-lg-8">
                         @if (count($posts) > 0)
-                            @include('profile.my-posts')
+                            {{-- @include('profile.my-posts') --}}
+                            @include('blog.posts')
                         @else
                             <h1 class="text-center my-5">No Post</h1>
                         @endif
@@ -113,7 +91,8 @@
                                 <hr>
                                 <ul class="list-unstyled">
                                     <li>
-                                        <a href="javascript:void(0);" class="d-block text-start text-decoration-none m-2"
+                                        <a href="javascript:void(0);"
+                                            class="d-block text-start text-decoration-none m-2 active"
                                             data-tab-id="overview">Overview</a>
                                     </li>
                                     <li>
@@ -181,20 +160,145 @@
             </div>
         </div>
     </div>
-
+    @include('profile.modals.post-modal')
 @endsection
 @section('scripts')
     <script>
-        $(document).on('click', 'a[data-tab-id]', function() {
-            var activeTabId = $(this).data('tab-id');
-            $('a[data-tab-id]').each(function() {
-                var tabId = $(this).data('tab-id');
-                if (activeTabId !== tabId) {
-                    $(`#${tabId}`).addClass('d-none');
+        $(document).ready(function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const tab = urlParams.get('tab');
+            const section = urlParams.get('section');
+
+            if (tab) {
+                const tabButton = document.getElementById(`${tab}-tab`);
+                if (tabButton) {
+                    new bootstrap.Tab(tabButton).show();
                 }
+
+                if (tab === 'about' && section) {
+                    $('a[data-tab-id]').removeClass('active');
+                    $(`a[data-tab-id="${section}"]`).addClass('active');
+
+                    $('a[data-tab-id]').each(function() {
+                        const tabId = $(this).data('tab-id');
+                        $(`#${tabId}`).addClass('d-none');
+                    });
+
+                    $(`#${section}`).removeClass('d-none');
+                }
+            }
+            getOverView()
+        });
+
+        $(document).on('click', 'a[data-tab-id]', function() {
+            const activeTabId = $(this).data('tab-id');
+
+            $('a[data-tab-id]').removeClass('active');
+            $(this).addClass('active');
+
+            $('a[data-tab-id]').each(function() {
+                const tabId = $(this).data('tab-id');
+                $(`#${tabId}`).addClass('d-none');
             });
             $(`#${activeTabId}`).removeClass('d-none');
+
+            if (activeTabId === 'overview') {
+                getOverView()
+            }
+
+            const newUrl = new URL(window.location.href);
+            newUrl.searchParams.set('tab', 'about');
+            newUrl.searchParams.set('section', activeTabId);
+            window.history.pushState({}, '', newUrl);
         });
+
+        $(document).on('click', 'button[data-bs-toggle="tab"]', function() {
+            const targetId = $(this).data('bs-target').replace('#', '');
+            const newUrl = new URL(window.location.href);
+            newUrl.searchParams.set('tab', targetId);
+            console.log(targetId);
+            if (targetId === 'about') {
+                getOverView();
+            }
+            // Remove section param if not on "about"
+            if (targetId !== 'about') {
+                newUrl.searchParams.delete('section');
+            }
+
+            window.history.pushState({}, '', newUrl);
+        });
+
+        function getOverView() {
+            let userId = "{{ $user->id }}";
+            $.ajax({
+                url: "{{ route('get-overview-by-user-id') }}",
+                type: "post",
+                data: {
+                    "_token": "{{ csrf_token() }}",
+                    "userId": userId
+                },
+                success: function(res) {
+                    if (res.status === 200) {
+                        const user = res.user;
+
+                        // Work
+                        if (user.workplace && user.workplace.position && user.workplace.workplace) {
+                            $('#currentWork').html(
+                                `${user.workplace.position} at <b>${user.workplace.workplace}</b>`);
+                        } else {
+                            $('#currentWork').html(`Not available`);
+                        }
+
+                        // Education
+                        if (user.education && user.education.position && user.education.workplace) {
+                            $('#education').html(
+                                `Studied ${user.education.position} at <b>${user.education.workplace}</b>`);
+                        } else {
+                            $('#education').html(`Not available`);
+                        }
+
+                        // Current Living
+                        if (user.currentLiving && user.currentLiving.place) {
+                            $('#livedIn').html(`Lives in <b>${user.currentLiving.place}</b>`);
+                        } else {
+                            $('#livedIn').html(`Not available`);
+                        }
+
+                        // Hometown
+                        if (user.hometown && user.hometown.place) {
+                            $('#from').html(`From <b>${user.hometown.place}</b>`);
+                        } else {
+                            $('#from').html(`Not available`);
+                        }
+
+                        // Marital Status
+                        if (user.contact_basic_info && user.contact_basic_info.relationship_status) {
+                            $('#maritalStatus').html(`${user.contact_basic_info.relationship_status}`);
+                        } else {
+                            $('#maritalStatus').html(`Not available`);
+                        }
+
+                        // Email
+                        if (user.contact_basic_info && user.contact_basic_info.email_address) {
+                            $('#email').html(`Email: <b>${user.contact_basic_info.email_address}</b>`);
+                        } else {
+                            $('#email').html(`Email: Not available`);
+                        }
+
+                        // Phone
+                        if (user.contact_basic_info && user.contact_basic_info.phone_number) {
+                            $('#phone').html(`Phone Number: <b>${user.contact_basic_info.phone_number}</b>`);
+                        } else {
+                            $('#phone').html(`Phone Number: Not available`);
+                        }
+                    }
+                },
+                error: function(xhr) {
+                    console.error(xhr.responseText);
+                }
+            })
+        }
+
 
         $(document).ready(function() {
             $('#addWorkplaceBtn').on('click', function() {
@@ -214,6 +318,29 @@
                 $('#placeLivedFormCard').addClass('d-none');
             });
         });
+
+        document.getElementById('addWorkplaceBtn').addEventListener('click', function() {
+            document.getElementById('workplaceFormCard').classList.remove('d-none');
+            document.getElementById('labelWorkplace').textContent = 'Workplace';
+            document.getElementById('labelPosition').textContent = 'Position';
+            document.getElementById('entryType').value = 'workplace';
+        });
+
+
+        document.getElementById('addCollegeBtn').addEventListener('click', function() {
+            document.getElementById('workplaceFormCard').classList.remove('d-none');
+            document.getElementById('labelWorkplace').textContent = 'College';
+            document.getElementById('labelPosition').textContent = 'Degree';
+            document.getElementById('entryType').value = 'College';
+        });
+
+        document.getElementById('addHighSchoolBtn').addEventListener('click', function() {
+            document.getElementById('workplaceFormCard').classList.remove('d-none');
+            document.getElementById('labelWorkplace').textContent = 'High School';
+            document.getElementById('labelPosition').textContent = 'Degree';
+            document.getElementById('entryType').value = 'High School';
+        });
+
 
         document.getElementById('addSocialMediaUrlBtn').addEventListener('click', function() {
             // Create a new input group for social media URL
@@ -253,23 +380,32 @@
 
             // Create the new input group
             const newFamilyMemberInput = document.createElement('div');
-            newFamilyMemberInput.classList.add('input-group', 'mb-3', 'family-member-group');
+            newFamilyMemberInput.classList.add('mb-3', 'family-member-group');
             newFamilyMemberInput.innerHTML = `
-        <select name="family_id[]" class="form-select ms-2">
-            ${optionsHtml}
-        </select>
-        <select class="form-select ms-2" name="relationship[]">
-            <option value="">Select relationship</option>
-            <option value="Parent">Parent</option>
-            <option value="Sibling">Sibling</option>
-            <option value="Child">Child</option>
-            <option value="Spouse">Spouse</option>
-            <option value="Friend">Friend</option>
-        </select>
-        <button class="btn btn-danger remove-family-member" type="button">-</button>
-    `;
+    <div class="row">
+        <div class="col-6">
+            <select name="family_id[]" class="form-select ms-2">
+                ${optionsHtml}
+            </select>
+        </div>
+        <div class="col-5">
+            <select class="form-select ms-2" name="relationship[]">
+                <option value="">Select relationship</option>
+                <option value="Parent">Parent</option>
+                <option value="Sibling">Sibling</option>
+                <option value="Child">Child</option>
+                <option value="Spouse">Spouse</option>
+                <option value="Friend">Friend</option>
+            </select>
+        </div>
+        <div class="col-1 d-flex align-items-center">
+            <button class="btn btn-danger remove-family-member" type="button">-</button>
+        </div>
+    </div>
+`;
 
             document.getElementById('familyMembersList').appendChild(newFamilyMemberInput);
+
         });
 
 
@@ -282,6 +418,49 @@
         });
 
 
+        document.addEventListener('DOMContentLoaded', function() {
+            const editButtons = document.querySelectorAll('.editPostModal');
+
+            editButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    document.getElementById('editPostDescription').value = this.dataset
+                        .description || '';
+                    document.getElementById('editOldPostImage').value = this.dataset.old_post_image;
+                    document.getElementById('editPostId').value = this.dataset.post_id;
+
+                    const imageUrl = this.dataset.postimage;
+                    const imagePreview = document.getElementById('editImagePreview');
+                    const previewContainer = document.getElementById('editImagePreviewContainer');
+
+                    if (imageUrl) {
+                        imagePreview.src = imageUrl;
+                        previewContainer.classList.remove('d-none');
+                    } else {
+                        imagePreview.src = '';
+                        previewContainer.classList.add('d-none');
+                    }
+                });
+            });
+
+            // Preview selected image before uploading
+            document.getElementById('postImage').addEventListener('change', function() {
+                const file = this.files[0];
+                const imagePreview = document.getElementById('editImagePreview');
+                const previewContainer = document.getElementById('editImagePreviewContainer');
+
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        imagePreview.src = e.target.result;
+                        previewContainer.classList.remove('d-none');
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    imagePreview.src = '';
+                    previewContainer.classList.add('d-none');
+                }
+            });
+        });
 
         document.addEventListener('DOMContentLoaded', function() {
             const editButtons = document.querySelectorAll('.edit-button');
@@ -295,6 +474,15 @@
                     document.getElementById('editCity').value = this.dataset.city;
                     document.getElementById('editDescription').value = this.dataset.description;
                     document.getElementById('editWorkplaceId').value = this.dataset.workplace_id;
+
+                    var position = 'Position'
+                    if (this.dataset.type === "High School" || this.dataset.type === "College") {
+                        position = 'Degree'
+                    }
+                    document.getElementById('eidtLabelPosition').textContent = position;
+                    document.getElementById('editLabelWorkplace').textContent = this.dataset.type;
+                    document.getElementById('editWorkPlaceModalLabel').textContent = "Edit " + this
+                        .dataset.type
                 });
             });
         });
@@ -307,6 +495,7 @@
                     document.getElementById('editPlace').value = this.dataset.place;
                     document.getElementById('editDateMoved').value = this.dataset.date_moved;
                     document.getElementById('editPlaceLiveId').value = this.dataset.place_lived_id;
+                    document.getElementById('editPlaceType').value = this.dataset.place_type;
                 });
             });
         });
@@ -422,25 +611,95 @@
             });
         });
 
+        $(".contactBasicFrom").each(function() {
+            $(this).validate({
+                rules: {
+                    email_address: {
+                        required: true,
+                        email: true,
+                        maxlength: 255
+                    },
+                    phone_number: {
+                        required: true,
+                        digits: true,
+                        minlength: 10,
+                        maxlength: 15
+                    },
+                    relationship_status: {
+                        required: true,
+                        maxlength: 50
+                    },
+                    birthday: {
+                        required: true,
+                        date: true
+                    }
+                },
+                messages: {
+                    email_address: {
+                        required: "Please enter your email address.",
+                        email: "Please enter a valid email address.",
+                        maxlength: "Email must not exceed 255 characters."
+                    },
+                    phone_number: {
+                        required: "Please enter your phone number.",
+                        digits: "Phone number should only contain numbers.",
+                        minlength: "Phone number should be at least 10 digits.",
+                        maxlength: "Phone number should not exceed 15 digits."
+                    },
+                    relationship_status: {
+                        required: "Please select your relationship status.",
+                        maxlength: "Relationship status must not exceed 50 characters."
+                    },
+                    birthday: {
+                        required: "Please enter your birthday.",
+                        date: "Please enter a valid date."
+                    }
+                },
+                errorClass: 'text-danger',
+                errorElement: 'div',
+                highlight: function(element) {
+                    $(element).addClass('is-invalid');
+                },
+                unhighlight: function(element) {
+                    $(element).removeClass('is-invalid');
+                }
+            });
+        });
 
+        $(".familyRelationshipForm").validate({
+            rules: {
+                'family_id[]': {
+                    required: true
+                },
+                'relationship[]': {
+                    required: true
+                }
+            },
+            messages: {
+                'family_id[]': {
+                    required: "Please select a family member."
+                },
+                'relationship[]': {
+                    required: "Please select the relationship."
+                }
+            },
+            errorClass: 'text-danger',
+            errorElement: 'div',
+            highlight: function(element) {
+                $(element).addClass('is-invalid');
+            },
+            unhighlight: function(element) {
+                $(element).removeClass('is-invalid');
+            },
+            errorPlacement: function(error, element) {
+                // Append the error below the current select element
+                console.log(element);
+                error.insertAfter(element);
+            }
+
+        });
 
         $(document).ready(function() {
-            $(".read-more-btn").click(function() {
-                let isExpanded = $(this).attr("data-expanded") === "true";
-                let card = $(this).closest(".post");
-
-                if (!isExpanded) {
-                    card.find(".short-content").hide();
-                    card.find(".full-content").removeClass("d-none");
-                    $(this).text("Read Less");
-                } else {
-                    card.find(".short-content").show();
-                    card.find(".full-content").addClass("d-none");
-                    $(this).text("Read More");
-                }
-
-                $(this).attr("data-expanded", !isExpanded);
-            });
 
             let followingId = $('#followBtn').data('following-id');
             let userId = $('#followBtn').data('user-id');

@@ -8,27 +8,22 @@
                 <!-- Overview Information Display -->
 
                 <div class="mb-3">
-                    <label for="currentWork" class="form-label fw-bold">Currently Working:</label>
                     <p id="currentWork">XYZ Company</p> <!-- Displaying Information -->
                 </div>
 
                 <div class="mb-3">
-                    <label for="education" class="form-label fw-bold">Education:</label>
                     <p id="education">Harvard University</p> <!-- Displaying Information -->
                 </div>
 
                 <div class="mb-3">
-                    <label for="livedIn" class="form-label fw-bold">Lived In:</label>
                     <p id="livedIn">New York, USA</p> <!-- Displaying Information -->
                 </div>
 
                 <div class="mb-3">
-                    <label for="from" class="form-label fw-bold">From:</label>
                     <p id="from">San Francisco, USA</p> <!-- Displaying Information -->
                 </div>
 
                 <div class="mb-3">
-                    <label for="maritalStatus" class="form-label fw-bold">Marital Status:</label>
                     <p id="maritalStatus">Single</p> <!-- Displaying Information -->
                 </div>
 

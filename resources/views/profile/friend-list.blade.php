@@ -20,3 +20,6 @@
         </div>
     </div>
 @endforeach
+@if($friendFollowLists->count() < 1)
+    <h1>No Friends</h1>
+@endif

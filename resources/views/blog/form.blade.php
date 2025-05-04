@@ -18,7 +18,12 @@
 
                 <form action="{{ route('create-post') }}" method="post" enctype="multipart/form-data">
                     @csrf
-
+                    <div class="mb-3 text-start d-none" id="addImagePreviewContainer">
+                        <div class="position-relative">
+                            <img id="addImagePreview" src="" class="img-fluid rounded border"
+                                style="width: 100%;" />
+                        </div>
+                    </div>
                     <!-- Post Content -->
                     <div class="mb-3">
                         <textarea class="form-control border-0 shadow-none" name="description" id="postContent" rows="3"
