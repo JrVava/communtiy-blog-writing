@@ -232,24 +232,31 @@
                 }
             })
         }
-        document.getElementById('postImage').addEventListener('change', function() {
-            const file = this.files[0];
-            const imagePreview = document.getElementById('addImagePreview');
-            const previewContainer = document.getElementById('addImagePreviewContainer');
 
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    imagePreview.src = e.target.result;
-                    previewContainer.classList.remove('d-none');
-                };
-                reader.readAsDataURL(file);
-            } else {
-                imagePreview.src = '';
-                previewContainer.classList.add('d-none');
+        document.addEventListener('DOMContentLoaded', function() {
+            const input = document.getElementById('postImage');
+            if (input) {
+                input.addEventListener('change', function() {
+                    const file = this.files[0];
+                    const imagePreview = document.getElementById('addImagePreview');
+                    const previewContainer = document.getElementById('addImagePreviewContainer');
+
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            imagePreview.src = e.target.result;
+                            previewContainer.classList.remove('d-none');
+                        };
+                        reader.readAsDataURL(file);
+                    } else {
+                        imagePreview.src = '';
+                        previewContainer.classList.add('d-none');
+                    }
+                });
             }
         });
-        
+
+
         $(document).ready(function() {
             getNotification()
             $('.totalRequest').css({

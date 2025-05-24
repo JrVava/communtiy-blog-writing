@@ -44,93 +44,93 @@
         </div>
     </div>
 
-@section('scripts')
-    <script>
-        $(document).ready(function() {
-            $(".chat-box").hide();
-            $(".chat-item").click(function() {
-                $(".chat-box").show();
-                $(".no-chat-available").hide();
-
-                let user = $(this).data("user");
-                let receiver_id = $(this).data("receiver-id");
-
-                $(".receiver_id").val(receiver_id);
-
-                $(".chat-header span").text(user);
-
-                $.ajax({
-                    url: "{{ route('get-messages') }}",
-                    type: "POST",
-                    data: {
-                        "_token": "{{ csrf_token() }}",
-                        receiver_id: receiver_id,
-                    },
-                    success: function(res) {
-                        $(".chat-body").html(res.html);
-                    }
-                })
-                // $(".chat-body").html("");
-
-                if ($(window).width() <= 768) {
-                    $(".chat-list").hide();
-                    $(".chat-box").show();
-                }
-            });
-
-            $(".back-btn").click(function() {
+    @endsection
+    @section('scripts')
+        <script>
+            $(document).ready(function() {
                 $(".chat-box").hide();
-                $(".chat-list").show();
-            });
-
-            $("#sendMessage").click(function() {
-                let message = $("#messageInput").val().trim();
-
-                if (message !== "") {
-                    $(".chat-body").append(`<div class="message sent">${message}</div>`);
-                    $("#messageInput").val("").focus();
-                    $(".chat-body").scrollTop($(".chat-body")[0].scrollHeight);
-
-                    let receiver_id = $('.receiver_id').val();
-                    let sender_id = $('.sender_id').val();
+                $(".chat-item").click(function() {
+                    $(".chat-box").show();
+                    $(".no-chat-available").hide();
+    
+                    let user = $(this).data("user");
+                    let receiver_id = $(this).data("receiver-id");
+    
+                    $(".receiver_id").val(receiver_id);
+    
+                    $(".chat-header span").text(user);
+    
                     $.ajax({
-                        url: "{{ route('send-message') }}",
+                        url: "{{ route('get-messages') }}",
                         type: "POST",
                         data: {
                             "_token": "{{ csrf_token() }}",
                             receiver_id: receiver_id,
-                            sender_id: sender_id,
-                            messages: message
                         },
                         success: function(res) {
-
-                            let wsMessage = JSON.stringify({
-                                type: "chat_message",
-                                to_user_id: receiver_id,
-                                from_user_id: sender_id,
-                                message: message
-                            });
-                            if (socket.readyState === WebSocket.OPEN) {
-                                socket.send(wsMessage);
-                            } else {
-                                console.warn("⚠️ WebSocket not open yet");
-                            }
+                            $(".chat-body").html(res.html);
                         }
                     })
+                    // $(".chat-body").html("");
+    
+                    if ($(window).width() <= 768) {
+                        $(".chat-list").hide();
+                        $(".chat-box").show();
+                    }
+                });
+    
+                $(".back-btn").click(function() {
+                    $(".chat-box").hide();
+                    $(".chat-list").show();
+                });
+    
+                $("#sendMessage").click(function() {
+                    let message = $("#messageInput").val().trim();
+    
+                    if (message !== "") {
+                        $(".chat-body").append(`<div class="message sent">${message}</div>`);
+                        $("#messageInput").val("").focus();
+                        $(".chat-body").scrollTop($(".chat-body")[0].scrollHeight);
+    
+                        let receiver_id = $('.receiver_id').val();
+                        let sender_id = $('.sender_id').val();
+                        $.ajax({
+                            url: "{{ route('send-message') }}",
+                            type: "POST",
+                            data: {
+                                "_token": "{{ csrf_token() }}",
+                                receiver_id: receiver_id,
+                                sender_id: sender_id,
+                                messages: message
+                            },
+                            success: function(res) {
+    
+                                let wsMessage = JSON.stringify({
+                                    type: "chat_message",
+                                    to_user_id: receiver_id,
+                                    from_user_id: sender_id,
+                                    message: message
+                                });
+                                if (socket.readyState === WebSocket.OPEN) {
+                                    socket.send(wsMessage);
+                                } else {
+                                    console.warn("⚠️ WebSocket not open yet");
+                                }
+                            }
+                        })
+                    }
+                });
+    
+                $("#messageInput").keypress(function(e) {
+                    if (e.which === 13) {
+                        $("#sendMessage").click();
+                    }
+                });
+    
+                if ($(window).width() <= 768) {
+                    $(".chat-box").hide();
                 }
             });
-
-            $("#messageInput").keypress(function(e) {
-                if (e.which === 13) {
-                    $("#sendMessage").click();
-                }
-            });
-
-            if ($(window).width() <= 768) {
-                $(".chat-box").hide();
-            }
-        });
-    </script>
-
-@endsection
-@endsection
+        </script>
+    
+    @endsection

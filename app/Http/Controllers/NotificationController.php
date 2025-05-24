@@ -72,7 +72,7 @@ class NotificationController extends Controller
         $html = '<li class="p-2 border-bottom d-flex align-items-center">';
 
         if (!empty($user->image)) {
-            $html .= '<img src="' . asset("uploads/profile/" . $user->image) . '" class="rounded-circle me-2" width="40" height="40" alt="User">';
+            $html .= '<img src="' . asset( $user->image) . '" class="rounded-circle me-2" width="40" height="40" alt="User">';
         } else {
             $html .= '<div class="rounded-circle d-flex align-items-center justify-content-center bg-primary text-white me-2"
                         style="width: 40px; height: 40px; font-size: 1rem; font-weight: bold;">
