@@ -14,7 +14,7 @@
     <title>@yeild('title')</title>
 
     <link rel="preconnect" href="https://fonts.gstatic.com">
-    <link rel="shortcut icon" href="{{ asset('assets/img/icons/icon-48x48.png') }}" />
+    <link rel="shortcut icon" href="{{ asset(adminAssetPath().'/img/icons/icon-48x48.png') }}" />
 
     <link rel="canonical" href="https://demo-basic.adminkit.io/" />
 
@@ -26,8 +26,8 @@
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
     {{-- DataTable CDN END Here --}}
 
-    <link href="{{ asset('assets/css/app.css') }}" rel="stylesheet">
-    <link href="{{ asset('assets/css/custom-css.css') }}" rel="stylesheet">
+    <link href="{{ asset(adminAssetPath().'/css/app.css') }}" rel="stylesheet">
+    <link href="{{ asset(adminAssetPath().'/css/custom-css.css') }}" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
 
@@ -42,7 +42,7 @@
         </div>
     </div>
     <!-- Scripts below are for demo only -->
-    <script src="{{ asset('assets/js/app.js') }}"></script>
+    <script src="{{ asset(adminAssetPath().'/js/app.js') }}"></script>
 
     @yield('scripts')
 </body>
