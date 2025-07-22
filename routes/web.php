@@ -1,17 +1,16 @@
 <?php
 
-use App\Http\Controllers\Admin\PostController as AdminPostController;
 use App\Http\Controllers\Auth\AuthController;
-use App\Http\Controllers\FollowController;
-use App\Http\Controllers\MessageController;
-use App\Http\Controllers\PostReactionController;
-use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\User\ChatController;
+use App\Http\Controllers\User\CommentController;
+use App\Http\Controllers\User\FollowController;
+use App\Http\Controllers\User\PlaceController;
+use App\Http\Controllers\User\PostController;
+use App\Http\Controllers\User\ProfileController;
+use App\Http\Controllers\User\ReactionController;
+use App\Http\Controllers\User\UserController;
+use App\Http\Controllers\User\WorkEducationController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\CommentController;
-use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\PostController;
-use App\Http\Controllers\SearchController;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,29 +23,22 @@ use App\Http\Controllers\SearchController;
 |
 */
 
-// Route::get('login', [AuthController::class, 'index'])->name('login');
-Route::post('post-login', [AuthController::class, 'postLogin'])->name('login.post');
-Route::get('registration', [AuthController::class, 'registration'])->name('register');
-Route::post('post-registration', [AuthController::class, 'postRegistration'])->name('register.post');
+// Route::get('/', function () {
+//     return view('welcome');
+// });
 
-Route::get('logout', [AuthController::class, 'logout'])->name('logout');
+// In your web.php routes file
+Route::post('/clear-success-session', function () {
+    session()->forget('success');
+    return response()->json(['success' => true]);
+});
 
-Route::get('/login',  [AuthController::class, 'index'])->name('login');
-
-
-Route::middleware([
-    'auth',
-    'admin',
-    'prevent-back-history',
-    'no.cache'
-])->group(function () {
-    Route::get('dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
-    Route::get('users', [UserController::class, 'index'])->name('users');
-    Route::get('users-view/{id}', [UserController::class, 'viewUserProfile'])->name('users-view');
-    Route::get('users-approve-deny/{id}', [UserController::class, 'userProfileApproveDeny'])->name('users-approve-deny');
-    Route::get('users-post', [AdminPostController::class, 'index'])->name('users-post');
-    Route::get('view-post/{id}', [AdminPostController::class, 'viewPost'])->name('view-post');
-    Route::get('post-approve-deny/{id}', [AdminPostController::class, 'postApproveDeny'])->name('post-approve-deny');
+Route::controller(AuthController::class)->group(function () {
+    Route::get('/login', 'index')->name('login');
+    Route::post('/login/form', 'signForm')->name('login.form');
+    Route::get('sign-up', 'signUp')->name('sign-up');
+    Route::post('sign-up/form', [AuthController::class, 'signUpUser'])->name('sign-up.form');
+    Route::get('logout', 'logout')->name('logout');
 });
 
 Route::middleware([
@@ -54,51 +46,60 @@ Route::middleware([
     'prevent-back-history',
     'no.cache'
 ])->group(function () {
-    // Below Route is for Example of user Route to define as a logged in user without Admin Role Remove for user Login.
-    Route::get('/', [PostController::class, 'index'])->name('posts');
-    Route::post('create-post', [PostController::class, 'createPost'])->name('create-post');
-    Route::post('update-post', [PostController::class, 'updatePost'])->name('update-post');
+    Route::controller(PostController::class)->group(function () {
+        Route::get('/', 'index')->name('user.post');
+        Route::post('posts-store', 'store')->name('posts.store');
+    });
 
-    Route::get('profile/{user_id}', [ProfileController::class, 'index'])->name('profile');
-    Route::post('upload-avatar', [ProfileController::class, 'uploadAvatar'])->name('upload-avatar');
-    Route::post('upload-cover-image', [ProfileController::class, 'uploadCoverImage'])->name('upload-cover-image');
-    Route::post('add-update-workplace', [ProfileController::class, 'addUpdateWorkPlace'])->name('add-update-workplace');
-    Route::get('delete-workplace/{id}', [ProfileController::class, 'deleteWorkPlace'])->name('delete-workplace');
-    Route::post('add-update-place-lived', [ProfileController::class, 'addUpdatePlaceLived'])->name('add-update-place-lived');
-    Route::get('delete-place-lived/{id}', [ProfileController::class, 'deletePlaceLived'])->name('delete-place-lived');
+    Route::controller(CommentController::class)->group(function () {
+        Route::post('/posts/{post}/comments', 'store')->name('comments.store');
+        Route::put('/comments/{comment}', 'update')->name('comments.update');
+        Route::delete('/comments/{comment}', 'destroy')->name('comments.destroy');
+    });
 
-    Route::post('add-update-contact-basic-info', [ProfileController::class, 'addUpdateContactBasicInfo'])->name('add-update-contact-basic-info');
-    Route::get('delete-social-media-url/{id}', [ProfileController::class, 'deleteSocialMediaURL'])->name('delete-social-media-url');
+    Route::controller(ReactionController::class)->group(function () {
+        Route::post('/posts/{post}/react', 'react')->name('posts.react');
+        Route::get('/posts/{post}/reactions', 'getReactions')->name('posts.reactions');
+    });
 
-    Route::post('add-update-family-relationship', [ProfileController::class, 'addUpdateFamilyRelationShip'])->name('add-update-family-relationship');
-    Route::get('delete-family-member/{id}', [ProfileController::class, 'deleteFamilyMember'])->name('delete-family-member');
+    Route::controller(ChatController::class)->group(function () {
+        Route::get('/chats', 'index')->name('chats');
+    });
 
-    Route::post('get-overview-by-user-id', [ProfileController::class, 'getOverViewByUserId'])->name('get-overview-by-user-id');
+    Route::controller(ProfileController::class)->group(function () {
+        Route::get('/profile/{user_id}/{parentTab?}/{tab?}', 'index')->name('profile');
 
-    Route::get('delete-post/{id}', [ProfileController::class, 'deletePost'])->name('delete-post');
-    
+        Route::post('/profile/contact-info/add', 'addContact')->name('profile.contact-info.add');
+        Route::delete('/profile/contact-info/{id}/delete', 'deleteContact')->name('profile.contact-info.delete');
+        Route::post('/profile/contact-info/basic/create', 'createBasicInfo')->name('profile.contact-info.basic.create');
+    });
 
-    Route::post('search-user', [SearchController::class, 'searchUser'])->name('search-user');
+    Route::controller(FollowController::class)->group(function () {
+        Route::post('/users/{user}/follow', 'follow')->name('users.follow');
+        Route::post('/users/{user}/unfollow', 'unfollow')->name('users.unfollow');
+        Route::post('/users/{user}/follow/accept', 'acceptFollow')->name('follow.accept');
+        Route::post('/users/{user}/follow/decline', 'declineFollow')->name('follow.decline');
+        Route::post('/users/{user}/follow/cancel', 'cancelRequest')->name('follow.cancel');
+    });
 
-    Route::post('get-follow', [FollowController::class, 'index'])->name('get-follow');
-    Route::post('send-follow-request', [FollowController::class, 'sendFollowRequest'])->name('send-follow-request');
-    Route::get('total-follow-request', [FollowController::class, 'totalFollowRequest'])->name('total-follow-request');
-    Route::get('follow-request-list', [FollowController::class, 'getRequestList'])->name('follow-request-list');
-    Route::post('response-to-request', [FollowController::class, 'responseToRequest'])->name('response-to-request');
+    Route::controller(PlaceController::class)->group(function () {
+        Route::post('/places/save', 'store')->name('places.store');
+        Route::delete('/places/delete/{id}', 'destroy')->name('places.destroy');
+    });
 
-    Route::get('unfollow/{id}', [FollowController::class, 'unfollow'])->name('unfollow');
+    // routes/api.php
+    Route::get('/search/users', [UserController::class, 'search'])->name('users.search');
 
+    Route::controller(WorkEducationController::class)->group(function () {
+        Route::post('/work', 'storeWork')->name('work.store');
+        Route::put('/work/{id}', 'updateWork')->name('work.update');
+        Route::delete('/work/{id}', 'destroyWork')->name('work.destroy');
+        Route::get('/work/{id}', 'showWork')->name('work.show');
 
-    Route::get('messages', [MessageController::class, 'index'])->name('messages');
-    Route::post('send-message', [MessageController::class, 'sendMessage'])->name('send-message');
-    Route::post('get-messages', [MessageController::class, 'getMessages'])->name('get-messages');
-
-    Route::post('save-comment', [CommentController::class, 'saveComment'])->name('save-comment');
-
-    Route::post('/post/{postId}/like', [PostReactionController::class, 'likePost'])->name('post.like');
-    Route::post('/post/{postId}/dislike', [PostReactionController::class, 'dislikePost'])->name('post.dislike');
-    Route::get('/post/{postId}/reactions', [PostReactionController::class, 'getReactions'])->name('post.reactions');
-
-    Route::get('/get-notification', [NotificationController::class, 'index'])->name('get-notification');
-    Route::get('/clear-notification', [NotificationController::class, 'clearNotification'])->name('clear-notification');
+        // Education Routes
+        Route::post('/education', 'storeEducation')->name('education.store');
+        Route::put('/education/{id}', 'updateEducation')->name('education.update');
+        Route::delete('/education/{id}', 'destroyEducation')->name('education.destroy');
+        Route::get('/education/{id}', 'showEducation')->name('education.show');
+    });
 });

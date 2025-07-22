@@ -10,13 +10,16 @@ class Follow extends Model
 {
     use HasFactory;
 
-    protected $table = 'follows';
-
+    protected $table = 'followers';
     public $incrementing = false; // Disable auto-increment
     protected $keyType = 'string'; // UUID is a string
 
+    const STATUS_PENDING = 'pending';
+    const STATUS_ACCEPTED = 'accepted';
+    const STATUS_DECLINED = 'declined';
+
     protected $fillable = [
-        'user_id',
+        'follower_id',
         'following_id',
         'status'
     ];
@@ -31,20 +34,13 @@ class Follow extends Model
         });
     }
 
-    public function user()
-    {
-        return $this->hasOne(User::class, 'id', 'user_id');
-    }
-
-    // Follow.php
     public function follower()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class, 'follower_id');
     }
 
     public function following()
     {
         return $this->belongsTo(User::class, 'following_id');
     }
-
 }

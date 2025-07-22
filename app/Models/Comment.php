@@ -9,20 +9,16 @@ use Illuminate\Support\Str;
 
 class Comment extends Model
 {
-    use HasFactory,SoftDeletes;
+    use HasFactory, SoftDeletes;
 
-    protected $table = 'comments';
-
-    public $incrementing = false;
-    protected $keyType = 'string';
+    public $incrementing = false; // Disable auto-increment
+    protected $keyType = 'string'; // UUID is a string
 
     protected $fillable = [
+        'content',
         'user_id',
-        'post_id',
-        'comment'
+        'post_id'
     ];
-
-    protected $dates = ['deleted_at'];
 
     protected static function boot()
     {
@@ -33,8 +29,14 @@ class Comment extends Model
             }
         });
     }
+    
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 
-    public function user(){
-        return $this->hasOne(User::class,'id','user_id');
+    public function post()
+    {
+        return $this->belongsTo(Post::class);
     }
 }

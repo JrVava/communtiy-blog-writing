@@ -4,13 +4,11 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Support\Str;
-use Illuminate\Database\Eloquent\SoftDeletes;
-
-
 
 class User extends Authenticatable
 {
@@ -18,7 +16,6 @@ class User extends Authenticatable
 
     public $incrementing = false; // Disable auto-increment
     protected $keyType = 'string'; // UUID is a string
-
     /**
      * The attributes that are mass assignable.
      *
@@ -36,7 +33,6 @@ class User extends Authenticatable
     ];
 
     protected $dates = ['deleted_at'];
-
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -57,11 +53,6 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
-    public function countryRecord()
-    {
-        return $this->hasOne(Country::class, 'id', 'country');
-    }
-
     protected static function boot()
     {
         parent::boot();
@@ -72,42 +63,97 @@ class User extends Authenticatable
         });
     }
 
-    /**
-     * Get initials from the full name if the image is null
-     */
-    public function getInitialsAttribute()
+    // app/Models/User.php
+    public function posts()
     {
-        if ($this->image) {
-            return null; // No need for initials if image exists
+        return $this->hasMany(Post::class);
+    }
+
+    // In your User model
+    public function visiblePosts()
+    {
+        if (auth()->id() === $this->id) {
+            return $this->posts();
         }
 
-        $words = explode(' ', trim($this->full_name));
-        $initials = strtoupper(substr($words[0], 0, 1)); // First letter of first name
-
-        if (count($words) > 1) {
-            $initials .= strtoupper(substr(end($words), 0, 1)); // First letter of last name
-        }
-
-        return $initials;
+        return $this->posts()
+            ->whereHas('user.followers', function ($query) {
+                $query->where('follower_id', auth()->id())
+                    ->where('status', Follow::STATUS_ACCEPTED);
+            });
     }
 
-    public function workPlace()
+    // In your User model
+    public function followers()
     {
-        return $this->hasMany(WorkPlace::class, 'user_id', 'id');
+        return $this->belongsToMany(User::class, 'followers', 'following_id', 'follower_id')
+            ->withPivot('status')
+            ->withTimestamps();
     }
 
-    public function placeLived()
+    public function following()
     {
-        return $this->hasMany(PlaceLived::class, 'user_id', 'id');
+        return $this->belongsToMany(User::class, 'followers', 'follower_id', 'following_id')
+            ->withPivot('status')
+            ->withTimestamps();
     }
 
-    public function contactBasicInfo()
+    public function acceptedFollowers()
     {
-        return $this->hasOne(ContactBasicInfo::class, 'user_id', 'id');
+        return $this->followers()->wherePivot('status', Follow::STATUS_ACCEPTED);
     }
 
-    public function familyRelationShip()
+    public function pendingFollowRequests()
     {
-        return $this->hasMany(FamilyRelationShip::class, 'user_id', 'id');
+        return $this->followers()->wherePivot('status', Follow::STATUS_PENDING);
+    }
+
+    public function isFollowing(User $user)
+    {
+        return $this->following()
+            ->where('following_id', $user->id)
+            ->where('status', Follow::STATUS_ACCEPTED)
+            ->exists();
+    }
+
+    public function hasPendingFollowRequestTo(User $user)
+    {
+        return $this->following()
+            ->where('following_id', $user->id)
+            ->where('status', Follow::STATUS_PENDING)
+            ->exists();
+    }
+
+    public function hasPendingFollowRequestFrom(User $user)
+    {
+        return $this->followers()
+            ->where('follower_id', $user->id)
+            ->where('status', Follow::STATUS_PENDING)
+            ->exists();
+    }
+
+     public function places()
+    {
+        return $this->hasMany(Place::class);
+    }
+
+    public function contacts()
+    {
+        return $this->hasMany(UserContact::class,'user_id','id');
+    }
+
+    public function basicInfo()
+    {
+        return $this->hasMany(UserBasicInfo::class,'user_id','id');
+    }
+
+    public function workExperiences()
+    {
+        return $this->hasMany(WorkExperience::class,'user_id','id');
+    }
+
+    public function educations()
+    {
+        return $this->hasMany(Education::class,'user_id','id');
     }
 }
