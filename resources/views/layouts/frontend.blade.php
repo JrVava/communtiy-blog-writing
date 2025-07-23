@@ -18,15 +18,15 @@
             .content-area {
                 padding-bottom: 0;
             }
-            
+
         }
 
         @media (min-width: 375px) {
-            .in-mobile-content{
+            .in-mobile-content {
                 margin-bottom: 92px;
             }
         }
-        
+
 
         .image-preview-container {
             display: none;
@@ -232,8 +232,8 @@
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
             <!-- Logo on Left -->
             <a href="{{ route('user.post') }}" class="flex items-center">
-                <img src="https://communtiy-blog.test/assets//img/logo.png" alt="Community Logo"
-                    class="h-8 md:h-10 mr-2"> <!-- Adjust height as needed -->
+                <img src="{{ secure_asset('assets/img/logo.png') }}" alt="Community Logo" class="h-8 md:h-10 mr-2">
+                <!-- Adjust height as needed -->
                 <!-- Optional text that shows only on desktop -->
             </a>
 

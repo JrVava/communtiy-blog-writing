@@ -16,7 +16,7 @@ use Illuminate\Validation\Rule;
 class ProfileController extends Controller
 {
     public function index($user_id, $parentTab = null, $tab = null)
-    {
+    {   
         $user = User::find($user_id);
 
         $followingIds = $user->following()
@@ -45,7 +45,9 @@ class ProfileController extends Controller
 
         $works = Auth::user()->workExperiences()->orderBy('start_date', 'desc')->get();
         $educations = Auth::user()->educations()->orderBy('start_date', 'desc')->get();
-        
+
+        $friendList = Auth::user()->followingUsers;
+
         return view('frontend.profile.index', [
             'user' => $user,
             'followingIds' => $followingIds,
@@ -58,6 +60,7 @@ class ProfileController extends Controller
             'basicInfo' => $basicInfo,
             'works' => $works,
             'educations' => $educations,
+            'friendList' => $friendList,
             'tab' => $tab,
             'parentTab' => $parentTab,
         ]);

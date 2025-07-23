@@ -116,6 +116,13 @@ class User extends Authenticatable
             ->exists();
     }
 
+    public function followingUsers()
+{
+    return $this->belongsToMany(User::class, 'followers', 'follower_id', 'following_id')
+        ->wherePivot('status', Follow::STATUS_ACCEPTED)
+        ->withTimestamps();
+}
+
     public function hasPendingFollowRequestTo(User $user)
     {
         return $this->following()
