@@ -12,7 +12,7 @@ return new class extends Migration {
     {
         Schema::create('post_reactions', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('post_id')->constrained()->cascadeOnDelete();
+            $table->uuid('post_id');
             // $table->foreignUuid('user_id')->constrained()->cascadeOnDelete();
             $table->json('reactions')->nullable(); // Store multiple reaction types
             $table->timestamps();
