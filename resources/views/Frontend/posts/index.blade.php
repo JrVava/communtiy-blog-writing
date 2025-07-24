@@ -81,6 +81,7 @@
         transform: translateY(0);
     }
 </style>
+@section('title','On Track Eductaion - Home')
 @section('content')
     <div class="container mx-auto px-4 mt-[50px] md:mt-0 py-6 flex flex-col md:flex-row gap-6">
         <!-- Left Sidebar - Community Navigation (Hidden on mobile) -->

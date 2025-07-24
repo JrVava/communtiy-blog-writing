@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\User\ChatController;
 use App\Http\Controllers\User\CommentController;
+use App\Http\Controllers\User\FamilyRelationshipController;
 use App\Http\Controllers\User\FollowController;
 use App\Http\Controllers\User\PlaceController;
 use App\Http\Controllers\User\PostController;
@@ -101,5 +102,14 @@ Route::middleware([
         Route::put('/education/{id}', 'updateEducation')->name('education.update');
         Route::delete('/education/{id}', 'destroyEducation')->name('education.destroy');
         Route::get('/education/{id}', 'showEducation')->name('education.show');
+    });
+
+    Route::controller(FamilyRelationshipController::class)->group(function () {
+        Route::post('/update-relationship', 'updateRelationship')->name('relationship.update');
+
+        Route::post('/add-family-member', 'addFamilyMember')->name('family.member.add');
+        
+        Route::delete('/remove-family-member/{familyMember}', 'removeFamilyMember')->name('family.member.remove');
+        Route::get('/search-following','searchFollwingUser')->name('search-following');
     });
 });

@@ -3,12 +3,16 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Models\Education;
 use App\Models\Follow;
+use App\Models\Place;
 use App\Models\Post;
 use App\Models\PostReaction;
+use App\Models\Relationship;
 use App\Models\User;
 use App\Models\UserBasicInfo;
 use App\Models\UserContact;
+use App\Models\WorkExperience;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
@@ -16,7 +20,7 @@ use Illuminate\Validation\Rule;
 class ProfileController extends Controller
 {
     public function index($user_id, $parentTab = null, $tab = null)
-    {   
+    {
         $user = User::find($user_id);
 
         $followingIds = $user->following()
@@ -46,8 +50,14 @@ class ProfileController extends Controller
         $works = Auth::user()->workExperiences()->orderBy('start_date', 'desc')->get();
         $educations = Auth::user()->educations()->orderBy('start_date', 'desc')->get();
 
-        $friendList = Auth::user()->followingUsers;
+        $relationship = Auth::user()->relationship;
 
+        // dd($relationship);
+        $familyMembers = Auth::user()->familyMembers()->with('familyMember')->get();
+        $friendList = Auth::user()->followingUsers;
+        // dd($familyMembers);
+        $overViewData = $this->getOverviewData($user_id);
+        // dd($overViewData);
         return view('frontend.profile.index', [
             'user' => $user,
             'followingIds' => $followingIds,
@@ -61,6 +71,15 @@ class ProfileController extends Controller
             'works' => $works,
             'educations' => $educations,
             'friendList' => $friendList,
+            'relationship' => $relationship,
+            'familyMembers' => $familyMembers,
+
+            'work' => isset($overViewData['work']) ? $overViewData['work'] : null,
+            'education' => isset($overViewData['education']) ? $overViewData['education'] : null,
+            'homeTown' => isset($overViewData['homeTown']) ? $overViewData['homeTown'] : null,
+            'currentCityOverView' => isset($overViewData['currentCity']) ? $overViewData['currentCity'] : null,
+            'relationShip' => isset($overViewData['relationShip']) ? $overViewData['relationShip'] : null,
+
             'tab' => $tab,
             'parentTab' => $parentTab,
         ]);
@@ -123,15 +142,61 @@ class ProfileController extends Controller
         ]);
 
         $basicInfo = Auth::user()->basicInfo()->updateOrCreate(
-        ['user_id' => Auth::id()], // Match condition
-        [                          // Data to update/create
-            'birthday' => $request->birthday,
-            'gender' => $request->gender,
-            'languages' => $request->languages,
-        ]
-    );
+            ['user_id' => Auth::id()], // Match condition
+            [                          // Data to update/create
+                'birthday' => $request->birthday,
+                'gender' => $request->gender,
+                'languages' => $request->languages,
+            ]
+        );
 
         $basicInfo->save();
         return redirect()->route('profile', ['user_id' => Auth::id(), 'parentTab' => 'about-tab', 'tab' => 'contact-info'])->with('success', 'Basic info created successfully!');
+    }
+
+    private function getOverviewData($user_id)
+    {
+        $user = User::find($user_id);
+        $work = WorkExperience::where('user_id', $user_id)
+            ->where('is_current', true)
+            ->first();
+
+        // If no current work, get most recent
+        if (!$work) {
+            $work = WorkExperience::where('user_id', $user_id)
+                ->latest('created_at')
+                ->first();
+        }
+
+        $education = Education::where('user_id', '=', $user_id)->latest('created_at')
+            ->first();
+        // dd($education);
+        $currentCity = Place::where([
+            ['user_id', '=', $user_id],
+            ['type', '=', 'other'],
+            ['is_present', '=', true],
+        ])->first();
+
+        if (!$currentCity) {
+            $currentCity = Place::where([
+                ['user_id', '=', $user_id],
+                ['type', '=', 'current_city']
+            ])->first();
+        }
+
+        $homeTown = Place::where([
+            ['user_id', '=', $user_id],
+            ['type', '=', 'hometown']
+        ])->first();
+
+        $relationShip = Relationship::where('user_id', '=', $user_id)->first();
+
+        return [
+            'work' => $work,
+            'education' => $education,
+            'homeTown' => $homeTown,
+            'currentCity' => $currentCity,
+            'relationShip' => $relationShip
+        ];
     }
 }

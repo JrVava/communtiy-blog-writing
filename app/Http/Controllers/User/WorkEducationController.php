@@ -106,8 +106,7 @@ class WorkEducationController extends Controller
                 ->withErrors($validator, 'education')
                 ->withInput();
         }
-
-        $education = new Education($request->validated());
+        $education = new Education($request->all());
         $education->user_id = Auth::id();
         $education->save();
 

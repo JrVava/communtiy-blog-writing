@@ -81,6 +81,7 @@
         transform: translateY(0);
     }
 </style>
+@section('title', 'On Track Eductaion - Profile')
 @section('content')
     <div class="relative bg-white shadow-sm mb-4">
         <!-- Cover Photo Section with Always-Visible Upload Button -->
@@ -147,10 +148,10 @@
                             {{ $user->isFollowing(auth()->user()) ? 'Follow Back' : 'Follow' }}
                         </button>
                     @endif
-                    <button
+                    {{-- <button
                         class="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded-md font-medium flex items-center transition">
                         <i class="fas fa-pen mr-2"></i> Edit Profile
-                    </button>
+                    </button> --}}
                 </div>
             </div>
         </div>
@@ -171,9 +172,9 @@
                 <a href="#" class="profile-tab-link px-6 py-4 text-gray-600 hover:bg-gray-100 whitespace-nowrap"
                     data-tab="friends-tab">Friends</a>
                 <!-- <a href="#" class="profile-tab-link px-6 py-4 text-gray-600 hover:bg-gray-100 whitespace-nowrap"
-                                    data-tab="photos-tab">Photos</a>
-                                <a href="#" class="profile-tab-link px-6 py-4 text-gray-600 hover:bg-gray-100 whitespace-nowrap"
-                    data-tab="videos-tab">Videos</a> -->
+                                                                data-tab="photos-tab">Photos</a>
+                                                            <a href="#" class="profile-tab-link px-6 py-4 text-gray-600 hover:bg-gray-100 whitespace-nowrap"
+                                                data-tab="videos-tab">Videos</a> -->
             </nav>
         </div>
     </div>
@@ -579,21 +580,25 @@
                     <nav class="space-y-1" id="profileTabs">
                         <a href="#overview"
                             class="block px-4 py-2 rounded-md tab-link 
-          @if (!isset($tab)) bg-blue-50 text-blue-600 font-medium active @endif">Overview</a>
+                            @if (!isset($tab)) bg-blue-50 text-blue-600 font-medium active @endif">Overview</a>
                         <a href="#work"
                             class="block px-4 py-2 rounded-md hover:bg-gray-100 tab-link 
-                        @if (isset($tab) && $tab == 'work-education') bg-blue-50 text-blue-600 font-medium active @endif">Work
+                            @if (isset($tab) && $tab == 'work-education') bg-blue-50 text-blue-600 font-medium active @endif">Work
                             and
                             Education</a>
                         <a href="#places"
                             class="block px-4 py-2 rounded-md hover:bg-gray-100 tab-link
-          @if (isset($tab) && $tab == 'place-lived') bg-blue-50 text-blue-600 font-medium active @endif">Places
+                            @if (isset($tab) && $tab == 'place-lived') bg-blue-50 text-blue-600 font-medium active @endif">Places
                             Lived</a>
                         <a href="#contact-info"
-                            class="block px-4 py-2 rounded-md hover:bg-gray-100 tab-link @if (isset($tab) && $tab == 'contact-info') bg-blue-50 text-blue-600 font-medium active @endif">Contact
+                            class="block px-4 py-2 rounded-md hover:bg-gray-100 tab-link 
+                            @if (isset($tab) && $tab == 'contact-info') bg-blue-50 text-blue-600 font-medium active @endif">Contact
                             and
                             Basic Info</a>
-                        <a href="#family" class="block px-4 py-2 rounded-md hover:bg-gray-100 tab-link">Family and
+                        <a href="#family"
+                            class="block px-4 py-2 rounded-md hover:bg-gray-100 tab-link 
+                            @if (isset($tab) && $tab == 'family-relationship') bg-blue-50 text-blue-600 font-medium active @endif">Family
+                            and
                             Relationship</a>
                     </nav>
                 </div>
@@ -602,7 +607,6 @@
                 <div class="flex-1 bg-white rounded-lg shadow p-6 mb-12">
                     <!-- Overview Section -->
                     @include('frontend.profile.about.overview')
-
 
                     <!-- Work and Education Section -->
                     @include('frontend.profile.about.work-education')
@@ -616,13 +620,6 @@
                     <!-- Family and Relationship Section -->
                     @include('frontend.profile.about.family-relationship')
 
-                    <!-- Edit Button -->
-                    <div class="mt-6 mb-4"> <!-- Added mb-4 for additional bottom margin -->
-                        <button
-                            class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md font-medium transition">
-                            Edit Profile
-                        </button>
-                    </div>
                 </div>
             </div>
         </div>
@@ -1877,17 +1874,28 @@
             let familyMembers = [];
 
             // Show/hide partner fields based on relationship status
-            const relationshipStatusesWithPartner = [
-                'In a relationship', 'Engaged', 'Married',
-                'In a civil union', 'In a domestic partnership'
-            ];
+            const relationshipStatusesWithPartner = @json(config('relationship.statuses_with_partner'));
 
             relationshipStatus.addEventListener('change', function() {
                 const status = this.value;
-                partnerNameContainer.classList.toggle('hidden', !relationshipStatusesWithPartner.includes(
-                    status));
-                anniversaryContainer.classList.toggle('hidden', !relationshipStatusesWithPartner.includes(
-                    status));
+                // partnerNameContainer.classList.toggle('hidden', !relationshipStatusesWithPartner.includes(
+                //     status));
+                // anniversaryContainer.classList.toggle('hidden', !relationshipStatusesWithPartner.includes(
+                //     status));
+
+
+                const shouldShowPartnerFields = relationshipStatusesWithPartner.includes(status);
+
+                // Toggle visibility
+                partnerNameContainer.classList.toggle('hidden', !shouldShowPartnerFields);
+                anniversaryContainer.classList.toggle('hidden', !shouldShowPartnerFields);
+
+                // Clear values if hiding the fields
+                if (!shouldShowPartnerFields) {
+                    document.getElementById('friend-search').value = '';
+                    document.getElementById('user-id-input').value = '';
+                    document.getElementById('anniversary_date').value = '';
+                }
             });
 
             // Show/hide custom relationship field
@@ -1900,75 +1908,7 @@
                 editRelationshipBtn.addEventListener('click', function(e) {
                     e.preventDefault();
                     relationshipForm.classList.remove('hidden');
-                    relationshipStatus.value = relationshipData.status || '';
-                    partnerName.value = relationshipData.partner || '';
-
-                    // Set anniversary date if available
-                    if (relationshipData.anniversary) {
-                        const [year, month, day] = relationshipData.anniversary.split('-');
-                        document.getElementById('anniversary-year').value = year;
-                        document.getElementById('anniversary-month').value = month;
-                        document.getElementById('anniversary-day').value = day;
-                    }
                 });
-            }
-
-            // Save Relationship
-            if (saveRelationshipBtn) {
-                saveRelationshipBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const status = relationshipStatus.value;
-                    relationshipData.status = status;
-
-                    if (relationshipStatusesWithPartner.includes(status)) {
-                        relationshipData.partner = partnerName.value;
-
-                        const year = document.getElementById('anniversary-year').value;
-                        const month = document.getElementById('anniversary-month').value;
-                        const day = document.getElementById('anniversary-day').value;
-
-                        if (year && month && day) {
-                            relationshipData.anniversary = `${year}-${month}-${day}`;
-                        }
-                    } else {
-                        relationshipData.partner = '';
-                        relationshipData.anniversary = '';
-                    }
-
-                    updateRelationshipDisplay();
-                    relationshipForm.classList.add('hidden');
-                });
-            }
-
-            // Update relationship display
-            function updateRelationshipDisplay() {
-                let html = `
-            <div class="flex items-start space-x-3">
-                <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                    <i class="fas fa-heart text-blue-500"></i>
-                </div>
-                <div>
-                    <h4 class="font-medium">${relationshipData.status || 'Not specified'}</h4>
-        `;
-
-                if (relationshipData.partner) {
-                    html += `<p class="text-gray-600 text-sm">With ${relationshipData.partner}</p>`;
-                }
-
-                if (relationshipData.anniversary) {
-                    const [year, month, day] = relationshipData.anniversary.split('-');
-                    const date = new Date(year, month - 1, day);
-                    const options = {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                    };
-                    html +=
-                        `<p class="text-gray-500 text-xs">Since ${date.toLocaleDateString(undefined, options)}</p>`;
-                }
-
-                html += `</div></div>`;
-                relationshipDisplay.innerHTML = html;
             }
 
             // Add Family Member Button
@@ -1976,90 +1916,6 @@
                 addFamilyMemberBtn.addEventListener('click', function(e) {
                     e.preventDefault();
                     familyMemberForm.classList.remove('hidden');
-                });
-            }
-
-            // Save Family Member
-            if (saveFamilyMemberBtn) {
-                saveFamilyMemberBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const name = familyMemberName.value.trim();
-                    let relationship = familyRelationship.value;
-
-                    if (relationship === 'Other') {
-                        relationship = customRelationship.value.trim();
-                    }
-
-                    if (name && relationship) {
-                        familyMembers.push({
-                            name,
-                            relationship
-                        });
-
-                        updateFamilyMembersDisplay();
-                        familyMemberForm.classList.add('hidden');
-                        familyMemberName.value = '';
-                        familyRelationship.value = '';
-                        customRelationship.value = '';
-                        customRelationshipContainer.classList.add('hidden');
-                    }
-                });
-            }
-
-            // Update family members display
-            function updateFamilyMembersDisplay() {
-                if (familyMembers.length === 0) {
-                    familyMembersContainer.innerHTML = `
-                <div class="bg-white rounded-lg shadow p-4">
-                    <p class="text-gray-500 text-sm">Add your family members</p>
-                </div>
-            `;
-                    return;
-                }
-
-                let html = '';
-                familyMembers.forEach((member, index) => {
-                    html += `
-                <div class="bg-white rounded-lg shadow p-4">
-                    <div class="flex justify-between">
-                        <div class="flex items-start space-x-3">
-                            <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                                <i class="fas fa-user text-blue-500"></i>
-                            </div>
-                            <div>
-                                <h4 class="font-medium">${member.name}</h4>
-                                <p class="text-gray-600 text-sm">${member.relationship}</p>
-                            </div>
-                        </div>
-                        <div class="flex space-x-2">
-                            <button class="text-gray-500 hover:text-gray-700 edit-family-member" data-index="${index}">
-                                <i class="fas fa-pen"></i>
-                            </button>
-                            <button class="text-gray-500 hover:text-gray-700 remove-family-member" data-index="${index}">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
-                });
-
-                familyMembersContainer.innerHTML = html;
-
-                // Add event listeners to edit and remove buttons
-                document.querySelectorAll('.edit-family-member').forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        const index = this.getAttribute('data-index');
-                        editFamilyMember(index);
-                    });
-                });
-
-                document.querySelectorAll('.remove-family-member').forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        const index = this.getAttribute('data-index');
-                        familyMembers.splice(index, 1);
-                        updateFamilyMembersDisplay();
-                    });
                 });
             }
 
@@ -2080,26 +1936,6 @@
                 }
 
                 familyMemberForm.classList.remove('hidden');
-
-                // Update save button to handle edit
-                saveFamilyMemberBtn.onclick = function(e) {
-                    e.preventDefault();
-                    const name = familyMemberName.value.trim();
-                    let relationship = familyRelationship.value;
-
-                    if (relationship === 'Other') {
-                        relationship = customRelationship.value.trim();
-                    }
-
-                    if (name && relationship) {
-                        familyMembers[index] = {
-                            name,
-                            relationship
-                        };
-                        updateFamilyMembersDisplay();
-                        familyMemberForm.classList.add('hidden');
-                    }
-                };
             }
 
             // Cancel buttons
@@ -2116,10 +1952,6 @@
                     familyMemberForm.classList.add('hidden');
                 });
             });
-
-            // Initialize displays
-            updateRelationshipDisplay();
-            updateFamilyMembersDisplay();
         });
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -2316,6 +2148,193 @@
             if (isCurrent) {
                 document.getElementById('edit_end_date').value = '';
             }
+        });
+
+
+        // function performSearch(inputElement, resultsContainer) {
+        //     const query = inputElement.value;
+        //     if (query.length < 2) {
+        //         resultsContainer.classList.add('hidden');
+        //         return;
+        //     }
+
+        //     fetch(`/search-following?q=${encodeURIComponent(query)}`)
+        //         .then(response => response.json())
+        //         .then(data => {
+        //             resultsContainer.innerHTML = '';
+
+        //             if (data.length === 0) {
+        //                 resultsContainer.innerHTML = '<div class="p-2 text-gray-500">No matching friends found</div>';
+        //             } else {
+        //                 data.forEach(user => {
+        //                     const userElement = document.createElement('div');
+        //                     userElement.className = 'p-2 hover:bg-gray-100 cursor-pointer flex items-center';
+
+        //                     // User avatar (if available)
+        //                     const avatar = user.profile_photo_path ?
+        //                         `<img src="${user.profile_photo_path}" class="w-8 h-8 rounded-full mr-2">` :
+        //                         `<div class="w-8 h-8 rounded-full bg-gray-300 mr-2 flex items-center justify-center">
+    //                      <svg class="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+    //                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+    //                      </svg>
+    //                    </div>`;
+
+        //                     // User info
+        //                     userElement.innerHTML = `
+    //                 ${avatar}
+    //                 <div>
+    //                     <div class="font-medium">${user.full_name}</div>
+    //                     ${user.email ? `<div class="text-xs text-gray-500">${user.email}</div>` : ''}
+    //                 </div>
+    //             `;
+
+        //                     userElement.onclick = () => {
+        //                         // Set both the display value and hidden ID value
+        //                         inputElement.value = user.full_name;
+
+        //                         // Find or create the hidden input for the ID
+        //                         let hiddenInput = document.getElementById('user-id-input');
+        //                         if (!hiddenInput) {
+        //                             hiddenInput = document.createElement('input');
+        //                             hiddenInput.type = 'hidden';
+        //                             hiddenInput.id = 'user-id-input';
+        //                             hiddenInput.name = 'partner_id';
+        //                             inputElement.insertAdjacentElement('afterend', hiddenInput);
+        //                         }
+        //                         hiddenInput.value = user.id;
+
+        //                         resultsContainer.classList.add('hidden');
+        //                     };
+
+        //                     resultsContainer.appendChild(userElement);
+        //                 });
+        //             }
+
+        //             resultsContainer.classList.remove('hidden');
+        //         });
+        // }
+
+        // // Partner search
+        // document.getElementById('friend-search').addEventListener('input', function(e) {
+        //     performSearch(this, document.getElementById('friend-results'));
+        // });
+
+        // Shared search function
+        document.addEventListener('DOMContentLoaded', function() {
+            // Partner search elements
+            const friendSearch = document.getElementById('friend-search');
+            const friendResults = document.getElementById('friend-results');
+
+            // Family member search elements
+            const familyMemberSearch = document.getElementById('family-member-search');
+            const familyMemberResults = document.getElementById('family-member-results');
+
+            // Only initialize if elements exist
+            if (friendSearch && friendResults) {
+                friendSearch.addEventListener('input', function(e) {
+                    performSearch(this, friendResults, 'user-id-input', 'partner_id');
+                });
+            }
+
+            if (familyMemberSearch && familyMemberResults) {
+                familyMemberSearch.addEventListener('input', function(e) {
+                    performSearch(this, familyMemberResults, 'family-member-id-input', 'family_member_id');
+                });
+            }
+
+            // Shared search function
+            function performSearch(inputElement, resultsContainer, hiddenInputId, hiddenInputName) {
+                const query = inputElement.value;
+                if (query.length < 2) {
+                    if (resultsContainer) resultsContainer.classList.add('hidden');
+                    return;
+                }
+
+                fetch(`/search-following?q=${encodeURIComponent(query)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!resultsContainer) return;
+
+                        resultsContainer.innerHTML = '';
+
+                        if (data.length === 0) {
+                            resultsContainer.innerHTML =
+                                '<div class="p-2 text-gray-500">No matching friends found</div>';
+                        } else {
+                            data.forEach(user => {
+                                const userElement = document.createElement('div');
+                                userElement.className =
+                                    'p-2 hover:bg-gray-100 cursor-pointer flex items-center';
+
+                                // User avatar
+                                const avatar = user.image ?
+                                    `<img src="${user.image}" class="w-8 h-8 rounded-full mr-2">` :
+                                    `<div class="w-8 h-8 rounded-full bg-gray-300 mr-2 flex items-center justify-center">
+                                <svg class="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+                                </svg>
+                            </div>`;
+
+                                // User info
+                                userElement.innerHTML = `
+                            ${avatar}
+                            <div>
+                                <div class="font-medium">${user.full_name}</div>
+                                <div class="text-xs text-gray-500">${user.email}</div>
+                                ${user.phone ? `<div class="text-xs text-gray-500">${user.phone}</div>` : ''}
+                            </div>
+                        `;
+
+                                userElement.onclick = () => {
+                                    inputElement.value = user.full_name;
+
+                                    // Set hidden input value
+                                    let hiddenInput = document.getElementById(hiddenInputId);
+                                    if (!hiddenInput) {
+                                        hiddenInput = document.createElement('input');
+                                        hiddenInput.type = 'hidden';
+                                        hiddenInput.id = hiddenInputId;
+                                        hiddenInput.name = hiddenInputName;
+                                        inputElement.insertAdjacentElement('afterend', hiddenInput);
+                                    }
+                                    hiddenInput.value = user.id;
+
+                                    if (resultsContainer) resultsContainer.classList.add('hidden');
+                                };
+
+                                resultsContainer.appendChild(userElement);
+                            });
+                        }
+                        resultsContainer.classList.remove('hidden');
+                    })
+                    .catch(error => {
+                        console.error('Search error:', error);
+                        if (resultsContainer) {
+                            resultsContainer.innerHTML =
+                                '<div class="p-2 text-red-500">Error loading results</div>';
+                        }
+                    });
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            flatpickr("#anniversary_date", {
+                dateFormat: "Y-m-d",
+                maxDate: "today", // This prevents future dates
+                allowInput: true, // Allows manual input while still validating
+                onReady: function(selectedDates, dateStr, instance) {
+                    // Optional: Add clear button
+                    instance.clearButton = instance._createElement(
+                        'a',
+                        'flatpickr-clear',
+                        'Clear'
+                    );
+                    instance.clearButton.addEventListener('click', () => {
+                        instance.clear();
+                    });
+                    instance.calendarContainer.appendChild(instance.clearButton);
+                }
+            });
         });
     </script>
 @endsection

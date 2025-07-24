@@ -163,4 +163,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(Education::class,'user_id','id');
     }
+
+    public function relationship()
+    {
+        return $this->hasOne(Relationship::class,'user_id','id');
+    }
+
+    public function familyMembers()
+    {
+        return $this->hasMany(FamilyMember::class,'user_id','id');
+    }
 }

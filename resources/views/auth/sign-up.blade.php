@@ -120,7 +120,7 @@
                 <div class="mt-6 text-center">
                     <p class="text-sm text-gray-600">
                         Already have an account?
-                        <a href="#" class="font-medium text-[#374697] hover:text-[#2a3a80]">Sign in</a>
+                        <a href="{{ route('login') }}" class="font-medium text-[#374697] hover:text-[#2a3a80]">Sign in</a>
                     </p>
                 </div>
             </div>

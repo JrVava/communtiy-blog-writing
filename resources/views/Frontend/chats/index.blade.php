@@ -1,4 +1,5 @@
 @extends('layouts.frontend')
+@section('title','On Track Eductaion - Messaging')
 @section('content')
 <div class="container mx-auto px-4 mt-[50px] md:mt-0 py-6 flex flex-col md:flex-row gap-6">
     <div class="flex h-screen w-full shadow-lg">
