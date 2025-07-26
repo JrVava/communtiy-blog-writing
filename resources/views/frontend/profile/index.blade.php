@@ -172,9 +172,9 @@
                 <a href="#" class="profile-tab-link px-6 py-4 text-gray-600 hover:bg-gray-100 whitespace-nowrap"
                     data-tab="friends-tab">Friends</a>
                 <!-- <a href="#" class="profile-tab-link px-6 py-4 text-gray-600 hover:bg-gray-100 whitespace-nowrap"
-                                                                data-tab="photos-tab">Photos</a>
-                                                            <a href="#" class="profile-tab-link px-6 py-4 text-gray-600 hover:bg-gray-100 whitespace-nowrap"
-                                                data-tab="videos-tab">Videos</a> -->
+                                                                    data-tab="photos-tab">Photos</a>
+                                                                <a href="#" class="profile-tab-link px-6 py-4 text-gray-600 hover:bg-gray-100 whitespace-nowrap"
+                                                    data-tab="videos-tab">Videos</a> -->
             </nav>
         </div>
     </div>
@@ -220,29 +220,41 @@
                                             class="w-10 h-10 rounded-full object-cover border border-gray-200">
                                     </div>
                                     <div class="flex-1">
-                                        <textarea placeholder="What's on your mind?"
-                                            class="w-full p-3 border-0 focus:ring-0 resize-none text-gray-700 placeholder-gray-500" rows="3"></textarea>
-                                        <div class="image-preview-container">
-                                            <img id="imagePreview" src="#" alt="Preview">
-                                            <div class="remove-image-btn" onclick="removeImage()">
-                                                <i class="fas fa-times text-xs"></i>
+                                        <form action="{{ route('posts.store') }}" method="POST"
+                                            enctype="multipart/form-data">
+                                            @csrf
+                                            <textarea placeholder="What's on your mind?" name="content"
+                                                class="w-full p-3 border-0 focus:ring-0 resize-none text-gray-700 placeholder-gray-500 @error('content') border-red-500 @enderror"
+                                                rows="3"></textarea>
+                                            @error('content')
+                                                <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                                            @enderror
+                                            <div class="image-preview-container">
+                                                <img id="imagePreview" src="#" alt="Preview">
+                                                <div class="remove-image-btn" onclick="removeImage()">
+                                                    <i class="fas fa-times text-xs"></i>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="flex items-center justify-between border-t border-gray-200 pt-3">
-                                            <div class="relative">
-                                                <input type="file" id="imageUpload" accept="image/*" class="hidden"
-                                                    onchange="previewImage(this)">
-                                                <label for="imageUpload"
-                                                    class="flex items-center text-gray-500 hover:bg-gray-100 rounded-md px-3 py-1 cursor-pointer">
-                                                    <i class="fas fa-image text-green-500 mr-2"></i>
-                                                    <span>Photo/Video</span>
-                                                </label>
+                                            <div class="flex items-center justify-between border-t border-gray-200 pt-3">
+                                                <div class="relative">
+                                                    <input type="file" id="imageUpload" name="media"
+                                                        accept="image/*,video/*" class="hidden"
+                                                        onchange="previewImage(this)">
+                                                    <label for="imageUpload"
+                                                        class="flex items-center text-gray-500 hover:bg-gray-100 rounded-md px-3 py-1 cursor-pointer">
+                                                        <i class="fas fa-image text-green-500 mr-2"></i>
+                                                        <span>Photo/Video</span>
+                                                    </label>
+                                                    @error('media')
+                                                        <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                                                    @enderror
+                                                </div>
+                                                <button type="submit"
+                                                    class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1 rounded-md font-medium">
+                                                    Post
+                                                </button>
                                             </div>
-                                            <button
-                                                class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1 rounded-md font-medium">
-                                                Post
-                                            </button>
-                                        </div>
+                                        </form>
                                     </div>
                                 </div>
                             </div>
