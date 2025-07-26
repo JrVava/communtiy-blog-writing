@@ -447,8 +447,7 @@
                                                                 <span
                                                                     class="text-xs text-gray-400">{{ $comment->created_at->diffForHumans() }}</span>
                                                             </div>
-                                                            <p class="text-sm mt-1 comment-content">
-                                                                {{ $comment->content }}</p>
+                                                            <p class="text-sm mt-1 comment-content">{{ $comment->content }}</p>
 
                                                             <!-- Comment actions (only show for comment owner) -->
                                                             @if (auth()->id() === $comment->user_id)
