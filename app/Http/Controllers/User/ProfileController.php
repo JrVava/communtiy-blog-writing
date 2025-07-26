@@ -56,8 +56,8 @@ class ProfileController extends Controller
 
         // dd($relationship);
         $familyMembers = Auth::user()->familyMembers()->with('familyMember')->get();
-        $friendList = Auth::user()->followingUsers;
-        // dd($familyMembers);
+        $friendList = $user->followingUsers;
+        // dd($friendList);
         $overViewData = $this->getOverviewData($user_id);
 
         $currentCoverImage = $user->currentCoverImage()->first();

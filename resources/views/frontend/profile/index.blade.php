@@ -86,18 +86,21 @@
     <div class="relative bg-white shadow-sm mb-4">
         <!-- Cover Photo Section with Always-Visible Upload Button -->
         <div class="h-64 bg-blue-500 w-full relative" id="coverPreview"
-            style="background-size: cover; background-position: center; @if(isset($currentCoverImage)) background-image: url('{{ Storage::url($currentCoverImage->path) }}'); @endif">
+            style="background-size: cover; background-position: center; @if (isset($currentCoverImage)) background-image: url('{{ Storage::url($currentCoverImage->path) }}'); @endif">
             <!-- Improved button with full clickable area -->
-            <label for="coverUpload" class="absolute bottom-4 right-4">
-                <div
-                    class="relative flex items-center bg-white bg-opacity-90 hover:bg-opacity-100 text-gray-800 px-3 py-1 rounded-md cursor-pointer transition-all shadow-md">
-                    <i class="fas fa-camera mr-2 text-gray-700"></i>
-                    <span class="text-sm font-medium">Update Cover</span>
-                    <!-- Full-size invisible file input -->
-                    <input type="file" id="coverUpload" accept="image/*"
-                        class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onchange="previewCoverImage(this)">
-                </div>
-            </label>
+            @if ($user->id == Auth::id())
+                <label for="coverUpload" class="absolute bottom-4 right-4">
+                    <div
+                        class="relative flex items-center bg-white bg-opacity-90 hover:bg-opacity-100 text-gray-800 px-3 py-1 rounded-md cursor-pointer transition-all shadow-md">
+                        <i class="fas fa-camera mr-2 text-gray-700"></i>
+                        <span class="text-sm font-medium">Update Cover</span>
+                        <!-- Full-size invisible file input -->
+                        <input type="file" id="coverUpload" accept="image/*"
+                            class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                            onchange="previewCoverImage(this)">
+                    </div>
+                </label>
+            @endif
         </div>
 
         <div class="container mx-auto px-4 relative">
@@ -105,22 +108,25 @@
                 <!-- Profile Picture with Always-Visible Camera Icon -->
                 <div class="relative">
                     <div class="w-32 h-32 rounded-full border-4 border-white bg-white overflow-hidden shadow-md">
-                        <img id="profilePreview" src="@if(isset($currentProfileImage)) {{ Storage::url($currentProfileImage->path) }} @else {{ secure_asset('assets/img/dummy-user.jpg') }} @endif" alt="Profile"
-                            class="w-full h-full object-cover">
+                        <img id="profilePreview"
+                            src="@if (isset($currentProfileImage)) {{ Storage::url($currentProfileImage->path) }} @else {{ secure_asset('assets/img/dummy-user.jpg') }} @endif"
+                            alt="Profile" class="w-full h-full object-cover">
                     </div>
-                    <label for="profileUpload"
-                        class="absolute -bottom-1 -right-1 bg-blue-500 hover:bg-blue-600 text-white rounded-full p-2 cursor-pointer shadow-md transition-transform hover:scale-110">
-                        <i class="fas fa-camera text-sm"></i>
-                        <input type="file" id="profileUpload" accept="image/*" class="hidden"
-                            onchange="previewProfileImage(this)">
-                    </label>
+                    @if ($user->id == Auth::id())
+                        <label for="profileUpload"
+                            class="absolute -bottom-1 -right-1 bg-blue-500 hover:bg-blue-600 text-white rounded-full p-2 cursor-pointer shadow-md transition-transform hover:scale-110">
+                            <i class="fas fa-camera text-sm"></i>
+                            <input type="file" id="profileUpload" accept="image/*" class="hidden"
+                                onchange="previewProfileImage(this)">
+                        </label>
+                    @endif
                 </div>
 
                 <div class="ml-0 md:ml-6 mt-4 md:mt-0 text-center md:text-left">
                     <h1 class="text-3xl font-bold">{{ $user->full_name }}</h1>
                 </div>
                 <div class="ml-auto mt-4 md:mt-0 flex space-x-2">
-                    @if($user->id != Auth::id())
+                    @if ($user->id != Auth::id())
                         @if (auth()->user()->hasPendingFollowRequestFrom($user))
                             {{-- Show Accept/Decline buttons if someone requested to follow you --}}
                             <div class="flex space-x-2">
@@ -174,9 +180,9 @@
                 <a href="#" class="profile-tab-link px-6 py-4 text-gray-600 hover:bg-gray-100 whitespace-nowrap"
                     data-tab="friends-tab">Friends</a>
                 <!-- <a href="#" class="profile-tab-link px-6 py-4 text-gray-600 hover:bg-gray-100 whitespace-nowrap"
-                                                                    data-tab="photos-tab">Photos</a>
-                                                                <a href="#" class="profile-tab-link px-6 py-4 text-gray-600 hover:bg-gray-100 whitespace-nowrap"
-                                                    data-tab="videos-tab">Videos</a> -->
+                                                                        data-tab="photos-tab">Photos</a>
+                                                                    <a href="#" class="profile-tab-link px-6 py-4 text-gray-600 hover:bg-gray-100 whitespace-nowrap"
+                                                        data-tab="videos-tab">Videos</a> -->
             </nav>
         </div>
     </div>
@@ -449,7 +455,8 @@
                                                                 <span
                                                                     class="text-xs text-gray-400">{{ $comment->created_at->diffForHumans() }}</span>
                                                             </div>
-                                                            <p class="text-sm mt-1 comment-content">{{ $comment->content }}</p>
+                                                            <p class="text-sm mt-1 comment-content">
+                                                                {{ $comment->content }}</p>
 
                                                             <!-- Comment actions (only show for comment owner) -->
                                                             @if (auth()->id() === $comment->user_id)
@@ -639,103 +646,7 @@
 
         <div id="friends-tab"
             class="profile-tab-content {{ isset($parentTab) && $parentTab == 'friends-tab' ? '' : 'hidden' }}">
-            <div class="container mx-auto px-4 py-6">
-                <!-- Simple Header -->
-                <h1 class="text-2xl font-bold mb-6">Friends (1,245)</h1>
-
-                <!-- Friends Grid - Simple Version -->
-                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                    <!-- Friend 1 -->
-                    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
-                        <img src="https://randomuser.me/api/portraits/men/1.jpg" alt="Friend"
-                            class="w-full h-48 object-cover">
-                        <div class="p-3">
-                            <h3 class="font-semibold">John Doe</h3>
-                            <p class="text-gray-500 text-sm">12 mutual friends</p>
-                            <div class="flex mt-2 space-x-1">
-                                <button
-                                    class="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-1 text-xs rounded">Message</button>
-                                <button class="flex-1 bg-gray-200 hover:bg-gray-300 py-1 text-xs rounded">Remove</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Friend Card 2 -->
-                    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
-                        <img src="https://randomuser.me/api/portraits/women/2.jpg" alt="Friend"
-                            class="w-full h-48 object-cover">
-                        <div class="p-3">
-                            <h3 class="font-semibold">Sarah Smith</h3>
-                            <p class="text-gray-500 text-sm">8 mutual friends</p>
-                            <div class="flex mt-2 space-x-1">
-                                <button
-                                    class="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-1 text-xs rounded">Message</button>
-                                <button class="flex-1 bg-gray-200 hover:bg-gray-300 py-1 text-xs rounded">Remove</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Friend Card 3 -->
-                    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
-                        <img src="https://randomuser.me/api/portraits/men/3.jpg" alt="Friend"
-                            class="w-full h-48 object-cover">
-                        <div class="p-3">
-                            <h3 class="font-semibold">Mike Johnson</h3>
-                            <p class="text-gray-500 text-sm">5 mutual friends</p>
-                            <div class="flex mt-2 space-x-1">
-                                <button
-                                    class="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-1 text-xs rounded">Message</button>
-                                <button class="flex-1 bg-gray-200 hover:bg-gray-300 py-1 text-xs rounded">Remove</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Friend Card 4 -->
-                    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
-                        <img src="https://randomuser.me/api/portraits/women/4.jpg" alt="Friend"
-                            class="w-full h-48 object-cover">
-                        <div class="p-3">
-                            <h3 class="font-semibold">Emily Davis</h3>
-                            <p class="text-gray-500 text-sm">3 mutual friends</p>
-                            <div class="flex mt-2 space-x-1">
-                                <button
-                                    class="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-1 text-xs rounded">Message</button>
-                                <button class="flex-1 bg-gray-200 hover:bg-gray-300 py-1 text-xs rounded">Remove</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Friend Card 5 -->
-                    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
-                        <img src="https://randomuser.me/api/portraits/men/5.jpg" alt="Friend"
-                            class="w-full h-48 object-cover">
-                        <div class="p-3">
-                            <h3 class="font-semibold">David Wilson</h3>
-                            <p class="text-gray-500 text-sm">15 mutual friends</p>
-                            <div class="flex mt-2 space-x-1">
-                                <button
-                                    class="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-1 text-xs rounded">Message</button>
-                                <button class="flex-1 bg-gray-200 hover:bg-gray-300 py-1 text-xs rounded">Remove</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Friend Card 6 -->
-                    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
-                        <img src="https://randomuser.me/api/portraits/women/6.jpg" alt="Friend"
-                            class="w-full h-48 object-cover">
-                        <div class="p-3">
-                            <h3 class="font-semibold">Jessica Brown</h3>
-                            <p class="text-gray-500 text-sm">7 mutual friends</p>
-                            <div class="flex mt-2 space-x-1">
-                                <button
-                                    class="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-1 text-xs rounded">Message</button>
-                                <button class="flex-1 bg-gray-200 hover:bg-gray-300 py-1 text-xs rounded">Remove</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            @include('frontend.profile.friends-list')
         </div>
     </div>
 @section('scripts')
@@ -806,6 +717,7 @@
                 });
             });
         });
+
         function uploadMedia(file, type) {
             const formData = new FormData();
             formData.append('media', file);
@@ -813,16 +725,17 @@
             formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
 
             return fetch('/media/upload', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json());
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json());
         }
+
         function previewCoverImage(input) {
             if (input.files && input.files[0]) {
                 const preview = document.getElementById('coverPreview');
                 const reader = new FileReader();
-                
+
                 reader.onload = function(e) {
                     preview.style.backgroundImage = `url(${e.target.result})`;
                     uploadMedia(input.files[0], 'cover')
@@ -835,14 +748,14 @@
                 reader.readAsDataURL(input.files[0]);
             }
         }
-        
+
 
         function previewProfileImage(input) {
 
             if (input.files && input.files[0]) {
                 const preview = document.getElementById('profilePreview');
                 const reader = new FileReader();
-                
+
                 reader.onload = function(e) {
                     preview.src = e.target.result;
                     preview.style.backgroundImage = `url(${e.target.result})`;
@@ -2190,75 +2103,6 @@
                 document.getElementById('edit_end_date').value = '';
             }
         });
-
-
-        // function performSearch(inputElement, resultsContainer) {
-        //     const query = inputElement.value;
-        //     if (query.length < 2) {
-        //         resultsContainer.classList.add('hidden');
-        //         return;
-        //     }
-
-        //     fetch(`/search-following?q=${encodeURIComponent(query)}`)
-        //         .then(response => response.json())
-        //         .then(data => {
-        //             resultsContainer.innerHTML = '';
-
-        //             if (data.length === 0) {
-        //                 resultsContainer.innerHTML = '<div class="p-2 text-gray-500">No matching friends found</div>';
-        //             } else {
-        //                 data.forEach(user => {
-        //                     const userElement = document.createElement('div');
-        //                     userElement.className = 'p-2 hover:bg-gray-100 cursor-pointer flex items-center';
-
-        //                     // User avatar (if available)
-        //                     const avatar = user.profile_photo_path ?
-        //                         `<img src="${user.profile_photo_path}" class="w-8 h-8 rounded-full mr-2">` :
-        //                         `<div class="w-8 h-8 rounded-full bg-gray-300 mr-2 flex items-center justify-center">
-    //                      <svg class="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
-    //                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
-    //                      </svg>
-    //                    </div>`;
-
-        //                     // User info
-        //                     userElement.innerHTML = `
-    //                 ${avatar}
-    //                 <div>
-    //                     <div class="font-medium">${user.full_name}</div>
-    //                     ${user.email ? `<div class="text-xs text-gray-500">${user.email}</div>` : ''}
-    //                 </div>
-    //             `;
-
-        //                     userElement.onclick = () => {
-        //                         // Set both the display value and hidden ID value
-        //                         inputElement.value = user.full_name;
-
-        //                         // Find or create the hidden input for the ID
-        //                         let hiddenInput = document.getElementById('user-id-input');
-        //                         if (!hiddenInput) {
-        //                             hiddenInput = document.createElement('input');
-        //                             hiddenInput.type = 'hidden';
-        //                             hiddenInput.id = 'user-id-input';
-        //                             hiddenInput.name = 'partner_id';
-        //                             inputElement.insertAdjacentElement('afterend', hiddenInput);
-        //                         }
-        //                         hiddenInput.value = user.id;
-
-        //                         resultsContainer.classList.add('hidden');
-        //                     };
-
-        //                     resultsContainer.appendChild(userElement);
-        //                 });
-        //             }
-
-        //             resultsContainer.classList.remove('hidden');
-        //         });
-        // }
-
-        // // Partner search
-        // document.getElementById('friend-search').addEventListener('input', function(e) {
-        //     performSearch(this, document.getElementById('friend-results'));
-        // });
 
         // Shared search function
         document.addEventListener('DOMContentLoaded', function() {
