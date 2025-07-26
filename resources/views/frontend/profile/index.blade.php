@@ -120,33 +120,35 @@
                     <h1 class="text-3xl font-bold">{{ $user->full_name }}</h1>
                 </div>
                 <div class="ml-auto mt-4 md:mt-0 flex space-x-2">
-                    @if (auth()->user()->hasPendingFollowRequestFrom($user))
-                        {{-- Show Accept/Decline buttons if someone requested to follow you --}}
-                        <div class="flex space-x-2">
-                            <button class="accept-follow bg-green-500 text-white px-4 py-2 rounded-md"
-                                data-user-id="{{ $user->id }}">
-                                Accept
+                    @if($user->id != Auth::id())
+                        @if (auth()->user()->hasPendingFollowRequestFrom($user))
+                            {{-- Show Accept/Decline buttons if someone requested to follow you --}}
+                            <div class="flex space-x-2">
+                                <button class="accept-follow bg-green-500 text-white px-4 py-2 rounded-md"
+                                    data-user-id="{{ $user->id }}">
+                                    Accept
+                                </button>
+                                <button class="decline-follow bg-red-500 text-white px-4 py-2 rounded-md"
+                                    data-user-id="{{ $user->id }}">
+                                    Decline
+                                </button>
+                            </div>
+                        @elseif (auth()->user()->hasPendingFollowRequestTo($user))
+                            <button class="follow-button bg-gray-200 text-black px-4 py-2 rounded-md"
+                                data-user-id="{{ $user->id }}" data-state="requested">
+                                Requested
                             </button>
-                            <button class="decline-follow bg-red-500 text-white px-4 py-2 rounded-md"
-                                data-user-id="{{ $user->id }}">
-                                Decline
+                        @elseif (auth()->user()->isFollowing($user))
+                            <button class="follow-button bg-gray-200 text-black px-4 py-2 rounded-md"
+                                data-user-id="{{ $user->id }}" data-state="following">
+                                Following
                             </button>
-                        </div>
-                    @elseif (auth()->user()->hasPendingFollowRequestTo($user))
-                        <button class="follow-button bg-gray-200 text-black px-4 py-2 rounded-md"
-                            data-user-id="{{ $user->id }}" data-state="requested">
-                            Requested
-                        </button>
-                    @elseif (auth()->user()->isFollowing($user))
-                        <button class="follow-button bg-gray-200 text-black px-4 py-2 rounded-md"
-                            data-user-id="{{ $user->id }}" data-state="following">
-                            Following
-                        </button>
-                    @else
-                        <button class="follow-button bg-blue-500 text-white px-4 py-2 rounded-md"
-                            data-user-id="{{ $user->id }}" data-state="follow">
-                            {{ $user->isFollowing(auth()->user()) ? 'Follow Back' : 'Follow' }}
-                        </button>
+                        @else
+                            <button class="follow-button bg-blue-500 text-white px-4 py-2 rounded-md"
+                                data-user-id="{{ $user->id }}" data-state="follow">
+                                {{ $user->isFollowing(auth()->user()) ? 'Follow Back' : 'Follow' }}
+                            </button>
+                        @endif
                     @endif
                     {{-- <button
                         class="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded-md font-medium flex items-center transition">
@@ -836,14 +838,6 @@
         
 
         function previewProfileImage(input) {
-            // const preview = document.getElementById('profilePreview');
-            // if (input.files && input.files[0]) {
-            //     const reader = new FileReader();
-            //     reader.onload = function(e) {
-            //         preview.src = e.target.result;
-            //     }
-            //     reader.readAsDataURL(input.files[0]);
-            // }
 
             if (input.files && input.files[0]) {
                 const preview = document.getElementById('profilePreview');
