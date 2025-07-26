@@ -140,7 +140,7 @@
                                 </div>
                                 <button type="submit"
                                     class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1 rounded-md font-medium">
-                                    Post
+                                    Post <i class="fas fa-paper-plane text-sm"></i>
                                 </button>
                             </div>
                         </form>

@@ -14,9 +14,6 @@
                     <span class="font-medium">My Profile</span>
                 </div>
                 <div class="flex space-x-4 text-gray-500">
-                    <i class="fas fa-users"></i>
-                    <i class="fas fa-comment-dots"></i>
-                    <i class="fas fa-ellipsis-vertical"></i>
                 </div>
             </div>
 
@@ -107,12 +104,6 @@
                         <p class="text-xs text-gray-500" id="chatStatus">Online</p>
                     </div>
                 </div>
-                <div class="flex space-x-4 text-gray-500">
-                    <i class="fas fa-search"></i>
-                    <i class="fas fa-phone"></i>
-                    <i class="fas fa-video"></i>
-                    <i class="fas fa-ellipsis-vertical"></i>
-                </div>
             </div>
 
             <!-- Messages area -->
@@ -161,28 +152,13 @@
             </div>
 
             <!-- Message input -->
-            {{-- <div class="bg-gray-100 p-3 flex items-center">
-                <div class="flex space-x-2 text-gray-500 mr-2">
-                    <i class="fas fa-face-smile text-xl"></i>
-                    <i class="fas fa-paperclip text-xl"></i>
-                </div>
-                <input type="text" placeholder="Type a message"
-                    class="flex-1 bg-white rounded-lg py-2 px-4 focus:outline-none" id="messageInput">
-                <button class="ml-2 text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-microphone text-xl"></i>
-                </button>
-            </div> --}}
             <!-- Replace the current message input div with this -->
             <div class="message-input-container">
                 <div class="bg-gray-100 p-3 flex items-center">
-                    <div class="flex space-x-2 text-gray-500 mr-2">
-                        <i class="fas fa-face-smile text-xl"></i>
-                        <i class="fas fa-paperclip text-xl"></i>
-                    </div>
                     <input type="text" placeholder="Type a message"
                         class="flex-1 bg-white rounded-lg py-2 px-4 focus:outline-none" id="messageInput">
                     <button class="ml-2 text-gray-500 hover:text-gray-700">
-                        <i class="fas fa-microphone text-xl"></i>
+                        <i class="fas fa-paper-plane text-xl"></i>
                     </button>
                 </div>
             </div>
