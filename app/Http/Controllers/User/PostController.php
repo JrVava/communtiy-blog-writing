@@ -28,7 +28,7 @@ class PostController extends Controller
             ->latest()
             ->get();
 
-        return view('Frontend.posts.index', [
+        return view('frontend.posts.index', [
             'posts' => $posts,
             'reactions' => PostReaction::$reactionTypes
         ]);
