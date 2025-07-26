@@ -57,7 +57,7 @@ class ProfileController extends Controller
         $friendList = Auth::user()->followingUsers;
         // dd($familyMembers);
         $overViewData = $this->getOverviewData($user_id);
-        // dd($overViewData);
+        
         return view('frontend.profile.index', [
             'user' => $user,
             'followingIds' => $followingIds,
