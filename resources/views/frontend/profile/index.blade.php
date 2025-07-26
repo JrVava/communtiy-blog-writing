@@ -86,7 +86,7 @@
     <div class="relative bg-white shadow-sm mb-4">
         <!-- Cover Photo Section with Always-Visible Upload Button -->
         <div class="h-64 bg-blue-500 w-full relative" id="coverPreview"
-            style="background-size: cover; background-position: center;">
+            style="background-size: cover; background-position: center; @if(isset($currentCoverImage)) background-image: url('{{ Storage::url($currentCoverImage->path) }}'); @endif">
             <!-- Improved button with full clickable area -->
             <label for="coverUpload" class="absolute bottom-4 right-4">
                 <div
@@ -105,7 +105,7 @@
                 <!-- Profile Picture with Always-Visible Camera Icon -->
                 <div class="relative">
                     <div class="w-32 h-32 rounded-full border-4 border-white bg-white overflow-hidden shadow-md">
-                        <img id="profilePreview" src="https://randomuser.me/api/portraits/men/32.jpg" alt="Profile"
+                        <img id="profilePreview" src="@if(isset($currentProfileImage)) {{ Storage::url($currentProfileImage->path) }} @else {{ secure_asset('assets/img/dummy-user.jpg') }} @endif" alt="Profile"
                             class="w-full h-full object-cover">
                     </div>
                     <label for="profileUpload"
@@ -804,24 +804,60 @@
                 });
             });
         });
+        function uploadMedia(file, type) {
+            const formData = new FormData();
+            formData.append('media', file);
+            formData.append('type', type);
+            formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
 
+            return fetch('/media/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json());
+        }
         function previewCoverImage(input) {
-            const preview = document.getElementById('coverPreview');
             if (input.files && input.files[0]) {
+                const preview = document.getElementById('coverPreview');
                 const reader = new FileReader();
+                
                 reader.onload = function(e) {
                     preview.style.backgroundImage = `url(${e.target.result})`;
+                    uploadMedia(input.files[0], 'cover')
+                        .then(data => {
+                            if (data.success) {
+                                toastr.success('Cover image updated!');
+                            }
+                        });
                 }
                 reader.readAsDataURL(input.files[0]);
             }
         }
+        
 
         function previewProfileImage(input) {
-            const preview = document.getElementById('profilePreview');
+            // const preview = document.getElementById('profilePreview');
+            // if (input.files && input.files[0]) {
+            //     const reader = new FileReader();
+            //     reader.onload = function(e) {
+            //         preview.src = e.target.result;
+            //     }
+            //     reader.readAsDataURL(input.files[0]);
+            // }
+
             if (input.files && input.files[0]) {
+                const preview = document.getElementById('profilePreview');
                 const reader = new FileReader();
+                
                 reader.onload = function(e) {
                     preview.src = e.target.result;
+                    preview.style.backgroundImage = `url(${e.target.result})`;
+                    uploadMedia(input.files[0], 'profile')
+                        .then(data => {
+                            if (data.success) {
+                                toastr.success('Profile image updated!');
+                            }
+                        });
                 }
                 reader.readAsDataURL(input.files[0]);
             }

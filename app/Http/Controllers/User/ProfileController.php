@@ -12,9 +12,11 @@ use App\Models\Relationship;
 use App\Models\User;
 use App\Models\UserBasicInfo;
 use App\Models\UserContact;
+use App\Models\UserMedia;
 use App\Models\WorkExperience;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
 class ProfileController extends Controller
@@ -57,6 +59,10 @@ class ProfileController extends Controller
         $friendList = Auth::user()->followingUsers;
         // dd($familyMembers);
         $overViewData = $this->getOverviewData($user_id);
+
+        $currentCoverImage = $user->currentCoverImage()->first();
+        $currentProfileImage = $user->currentProfileImage()->first();
+        // dd($currentCoverImage);
         
         return view('frontend.profile.index', [
             'user' => $user,
@@ -79,7 +85,8 @@ class ProfileController extends Controller
             'homeTown' => isset($overViewData['homeTown']) ? $overViewData['homeTown'] : null,
             'currentCityOverView' => isset($overViewData['currentCity']) ? $overViewData['currentCity'] : null,
             'relationShip' => isset($overViewData['relationShip']) ? $overViewData['relationShip'] : null,
-
+            'currentCoverImage' => $currentCoverImage,
+            'currentProfileImage' => $currentProfileImage,
             'tab' => $tab,
             'parentTab' => $parentTab,
         ]);
@@ -198,5 +205,58 @@ class ProfileController extends Controller
             'currentCity' => $currentCity,
             'relationShip' => $relationShip
         ];
+    }
+
+    public function uploadMedia(Request $request)
+    {
+        $request->validate([
+            'media' => 'required|image|mimes:jpeg,png,jpg,gif|max:5120',
+            'type' => 'required|in:profile,cover'
+        ]);
+
+        $user = $request->user();
+        $type = $request->type;
+        $path = "user_media/{$user->id}/{$type}";
+
+        // Mark all current media of this type as not current
+        UserMedia::where('user_id', $user->id)
+                ->where('type', $type)
+                ->update(['is_current' => false]);
+
+        // Store new media
+        $mediaPath = $request->file('media')->store($path, 'public');
+
+        // Create media record
+        $media = $user->media()->create([
+            'type' => $type,
+            'path' => $mediaPath,
+            'is_current' => true
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'url' => Storage::url($mediaPath),
+            'media' => $media
+        ]);
+    }
+
+    public function setCurrentMedia(Request $request, $mediaId)
+    {
+        $media = UserMedia::findOrFail($mediaId);
+
+        // Verify ownership
+        if ($media->user_id !== $request->user()->id) {
+            abort(403);
+        }
+
+        // Mark all current media of this type as not current
+        UserMedia::where('user_id', $request->user()->id)
+                ->where('type', $media->type)
+                ->update(['is_current' => false]);
+
+        // Set this media as current
+        $media->update(['is_current' => true]);
+
+        return response()->json(['success' => true]);
     }
 }

@@ -173,4 +173,25 @@ class User extends Authenticatable
     {
         return $this->hasMany(FamilyMember::class,'user_id','id');
     }
+
+    public function media()
+    {
+        return $this->hasMany(UserMedia::class);
+    }
+
+    public function currentProfileImage()
+    {
+        return $this->hasOne(UserMedia::class)
+                   ->where('type', 'profile')
+                   ->where('is_current', true)
+                   ->latest();
+    }
+
+    public function currentCoverImage()
+    {
+        return $this->hasOne(UserMedia::class)
+                   ->where('type', 'cover')
+                   ->where('is_current', true)
+                   ->latest();
+    }
 }
