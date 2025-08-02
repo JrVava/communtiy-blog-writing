@@ -106,14 +106,16 @@
                     <h3 class="font-semibold">Relationship</h3>
                 </div>
                 <div class="pl-13">
-                    <p class="font-medium">{{ $relationship->status }}</p>
-                    @if ($relationship->partner)
-                        <p class="text-gray-600 text-sm">With {{ $relationship->partner->full_name }}</p>
-                    @endif
-                    @if ($relationship->anniversary_date)
-                        <p class="text-gray-500 text-xs">
-                            Since {{ \Carbon\Carbon::parse($relationship->anniversary_date)->format('Y') }}
-                        </p>
+                    @if (isset($relationship))
+                        <p class="font-medium">{{ $relationship->status }}</p>
+                        @if ($relationship->partner)
+                            <p class="text-gray-600 text-sm">With {{ $relationship->partner->full_name }}</p>
+                        @endif
+                        @if ($relationship->anniversary_date)
+                            <p class="text-gray-500 text-xs">
+                                Since {{ \Carbon\Carbon::parse($relationship->anniversary_date)->format('Y') }}
+                            </p>
+                        @endif
                     @endif
                 </div>
             </div>

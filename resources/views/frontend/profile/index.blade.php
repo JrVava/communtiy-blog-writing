@@ -723,8 +723,8 @@
             formData.append('media', file);
             formData.append('type', type);
             formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
-
-            return fetch('/media/upload', {
+            const url = window.location.origin + '/media/upload';
+            return fetch(url, {
                     method: 'POST',
                     body: formData
                 })

@@ -5,6 +5,7 @@ use App\Http\Controllers\User\ChatController;
 use App\Http\Controllers\User\CommentController;
 use App\Http\Controllers\User\FamilyRelationshipController;
 use App\Http\Controllers\User\FollowController;
+use App\Http\Controllers\User\MessageController;
 use App\Http\Controllers\User\PlaceController;
 use App\Http\Controllers\User\PostController;
 use App\Http\Controllers\User\ProfileController;
@@ -73,7 +74,7 @@ Route::middleware([
         Route::post('/profile/contact-info/add', 'addContact')->name('profile.contact-info.add');
         Route::delete('/profile/contact-info/{id}/delete', 'deleteContact')->name('profile.contact-info.delete');
         Route::post('/profile/contact-info/basic/create', 'createBasicInfo')->name('profile.contact-info.basic.create');
-        Route::post('/media/upload',  'uploadMedia')->name('media/upload');
+        Route::post('/media/upload', 'uploadMedia')->name('media/upload');
     });
 
     Route::controller(FollowController::class)->group(function () {
@@ -109,8 +110,14 @@ Route::middleware([
         Route::post('/update-relationship', 'updateRelationship')->name('relationship.update');
 
         Route::post('/add-family-member', 'addFamilyMember')->name('family.member.add');
-        
+
         Route::delete('/remove-family-member/{familyMember}', 'removeFamilyMember')->name('family.member.remove');
-        Route::get('/search-following','searchFollwingUser')->name('search-following');
+        Route::get('/search-following', 'searchFollwingUser')->name('search-following');
+    });
+
+    Route::controller(MessageController::class)->group(function () {
+        Route::get('/messages/{userId}', 'getMessages');
+        Route::post('/messages/{message}/read', 'markAsRead');
+
     });
 });
