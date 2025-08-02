@@ -723,7 +723,7 @@
             formData.append('media', file);
             formData.append('type', type);
             formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
-            const url = window.location.origin + '/media/upload';
+            const url = "{{ route('media.upload') }}";
             return fetch(url, {
                     method: 'POST',
                     body: formData
@@ -741,7 +741,7 @@
                     uploadMedia(input.files[0], 'cover')
                         .then(data => {
                             if (data.success) {
-                                toastr.success('Cover image updated!');
+                                // toastr.success('Cover image updated!');
                             }
                         });
                 }

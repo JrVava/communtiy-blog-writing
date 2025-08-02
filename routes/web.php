@@ -74,7 +74,7 @@ Route::middleware([
         Route::post('/profile/contact-info/add', 'addContact')->name('profile.contact-info.add');
         Route::delete('/profile/contact-info/{id}/delete', 'deleteContact')->name('profile.contact-info.delete');
         Route::post('/profile/contact-info/basic/create', 'createBasicInfo')->name('profile.contact-info.basic.create');
-        Route::post('/media/upload', 'uploadMedia')->name('media/upload');
+        Route::post('/media/upload', 'uploadMedia')->name('media.upload');
     });
 
     Route::controller(FollowController::class)->group(function () {
