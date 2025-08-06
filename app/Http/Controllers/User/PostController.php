@@ -23,11 +23,12 @@ class PostController extends Controller
 
         // Get posts from followed users AND the authenticated user
         $posts = Post::whereIn('user_id', $followingIds)
+            ->where('is_active', true) 
             ->with('user') // Eager load the user relationship
             ->withCount(['comments'])
             ->latest()
             ->get();
-
+        
         return view('frontend.posts.index', [
             'posts' => $posts,
             'reactions' => PostReaction::$reactionTypes

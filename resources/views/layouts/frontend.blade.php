@@ -7,7 +7,8 @@
     <title>@yield('title')</title>
     <link rel="apple-touch-icon" sizes="180x180" href="{{ secure_asset('assets/img/favicon/apple-touch-icon.png') }}">
     <link rel="icon" type="image/png" sizes="32x32" href="{{ secure_asset('assets/img/favicon/favicon-32x32.png') }}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ secure_asset('assets/img/favicon/favicon-16x16.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16"
+        href="{{ secure_asset('assets/img/favicon/favicon-16x16.png') }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -335,7 +336,13 @@
                 <!-- Profile and Logout -->
                 <a href="{{ route('profile', ['user_id' => Auth::id()]) }}"
                     class="text-gray-600 hover:text-blue-500 transition-colors">
-                    <i class="fas fa-user-circle text-2xl"></i>
+                    {{-- <i class="fas fa-user-circle text-2xl"></i> --}}
+                    @if (Auth::user()->currentProfileImage)
+                        <img src="{{ Storage::url(Auth::user()->currentProfileImage->path) }}"
+                            alt="{{ Auth::user()->full_name }}" class="w-8 h-8 rounded-full object-cover">
+                    @else
+                        <i class="fas fa-user-circle text-2xl"></i>
+                    @endif
                 </a>
                 <a href="{{ route('logout') }}" class="text-gray-600 hover:text-red-500 transition-colors">
                     <i class="fas fa-sign-out-alt text-2xl"></i>
@@ -348,7 +355,7 @@
         <div class="flex items-center justify-between px-4 py-3">
             <!-- Logo -->
             <a href="https://communtiy-blog.test" class="flex items-center">
-                <img src="https://communtiy-blog.test/assets/img/logo.png" alt="Community Logo" class="h-8">
+                <img src="{{ secure_asset('assets/img/logo.png') }}" alt="Community Logo" class="h-8">
                 <!-- Fixed height matching original -->
             </a>
 
@@ -438,7 +445,14 @@
             <div class="relative">
                 <button id="profileToggle"
                     class="flex flex-col items-center text-gray-600 hover:text-blue-500 transition-colors px-2">
-                    <i class="fas fa-user-circle text-xl"></i>
+                    @if (Auth::user()->currentProfileImage)
+                        <div class="relative">
+                            <img src="{{ Storage::url(Auth::user()->currentProfileImage->path) }}"
+                                alt="{{ Auth::user()->full_name }}" class="w-6 h-6 rounded-full object-cover">
+                        </div>
+                    @else
+                        <i class="fas fa-user-circle text-xl"></i>
+                    @endif
                     <span class="text-xs mt-1">Profile</span>
                 </button>
 

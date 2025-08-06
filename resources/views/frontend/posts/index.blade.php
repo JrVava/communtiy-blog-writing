@@ -107,7 +107,7 @@
             <div class="bg-white rounded-lg shadow-md p-4 mb-6">
                 <div class="flex items-start space-x-3">
                     <div class="flex-shrink-0">
-                        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User Avatar"
+                        <img src="@if (isset(Auth::user()->currentProfileImage->path)) {{ Storage::url(Auth::user()->currentProfileImage->path) }} @else {{ secure_asset('assets/img/dummy-user.jpg') }} @endif" alt="User Avatar"
                             class="w-10 h-10 rounded-full object-cover border border-gray-200">
                     </div>
                     <div class="flex-1">
@@ -154,7 +154,7 @@
                         <!-- ... (previous post content) ... -->
                         <!-- Post Header -->
                         <div class="p-4 flex items-center space-x-3">
-                            <img src="{{ $post->user->image ?? 'https://randomuser.me/api/portraits/men/1.jpg' }}"
+                            <img src="@if (isset($post->user->currentProfileImage)) {{ Storage::url($post->user->currentProfileImage->path) }} @else {{ secure_asset('assets/img/dummy-user.jpg') }} @endif"
                                 alt="User" class="w-10 h-10 rounded-full">
                             <div>
                                 <h3 class="font-semibold">{{ $post->user->full_name }}</h3>
@@ -313,7 +313,7 @@
                                 @if (isset($post->comments))
                                     @foreach ($post->comments as $comment)
                                         <div class="comment flex space-x-2" data-comment-id="{{ $comment->id }}">
-                                            <img src="{{ $comment->user->image ?? 'https://randomuser.me/api/portraits/women/1.jpg' }}"
+                                            <img src="@if (isset($comment->user->currentProfileImage)) {{ Storage::url($comment->user->currentProfileImage->path) }} @else {{ secure_asset('assets/img/dummy-user.jpg') }} @endif"
                                                 alt="User" class="w-8 h-8 rounded-full mt-1">
                                             <div class="bg-white p-3 rounded-lg flex-1 relative">
                                                 <div class="flex justify-between items-start">
@@ -344,7 +344,7 @@
 
                             <!-- Add Comment Form -->
                             <div class="flex space-x-2">
-                                <img src="{{ auth()->user()->image ?? 'https://randomuser.me/api/portraits/men/3.jpg' }}"
+                                <img src="@if (isset(Auth::user()->currentProfileImage->path)) {{ Storage::url(Auth::user()->currentProfileImage->path) }} @else {{ secure_asset('assets/img/dummy-user.jpg') }} @endif"
                                     alt="User" class="w-8 h-8 rounded-full mt-1">
                                 <div class="flex-1 flex">
                                     <input type="text" placeholder="Write a comment..."
@@ -666,8 +666,9 @@
 
                                 const commentHtml = `
                     <div class="comment flex space-x-2" data-comment-id="${data.comment.id}">
-                        <img src="${data.comment.user.image || 'https://randomuser.me/api/portraits/women/1.jpg'}" 
-                            alt="User" class="w-8 h-8 rounded-full mt-1">
+                        <img src="${data.comment.user.currentProfileImage.path}" 
+                            alt="${data.comment.user.full_name}" 
+                            class="w-8 h-8 rounded-full mt-1 object-cover">
                         <div class="bg-white p-3 rounded-lg flex-1 relative">
                             <div class="flex justify-between items-start">
                                 <h4 class="font-semibold text-sm">${data.comment.user.full_name}</h4>

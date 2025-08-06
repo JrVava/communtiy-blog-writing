@@ -62,7 +62,8 @@ class ProfileController extends Controller
 
         $currentCoverImage = $user->currentCoverImage()->first();
         $currentProfileImage = $user->currentProfileImage()->first();
-        // dd($currentCoverImage);
+        
+        
         
         return view('frontend.profile.index', [
             'user' => $user,

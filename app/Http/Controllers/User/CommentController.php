@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Comment;
 use App\Models\Post;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class CommentController extends Controller
 {
@@ -19,12 +20,32 @@ class CommentController extends Controller
             'content' => $request->content,
             'user_id' => auth()->id()
         ]);
+        $comment->load(['user.currentProfileImage']);
+        
+        // return response()->json([
+        //     'success' => true,
+        //     'comment' => $comment->load('user'),
+        //     'message' => 'Comment added successfully'
+        // ]);
 
         return response()->json([
-            'success' => true,
-            'comment' => $comment->load('user'),
-            'message' => 'Comment added successfully'
-        ]);
+        'success' => true,
+        'comment' => [
+            'id' => $comment->id,
+            'content' => $comment->content,
+            'created_at' => $comment->created_at->diffForHumans(),
+            'user' => [
+                'id' => $comment->user->id,
+                'full_name' => $comment->user->full_name,
+                'currentProfileImage' => [
+                    'path' => $comment->user->currentProfileImage 
+                        ? Storage::url($comment->user->currentProfileImage->path) 
+                        : asset('assets/img/dummy-user.jpg')
+                ]
+            ]
+        ],
+        'message' => 'Comment added successfully'
+    ]);
     }
 
     public function update(Request $request, Comment $comment)

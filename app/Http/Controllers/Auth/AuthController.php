@@ -77,6 +77,12 @@ class AuthController extends Controller
         ]);
 
         if (Auth::attempt($credentials)) {
+            if (!Auth::user()->is_approve) {
+                Auth::logout(); // Log out the unapproved user
+                return back()->withErrors([
+                    'email' => 'Your account is pending approval. Please contact administrator.',
+                ])->onlyInput('email');
+            }
             $request->session()->regenerate();
 
             // Check if user is admin
@@ -92,7 +98,7 @@ class AuthController extends Controller
         ])->onlyInput('email');
     }
 
-     public function logout()
+    public function logout()
     {
         Session::flush();
         Auth::logout();
