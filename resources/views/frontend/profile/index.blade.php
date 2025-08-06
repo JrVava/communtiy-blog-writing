@@ -762,7 +762,8 @@
                     uploadMedia(input.files[0], 'profile')
                         .then(data => {
                             if (data.success) {
-                                toastr.success('Profile image updated!');
+                                console.log("Profile image updated!");
+                                // toastr.success('Profile image updated!');
                             }
                         });
                 }

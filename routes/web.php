@@ -11,6 +11,8 @@ use App\Http\Controllers\User\PostController;
 use App\Http\Controllers\User\ProfileController;
 use App\Http\Controllers\User\ReactionController;
 use App\Http\Controllers\User\UserController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\Admin\PostController as AdminPostController;
 use App\Http\Controllers\User\WorkEducationController;
 use Illuminate\Support\Facades\Route;
 
@@ -48,6 +50,25 @@ Route::middleware([
     'prevent-back-history',
     'no.cache'
 ])->group(function () {
+
+    Route::prefix('admin')->name('admin.')->group(function () {
+        Route::controller(AdminUserController::class)->group(function () {
+            Route::get('/users', 'index')->name('users');
+            Route::get('users-view/{id}', 'viewUserProfile')->name('users-view');
+            Route::get('users-approve-deny/{id}', 'userProfileApproveDeny')->name('users-approve-deny');
+            // Route::get('users-post', [AdminPostController::class, 'index'])->name('users-post');
+        });
+        Route::controller(AdminPostController::class)->group(function () {
+            Route::get('users-post', 'index')->name('users-post');
+            Route::get('view-post/{id}', 'viewPost')->name('view-post');
+            Route::get('post-approve-deny/{id}', 'postApproveDeny')->name('post-approve-deny');
+        });
+
+        Route::get('/dashboard', function () {
+            return view('admin.dashboard');
+        })->name('dashboard');
+    });
+
     Route::controller(PostController::class)->group(function () {
         Route::get('/', 'index')->name('user.post');
         Route::post('posts-store', 'store')->name('posts.store');

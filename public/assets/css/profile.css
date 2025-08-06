@@ -1,0 +1,98 @@
+  /* General Reset */
+  body {
+    background-color: #f0f2f5;
+    font-family: Arial, sans-serif;
+}
+
+.cover-photo {
+    background: url('https://cdn-ilapbah.nitrocdn.com/IMXLyaGRiKeYrzbMzkhtxIIrOEPefEBF/assets/images/optimized/rev-c1630ed/iitianguide.com/wp-content/uploads/2023/12/Dummy-School-for-IIT-JEE.png') no-repeat center center;
+    background-size: cover;
+    height: 350px;
+    position: relative;
+}
+
+.edit-cover-btn {
+    position: absolute;
+    right: 20px;
+    bottom: 20px;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.profile-photo-wrapper {
+    position: absolute;
+    left: 50%;
+    bottom: -65px;
+    transform: translateX(-50%);
+    text-align: center;
+}
+
+.profile-photo, .without-profile-avatar {
+    width: 130px;
+    height: 130px;
+    border: 5px solid white;
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: #ccc;
+    font-size: 48px;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.edit-avatar-btn {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.profile-info {
+    margin-top: 100px;
+    text-align: center;
+}
+
+.profile-info h2 {
+    font-weight: bold;
+}
+
+.profile-info p {
+    color: #666;
+}
+
+/* Tabs */
+.nav-tabs {
+    margin-top: 30px;
+    justify-content: center;
+    border-bottom: 1px solid #ddd;
+}
+
+.nav-tabs .nav-link {
+    color: #65676b;
+    font-weight: 600;
+    padding: 12px 20px;
+}
+
+.nav-tabs .nav-link.active {
+    color: #1877f2;
+    border-bottom: 2px solid #1877f2;
+}
+
+/* Tab Content */
+.tab-content {
+    margin-top: 20px;
+}
