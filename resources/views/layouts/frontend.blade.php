@@ -526,7 +526,6 @@
 
             socket.onmessage = function(event) {
                 const data = JSON.parse(event.data);
-                console.log(data);
                 switch (data.type) {
                     case 'follow_request':
                         handleFollowRequestNotification(data);
