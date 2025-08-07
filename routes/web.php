@@ -87,6 +87,7 @@ Route::middleware([
 
     Route::controller(ChatController::class)->group(function () {
         Route::get('/chats', 'index')->name('chats');
+        Route::post('/message-notification-count/{receiver_id}', 'getMessageNotificationCount')->name('get-message-notification-count');
     });
 
     Route::controller(ProfileController::class)->group(function () {

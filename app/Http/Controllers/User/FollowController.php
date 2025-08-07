@@ -11,7 +11,6 @@ class FollowController extends Controller
 {
     public function follow(User $user)
     {
-        // dd($user);
         if (auth()->id() === $user->id) {
             return response()->json(['error' => 'You cannot follow yourself'], 400);
         }

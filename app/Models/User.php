@@ -194,4 +194,31 @@ class User extends Authenticatable
                    ->where('is_current', true)
                    ->latest();
     }
+
+    public function sender()
+    {
+        return $this->hasMany(Message::class, 'sender_id');
+    }
+
+    /**
+     * Get the receiver of the message.
+     */
+    public function receiver()
+    {
+        return $this->hasMany(Message::class, 'receiver_id');
+    }
+
+    public function lastMessageWith(User $otherUser)
+{
+    return Message::where(function($query) use ($otherUser) {
+            $query->where('sender_id', $this->id)
+                  ->where('receiver_id', $otherUser->id);
+        })
+        ->orWhere(function($query) use ($otherUser) {
+            $query->where('sender_id', $otherUser->id)
+                  ->where('receiver_id', $this->id);
+        })
+        ->latest()
+        ->first();
+}
 }

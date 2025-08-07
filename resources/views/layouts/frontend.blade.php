@@ -251,36 +251,52 @@
                 <div class="relative">
                     <button id="usersButton" class="text-gray-600 hover:text-blue-500 transition-colors relative">
                         <i class="fas fa-users text-2xl"></i>
-                        <span
-                            class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">3</span>
+                        <span id="pendingRequestCount"
+                            class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">{{ $pendingCount }}</span>
                     </button>
                     <!-- Friend Requests Dropdown -->
                     <div id="usersDropdown"
                         class="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-lg py-2 hidden">
-                        <div class="px-4 py-2 border-b border-gray-100">
-                            <h3 class="font-semibold">Friend Requests</h3>
+                        <div class="px-4 py-2 border-b border-gray-100 flex justify-between items-center">
+                            <h3 class="font-semibold">Follow Requests</h3>
                         </div>
-                        <div class="max-h-96 overflow-y-auto">
-                            <!-- Friend Request Item -->
-                            <div class="px-4 py-3 hover:bg-gray-50 flex items-center">
-                                <img src="https://randomuser.me/api/portraits/men/1.jpg" alt="User"
-                                    class="w-10 h-10 rounded-full mr-3">
-                                <div class="flex-1">
-                                    <p class="font-medium">John Doe</p>
-                                    <p class="text-sm text-gray-500">Sent you a friend request</p>
+                        <div class="max-h-96 overflow-y-auto" id="followRequestsContainer">
+                            @foreach ($followRequests as $followRequest)
+                                <div class="px-4 py-3 hover:bg-gray-50 flex items-center follow-request-item"
+                                    data-follower-id="fc971c3e-143c-491c-ad54-c3707130c7dd">
+                                    <img src="@if (isset($followRequest->follower->currentProfileImage)) {{ Storage::url($followRequest->follower->currentProfileImage->path) }} @else {{ secure_asset('assets/img/dummy-user.jpg') }} @endif"
+                                        alt="User" class="w-10 h-10 rounded-full mr-3">
+                                    <div class="flex-1">
+                                        <a href="{{ route('profile', ['user_id' => $followRequest->follower->id]) }}"
+                                            class="font-medium">{{ $followRequest->follower->full_name }}</a>
+                                        <p class="text-sm text-gray-500">Sent you a follow request</p>
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        @if (auth()->user()->hasPendingFollowRequestFrom($followRequest->follower))
+                                            {{-- Show Accept/Decline buttons if someone requested to follow you --}}
+                                            <div class="flex space-x-2">
+                                                <button class="accept-follow text-green-500 hover:text-green-700"
+                                                    data-user-id="{{ $followRequest->follower->id }}">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                                <button class="decline-follow text-red-500 hover:text-red-700"
+                                                    data-user-id="{{ $followRequest->follower->id }}">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </div>
+                                        @else
+                                            @if ($user->isFollowing(auth()->user()))
+                                                <button class="follow-button bg-blue-500 text-white px-4 py-2"
+                                                    data-user-id="{{ $followRequest->follower->id }}"
+                                                    data-state="follow">
+                                                    <i class="fas fa-user-plus"></i>
+                                                </button>
+                                            @endif
+                                        @endif
+                                    </div>
                                 </div>
-                                <div class="flex space-x-2">
-                                    <button class="text-green-500 hover:text-green-700">
-                                        <i class="fas fa-check"></i>
-                                    </button>
-                                    <button class="text-red-500 hover:text-red-700">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            <!-- More requests... -->
+                            @endforeach
                         </div>
-                        <a href="#" class="block px-4 py-2 text-center text-blue-500 hover:bg-gray-50">See All</a>
                     </div>
                 </div>
 
@@ -314,8 +330,12 @@
                     </div>
                 </div>
 
-                <a href="{{ route('chats') }}" class="text-gray-600 hover:text-blue-500 transition-colors">
+                <a href="{{ route('chats') }}"
+                    class="relative inline-flex items-center text-gray-600 hover:text-blue-500 transition-colors duration-200">
                     <i class="fas fa-comment-dots text-2xl"></i>
+                    <span
+                        class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center"
+                        id="message-notification-badge">{{ $messageNotificationCount }}</span>
                 </a>
             </nav>
 
@@ -475,8 +495,440 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
-    @yield('scripts')
+
     <script>
+        const currentUserId = "{{ auth()->id() }}";
+        let currentChatUserId = null;
+        let socket = null;
+
+        // Initialize WebSocket when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeWebSocket();
+        });
+
+        function initializeWebSocket() {
+            socket = new WebSocket('ws://127.0.0.1:8082');
+
+            socket.onopen = function() {
+                console.log('WebSocket connection established');
+                authenticateUser();
+            };
+
+            socket.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                switch (data.type) {
+                    case 'follow_request':
+                        handleFollowRequestNotification(data);
+                        break;
+                    case 'message':
+                        handleIncomingMessage(data);
+                        break;
+
+                        // ... handle other message types if needed
+                }
+            };
+
+            socket.onerror = function(error) {
+                console.error('WebSocket error:', error);
+            };
+
+            socket.onclose = function() {
+                console.log('WebSocket connection closed');
+                setTimeout(initializeWebSocket, 3000); // Reconnect after 3 seconds
+            };
+        }
+
+        function authenticateUser() {
+            socket.send(JSON.stringify({
+                type: 'auth',
+                user_id: currentUserId
+            }));
+        }
+
+        function handleFollowRequestNotification(data) {
+            // Get the dropdown and container elements
+            const dropdown = document.getElementById('usersDropdown');
+            if (!dropdown) {
+                console.error("Dropdown element not found");
+                return;
+            }
+
+            const requestsContainer = dropdown.querySelector('.max-h-96');
+            if (!requestsContainer) {
+                console.error("Requests container not found");
+                return;
+            }
+
+            if (data.pending_count != 0) {
+                // Create new request element
+                const requestElement = document.createElement('div');
+                requestElement.className = 'px-4 py-3 hover:bg-gray-50 flex items-center follow-request-item';
+                requestElement.dataset.followerId = data.follower_id;
+                requestElement.innerHTML = `
+                <img src="${data.follower_avatar || '/default-avatar.png'}" alt="User" class="w-10 h-10 rounded-full mr-3">
+                <div class="flex-1">
+                    <p class="font-medium">${data.follower_name}</p>
+                    <p class="text-sm text-gray-500">Sent you a follow request</p>
+                </div>
+                <div class="flex space-x-2">
+                    <button class="accept-follow text-green-500 hover:text-green-700" data-user-id="${data.follower_id}">
+                        <i class="fas fa-check"></i>
+                    </button>
+                    <button class="decline-follow text-red-500 hover:text-red-700" data-user-id="${data.follower_id}">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+
+                // Add the new request to the container
+                requestsContainer.insertBefore(requestElement, requestsContainer.firstChild);
+
+
+                // Show notification badge if dropdown is hidden
+                const notificationBadge = document.getElementById('notificationBadge');
+                if (notificationBadge && dropdown.classList.contains('hidden')) {
+                    notificationBadge.classList.remove('hidden');
+                }
+
+                document.querySelectorAll('.accept-follow').forEach(button => {
+                    button.addEventListener('click', function(e) {
+                        handleFollowRequestAction(e, this, 'accept');
+                    });
+                });
+
+                document.querySelectorAll('.decline-follow').forEach(button => {
+                    button.addEventListener('click', function(e) {
+                        handleFollowRequestAction(e, this, 'decline');
+                    });
+                });
+
+                function handleFollowRequestAction(e, button, action) {
+                    e.preventDefault();
+                    const userId = button.getAttribute('data-user-id');
+                    const url = `/users/${userId}/follow/${action}`;
+
+                    // Get the parent container to replace with new state
+                    const container = button.closest('.flex.space-x-2');
+                    sendFollowRequest(button, url, true, container);
+                }
+
+                function sendFollowRequest(button, url, shouldReload = false, container = null) {
+                    const userId = button.getAttribute('data-user-id');
+                    // Save original state
+                    const originalHTML = button.innerHTML;
+                    const originalState = button.getAttribute('data-state') || '';
+
+                    // Show loading state
+                    button.disabled = true;
+                    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+                    fetch(url, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.error) {
+                                showAlert('error', data.error);
+                                return;
+                            }
+
+                            if (url.includes('/follow') && !url.includes('/cancel')) {
+                                socket.send(JSON.stringify({
+                                    type: 'follow_request',
+                                    follower_id: "{{ auth()->id() }}",
+                                    following_id: userId
+                                }));
+                            }
+
+                            if (shouldReload) {
+                                const currentPath = window.location.pathname;
+                                if (currentPath.startsWith('/profile/')) {
+                                    // We're already on a profile page, replace the ID
+                                    window.location.href = `/profile/${userId}`;
+                                } else {
+                                    // Not on a profile page, use normal navigation
+                                    window.location.href = `/profile/${userId}`;
+                                }
+                                // window.location.reload();
+                            } else if (container) {
+                                // Replace accept/decline buttons with follow state
+                                updateContainerAfterResponse(container, data);
+                            } else {
+                                updateButtonState(button, data);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            showAlert('error', 'An error occurred. Please try again.');
+                        })
+                        .finally(() => {
+                            if (!shouldReload && !container) {
+                                button.disabled = false;
+                                if (!button.hasAttribute('data-updated')) {
+                                    button.innerHTML = originalHTML;
+                                }
+                                button.removeAttribute('data-updated');
+                            }
+                        });
+                }
+                updatePendingRequestCount();
+            }
+        }
+
+        function updatePendingRequestCount() {
+            // Get current count from the DOM (if any requests exist)
+            const currentCountElement = document.getElementById('pendingRequestCount');
+            const requestItems = document.querySelectorAll('.follow-request-item');
+            const newCount = requestItems.length;
+
+            // Update the count badge
+            if (currentCountElement) {
+                currentCountElement.textContent = newCount;
+                if (newCount > 0) {
+                    currentCountElement.classList.remove('hidden');
+                } else {
+                    currentCountElement.classList.add('hidden');
+                }
+            }
+
+            // Also update the dropdown badge if it exists
+            const dropdownBadge = document.getElementById('notificationBadge');
+            if (dropdownBadge) {
+                dropdownBadge.textContent = newCount;
+                if (newCount > 0) {
+                    dropdownBadge.classList.remove('hidden');
+                } else {
+                    dropdownBadge.classList.add('hidden');
+                }
+            }
+        }
+
+        function getMessageNotificationCount(receiver_id) {
+            console.log("hello from getMessageNotificationCount()", receiver_id);
+            fetch(`/message-notification-count/${receiver_id}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        receiver_id: receiver_id
+                    })
+                }).then(response => response.json())
+                .then(messageNotificationCount => {
+                    if (currentUserId === receiver_id) {
+                        const badge = document.getElementById('message-notification-badge');
+                        badge.textContent = messageNotificationCount.count;
+                        console.log(messageNotificationCount.count);
+                    }
+                });
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize all follow-related buttons
+            initFollowButtons();
+
+            function initFollowButtons() {
+                // Handle main follow button states
+                document.querySelectorAll('.follow-button').forEach(button => {
+                    button.addEventListener('click', function(e) {
+                        handleFollowAction(e, this);
+                    });
+                });
+
+                // Handle accept follow request
+                document.querySelectorAll('.accept-follow').forEach(button => {
+                    button.addEventListener('click', function(e) {
+                        handleFollowRequestAction(e, this, 'accept');
+                    });
+                });
+
+                // Handle decline follow request
+                document.querySelectorAll('.decline-follow').forEach(button => {
+                    button.addEventListener('click', function(e) {
+                        handleFollowRequestAction(e, this, 'decline');
+                    });
+                });
+            }
+
+            function handleFollowAction(e, button) {
+                e.preventDefault();
+
+                const userId = button.getAttribute('data-user-id');
+                const currentState = button.getAttribute('data-state');
+                let url = `/users/${userId}/follow`;
+
+                // Determine endpoint based on current state
+                switch (currentState) {
+                    case 'following':
+                        url = `/users/${userId}/unfollow`;
+                        break;
+                    case 'requested':
+                        url = `/users/${userId}/follow/cancel`;
+                        break;
+                    case 'pending':
+                        url = `/users/${userId}/follow/accept`;
+                        break;
+                }
+
+                sendFollowRequest(button, url);
+            }
+
+            function handleFollowRequestAction(e, button, action) {
+                e.preventDefault();
+                const userId = button.getAttribute('data-user-id');
+                const url = `/users/${userId}/follow/${action}`;
+
+                // Get the parent container to replace with new state
+                const container = button.closest('.flex.space-x-2');
+                sendFollowRequest(button, url, true, container);
+            }
+
+            function sendFollowRequest(button, url, shouldReload = false, container = null) {
+                const userId = button.getAttribute('data-user-id');
+                // Save original state
+                const originalHTML = button.innerHTML;
+                const originalState = button.getAttribute('data-state') || '';
+
+                // Show loading state
+                button.disabled = true;
+                button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+                fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.error) {
+                            showAlert('error', data.error);
+                            return;
+                        }
+
+                        if (url.includes('/follow') && !url.includes('/cancel')) {
+                            socket.send(JSON.stringify({
+                                type: 'follow_request',
+                                follower_id: "{{ auth()->id() }}",
+                                following_id: userId
+                            }));
+                        }
+
+                        if (shouldReload) {
+                            const currentPath = window.location.pathname;
+                            if (currentPath.startsWith('/profile/')) {
+                                // We're already on a profile page, replace the ID
+                                window.location.href = `/profile/${userId}`;
+                            } else {
+                                // Not on a profile page, use normal navigation
+                                window.location.href = `/profile/${userId}`;
+                            }
+                            // window.location.reload();
+                        } else if (container) {
+                            // Replace accept/decline buttons with follow state
+                            updateContainerAfterResponse(container, data);
+                        } else {
+                            updateButtonState(button, data);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showAlert('error', 'An error occurred. Please try again.');
+                    })
+                    .finally(() => {
+                        if (!shouldReload && !container) {
+                            button.disabled = false;
+                            if (!button.hasAttribute('data-updated')) {
+                                button.innerHTML = originalHTML;
+                            }
+                            button.removeAttribute('data-updated');
+                        }
+                    });
+            }
+
+            function updateContainerAfterResponse(container, data) {
+                // Create new follow button based on response
+                const newButton = document.createElement('button');
+                newButton.className = 'follow-button bg-gray-200 text-black px-4 py-2 rounded-md';
+                newButton.setAttribute('data-user-id', container.querySelector('button').getAttribute(
+                    'data-user-id'));
+
+                if (data.following) {
+                    newButton.innerHTML = 'Following';
+                    newButton.setAttribute('data-state', 'following');
+                } else {
+                    newButton.innerHTML = 'Follow';
+                    newButton.setAttribute('data-state', 'follow');
+                }
+
+                // Replace the container with the new button
+                container.parentNode.replaceChild(newButton, container);
+
+                // Re-initialize event listeners
+                newButton.addEventListener('click', function(e) {
+                    handleFollowAction(e, this);
+                });
+            }
+
+            function updateButtonState(button, data) {
+                const stateClasses = {
+                    'follow': ['bg-blue-500', 'text-white'],
+                    'following': ['bg-gray-200', 'text-black'],
+                    'requested': ['bg-yellow-500', 'text-white'],
+                    'mutual': ['bg-green-500', 'text-white']
+                };
+
+                // Remove all state classes first
+                Object.values(stateClasses).flat().forEach(cls => {
+                    button.classList.remove(cls);
+                });
+
+                // Set new state
+                if (data.status === 'pending' || data.status === 'requested') {
+                    button.innerHTML = 'Requested';
+                    button.setAttribute('data-state', 'requested');
+                    button.classList.add(...stateClasses['requested']);
+                } else if (data.mutual) {
+                    button.innerHTML = 'Friends';
+                    button.setAttribute('data-state', 'mutual');
+                    button.classList.add(...stateClasses['mutual']);
+                } else if (data.following) {
+                    button.innerHTML = 'Following';
+                    button.setAttribute('data-state', 'following');
+                    button.classList.add(...stateClasses['following']);
+                } else {
+                    const followBack = button.getAttribute('data-follow-back') === 'true';
+                    button.innerHTML = followBack ? 'Follow Back' : 'Follow';
+                    button.setAttribute('data-state', 'follow');
+                    button.classList.add(...stateClasses['follow']);
+                }
+
+                button.setAttribute('data-updated', 'true');
+            }
+
+            function showAlert(type, message) {
+                // Replace with your preferred notification system
+                alert(message);
+            }
+        });
+
         // Mobile Menu Toggle
         const mobileMenuToggles = document.querySelectorAll('.mobile-menu-toggle');
         const mobileMenu = document.getElementById('mobileMenu');
@@ -679,7 +1131,291 @@
                 }
             });
         });
+
+        // Chat Code Start Here
+        function setupEventListeners() {
+            const usersListView = document.getElementById('usersListView');
+            const chatView = document.getElementById('chatView');
+            const backButton = document.getElementById('backButton');
+            const userItems = document.querySelectorAll('.user-item');
+            const messageInput = document.getElementById('messageInput');
+            const sendButton = document.querySelector('.message-input-container button');
+            const chatArea = document.getElementById('chatArea');
+            const chatAvatarContainer = document.getElementById('chatAvatarContainer'); // Changed this
+
+
+            // Handle user selection
+            userItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    // Set current chat user
+                    currentChatUserId = this.dataset.userId;
+                    const userName = this.querySelector('.font-medium').textContent;
+                    const userImage = this.querySelector('img').src;
+                    // const chatAvatar = document.getElementById('chatAvatar');
+                    // Update UI
+                    if (chatAvatarContainer) {
+                        chatAvatarContainer.innerHTML = `
+                    <img src="${userImage}" alt="${userName}" class="w-10 h-10 rounded-full">
+                `;
+                    }
+                    document.getElementById('chatUserName').textContent = userName;
+                    // chatAvatar.outerHTML =
+                    //     `<img src="${userImage}" alt="${userName}" class="w-10 h-10 rounded-full">`;
+
+                    const messageInputContainer = document.querySelector('.message-input-container');
+                    messageInputContainer.classList.remove('hidden');
+
+                    // chatAvatar.classList.remove('hidden');
+                    messageInput.disabled = false;
+
+                    // Load chat history
+                    loadChatHistory(currentChatUserId);
+
+                    // Mobile view handling
+                    if (window.innerWidth < 768) {
+                        usersListView.classList.add('hidden');
+                        usersListView.classList.remove('flex');
+                        chatView.classList.remove('hidden');
+                        chatView.classList.add('flex');
+                    }
+                });
+            });
+
+            // Handle back button on mobile
+            backButton.addEventListener('click', function() {
+                if (window.innerWidth < 768) {
+                    usersListView.classList.remove('hidden');
+                    usersListView.classList.add('flex');
+                    chatView.classList.add('hidden');
+                    chatView.classList.remove('flex');
+                }
+            });
+
+            // Handle message sending via button click
+            sendButton.addEventListener('click', sendCurrentMessage);
+
+            // Handle message sending via Enter key
+            messageInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendCurrentMessage();
+                }
+            });
+        }
+
+        function sendCurrentMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const message = messageInput.value.trim();
+
+            if (message && currentChatUserId) {
+                sendMessage(message);
+                messageInput.value = '';
+            }
+        }
+
+        function sendMessage(message) {
+            if (socket.readyState === WebSocket.OPEN && currentChatUserId) {
+                // Generate a temporary ID for the message before we get the real one from server
+                const tempMessageId = 'temp-' + Date.now();
+
+                // Send the message
+                socket.send(JSON.stringify({
+                    type: 'message',
+                    sender_id: currentUserId,
+                    receiver_id: currentChatUserId,
+                    message: message,
+                    temp_id: tempMessageId // Send temporary ID to match later
+                }));
+
+                document.getElementById('messageInput').value = '';
+            } else {
+                console.error('WebSocket is not connected or no chat selected');
+            }
+        }
+
+        function handleIncomingMessage(data) {
+            switch (data.type) {
+                case 'message':
+                    const isSender = data.sender_id == currentUserId;
+                    const otherUserId = isSender ? data.receiver_id : data.sender_id;
+
+                    const showUnreadCount = !isSender;
+                    updateChatListItem(
+                        otherUserId,
+                        data.message,
+                        data.created_at,
+                        isSender,
+                        showUnreadCount ? data.unread_count : 0
+                    );
+
+                    // Only display if:
+                    // 1. It's to/from the current chat user AND we don't have it already
+                    // 2. Or it's our own message in the current chat (for confirmation)
+                    const isCurrentChatMessage = data.sender_id === currentChatUserId ||
+                        data.receiver_id === currentChatUserId;
+
+                    const alreadyExists = document.querySelector(`[data-message-id="${data.temp_id || data.message_id}"]`);
+                    getMessageNotificationCount(data.receiver_id)
+                    if (isCurrentChatMessage && !alreadyExists) {
+                        appendMessage(
+                            data.sender_id,
+                            data.message,
+                            data.created_at,
+                            isSender,
+                            isSender,
+                            data.message_id,
+                            data.senderAvatar
+                        );
+
+                        if (!isSender) markMessageAsRead(data.message_id);
+                    }
+
+                    // Update temporary ID if this is our message
+                    if (data.temp_id && isSender) {
+                        updateMessageId(data.temp_id, data.message_id);
+                    }
+                    break;
+
+                case 'delivery':
+                    updateMessageStatus(data.message_id, data.status);
+                    break;
+
+                default:
+                    console.log('Unhandled message type:', data.type);
+            }
+        }
+
+        function updateChatListItem(userId, message, timestamp, isSender, unreadCount) {
+            const userElement = document.getElementById(`user-${userId}`);
+            if (!userElement) return;
+
+            // Hide PHP-rendered message
+            const phpMessageDiv = userElement.querySelector('.php-last-message');
+            if (phpMessageDiv) {
+                phpMessageDiv.classList.add('hidden');
+            }
+
+            // Show and update WebSocket message
+            const wsMessageDiv = userElement.querySelector('.websocket-last-message');
+            if (wsMessageDiv) {
+                wsMessageDiv.classList.remove('hidden');
+
+                // Format the message text
+                const messageText = isSender ? `You: ${message}` : message;
+
+                // Create the badge only if unreadCount > 0 and current user is receiver
+                const badge = unreadCount > 0 && !isSender ?
+                    `<span class="bg-green-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">${unreadCount}</span>` :
+                    '';
+
+                // Update the content
+                wsMessageDiv.innerHTML = `
+            <p class="text-sm text-gray-600 truncate">${messageText}</p>
+            <span class="time">${formatTime(timestamp)}</span>
+            ${badge}
+        `;
+            }
+
+            // Update timestamp in the header if needed
+            const timeElement = userElement.querySelector('.text-xs.text-gray-500');
+            if (timeElement) {
+                timeElement.textContent = formatTime(timestamp);
+            }
+        }
+
+        function updateMessageId(tempId, realId) {
+            const messageDiv = document.querySelector(`[data-message-id="${tempId}"]`);
+            if (messageDiv) {
+                messageDiv.dataset.messageId = realId;
+            }
+        }
+
+        function appendMessage(senderId, message, timestamp, isSender = false, isRead = true, messageId = null,
+            senderAvatar = null) {
+            const chatArea = document.getElementById('chatArea');
+            const messageDiv = document.createElement('div');
+
+            if (messageId) messageDiv.dataset.messageId = messageId;
+
+            messageDiv.className = `flex ${isSender ? 'justify-end' : ''} mb-4`;
+            messageDiv.innerHTML = `
+            ${!isSender ? `
+                                                                <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-2 mt-1">
+                                                                    <img src="${senderAvatar}" 
+                                                         alt="User avatar" 
+                                                         class="w-full h-full object-cover rounded-full">
+                                                                </div>
+                                                            ` : ''}
+            <div>
+                <div class="${isSender ? 'bg-green-100' : 'bg-white'} rounded-lg ${isSender ? 'rounded-tr-none' : 'rounded-tl-none'} p-3 shadow-sm max-w-xs md:max-w-md">
+                    <p class="text-gray-800">${message}</p>
+                    <p class="text-xs text-gray-500 mt-1 text-right">
+                        ${formatTime(timestamp)}
+                        ${isSender ? `<i class="fas fa-check-double message-status ${isRead ? 'delivered' : 'sent'} ml-1"></i>` : ''}
+                    </p>
+                </div>
+            </div>
+        `;
+
+            chatArea.appendChild(messageDiv);
+            scrollToBottom();
+        }
+
+        function formatTime(timestamp) {
+            return new Date(timestamp).toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+
+        function loadChatHistory(userId) {
+            fetch(`/messages/${userId}`)
+                .then(response => response.json())
+                .then(messages => {
+                    const chatArea = document.getElementById('chatArea');
+                    chatArea.innerHTML = '';
+
+                    messages.forEach(msg => {
+                        const isSender = msg.sender_id == currentUserId;
+                        appendMessage(
+                            msg.sender_id,
+                            msg.message,
+                            msg.created_at,
+                            isSender,
+                            msg.is_read,
+                            msg.id,
+                            msg.sender_avatar
+                        );
+                    });
+
+                    scrollToBottom();
+                });
+        }
+
+        function markMessageAsRead(messageId) {
+            fetch(`/messages/${messageId}/read`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Content-Type': 'application/json'
+                }
+            });
+        }
+
+        function updateMessageStatus(messageId, status) {
+            // Find all check icons for this message and update their color
+            document.querySelectorAll(`[data-message-id="${messageId}"] .message-status`).forEach(icon => {
+                icon.classList.toggle('delivered', status === 'delivered');
+                icon.classList.toggle('sent', status !== 'delivered');
+            });
+        }
+
+        function scrollToBottom() {
+            const chatArea = document.getElementById('chatArea');
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
     </script>
+    @yield('scripts')
 </body>
 
 </html>

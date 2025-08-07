@@ -10,7 +10,6 @@ use App\Models\Post;
 use App\Models\PostReaction;
 use App\Models\Relationship;
 use App\Models\User;
-use App\Models\UserBasicInfo;
 use App\Models\UserContact;
 use App\Models\UserMedia;
 use App\Models\WorkExperience;
@@ -54,10 +53,10 @@ class ProfileController extends Controller
 
         $relationship = Auth::user()->relationship;
 
-        // dd($relationship);
+        
         $familyMembers = Auth::user()->familyMembers()->with('familyMember')->get();
         $friendList = $user->followingUsers;
-        // dd($friendList);
+        
         $overViewData = $this->getOverviewData($user_id);
 
         $currentCoverImage = $user->currentCoverImage()->first();
