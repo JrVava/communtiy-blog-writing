@@ -25,7 +25,8 @@ class WebSocketServer extends Command
                     new ChatSocket() // Your custom WebSocket handler
                 )
             ),
-            $port
+            $port,
+            '0.0.0.0'
         );
 
         $server->run();
