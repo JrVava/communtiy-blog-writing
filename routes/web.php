@@ -6,6 +6,7 @@ use App\Http\Controllers\User\CommentController;
 use App\Http\Controllers\User\FamilyRelationshipController;
 use App\Http\Controllers\User\FollowController;
 use App\Http\Controllers\User\MessageController;
+use App\Http\Controllers\User\NotificationController;
 use App\Http\Controllers\User\PlaceController;
 use App\Http\Controllers\User\PostController;
 use App\Http\Controllers\User\ProfileController;
@@ -142,4 +143,7 @@ Route::middleware([
         Route::post('/messages/{message}/read', 'markAsRead');
 
     });
+
+    Route::post('notification',[NotificationController::class,'index'])->name('notification');
+    Route::post('/notifications/mark-as-read', [NotificationController::class, 'markAsRead'])->name('notifications.mark-as-read');
 });

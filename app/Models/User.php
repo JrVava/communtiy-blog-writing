@@ -117,11 +117,11 @@ class User extends Authenticatable
     }
 
     public function followingUsers()
-{
-    return $this->belongsToMany(User::class, 'followers', 'follower_id', 'following_id')
-        ->wherePivot('status', Follow::STATUS_ACCEPTED)
-        ->withTimestamps();
-}
+    {
+        return $this->belongsToMany(User::class, 'followers', 'follower_id', 'following_id')
+            ->wherePivot('status', Follow::STATUS_ACCEPTED)
+            ->withTimestamps();
+    }
 
     public function hasPendingFollowRequestTo(User $user)
     {
@@ -139,39 +139,39 @@ class User extends Authenticatable
             ->exists();
     }
 
-     public function places()
+    public function places()
     {
         return $this->hasMany(Place::class);
     }
 
     public function contacts()
     {
-        return $this->hasMany(UserContact::class,'user_id','id');
+        return $this->hasMany(UserContact::class, 'user_id', 'id');
     }
 
     public function basicInfo()
     {
-        return $this->hasMany(UserBasicInfo::class,'user_id','id');
+        return $this->hasMany(UserBasicInfo::class, 'user_id', 'id');
     }
 
     public function workExperiences()
     {
-        return $this->hasMany(WorkExperience::class,'user_id','id');
+        return $this->hasMany(WorkExperience::class, 'user_id', 'id');
     }
 
     public function educations()
     {
-        return $this->hasMany(Education::class,'user_id','id');
+        return $this->hasMany(Education::class, 'user_id', 'id');
     }
 
     public function relationship()
     {
-        return $this->hasOne(Relationship::class,'user_id','id');
+        return $this->hasOne(Relationship::class, 'user_id', 'id');
     }
 
     public function familyMembers()
     {
-        return $this->hasMany(FamilyMember::class,'user_id','id');
+        return $this->hasMany(FamilyMember::class, 'user_id', 'id');
     }
 
     public function media()
@@ -182,17 +182,17 @@ class User extends Authenticatable
     public function currentProfileImage()
     {
         return $this->hasOne(UserMedia::class)
-                   ->where('type', 'profile')
-                   ->where('is_current', true)
-                   ->latest();
+            ->where('type', 'profile')
+            ->where('is_current', true)
+            ->latest();
     }
 
     public function currentCoverImage()
     {
         return $this->hasOne(UserMedia::class)
-                   ->where('type', 'cover')
-                   ->where('is_current', true)
-                   ->latest();
+            ->where('type', 'cover')
+            ->where('is_current', true)
+            ->latest();
     }
 
     public function sender()
@@ -209,16 +209,16 @@ class User extends Authenticatable
     }
 
     public function lastMessageWith(User $otherUser)
-{
-    return Message::where(function($query) use ($otherUser) {
+    {
+        return Message::where(function ($query) use ($otherUser) {
             $query->where('sender_id', $this->id)
-                  ->where('receiver_id', $otherUser->id);
+                ->where('receiver_id', $otherUser->id);
         })
-        ->orWhere(function($query) use ($otherUser) {
-            $query->where('sender_id', $otherUser->id)
-                  ->where('receiver_id', $this->id);
-        })
-        ->latest()
-        ->first();
-}
+            ->orWhere(function ($query) use ($otherUser) {
+                $query->where('sender_id', $otherUser->id)
+                    ->where('receiver_id', $this->id);
+            })
+            ->latest()
+            ->first();
+    }
 }

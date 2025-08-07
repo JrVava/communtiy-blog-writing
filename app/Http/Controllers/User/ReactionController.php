@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Models\Notification;
 use App\Models\Post;
 use App\Models\PostReaction;
 use App\Models\User;
@@ -53,12 +54,49 @@ class ReactionController extends Controller
         // Save the updated reactions
         $reaction->update(['reactions' => $currentReactions]);
 
+        $checkNotification = Notification::where([
+            ['post_id', "=", $post->id],
+            ['post_owner_id', "=", $post->user_id],
+            ['user_id', "=", $user->id],
+        ])->exists();
+
+        if ($checkNotification) {
+            Notification::where([
+                ['post_id', "=", $post->id],
+                ['post_owner_id', "=", $post->user_id],
+                ['user_id', "=", $user->id],
+            ])->update(
+                    [
+                        'reaction' => $reactionType,
+                    ]
+                );
+            if ($action == 'removed') {
+                Notification::where([
+                    ['post_id', "=", $post->id],
+                    ['post_owner_id', "=", $post->user_id],
+                    ['user_id', "=", $user->id],
+                ])->delete();
+            }
+        } else {
+            $notification = new Notification();
+            $notification->fill([
+                'post_id' => $post->id,
+                'post_owner_id' => $post->user_id,
+                'user_id' => $user->id,
+                'reaction' => $reactionType,
+            ]);
+            $notification->save();
+        }
+
         return response()->json([
             'success' => true,
             'action' => $action,
             'reaction' => $reactionType,
             'reaction_counts' => $reaction->getReactionCounts(),
-            'total_reactions' => $reaction->getTotalReactions()
+            'total_reactions' => $reaction->getTotalReactions(),
+            'post_id' => $post->id,
+            'post_owner_id' => $post->user_id,
+            'user_id' => $user->id,
         ]);
     }
 

@@ -176,9 +176,9 @@
                 <a href="#" class="profile-tab-link px-6 py-4 text-gray-600 hover:bg-gray-100 whitespace-nowrap"
                     data-tab="friends-tab">Friends</a>
                 <!-- <a href="#" class="profile-tab-link px-6 py-4 text-gray-600 hover:bg-gray-100 whitespace-nowrap"
-                                                                            data-tab="photos-tab">Photos</a>
-                                                                        <a href="#" class="profile-tab-link px-6 py-4 text-gray-600 hover:bg-gray-100 whitespace-nowrap"
-                                                            data-tab="videos-tab">Videos</a> -->
+                                                                                data-tab="photos-tab">Photos</a>
+                                                                            <a href="#" class="profile-tab-link px-6 py-4 text-gray-600 hover:bg-gray-100 whitespace-nowrap"
+                                                                data-tab="videos-tab">Videos</a> -->
             </nav>
         </div>
     </div>
@@ -1211,6 +1211,7 @@
                         console.error('Invalid reaction type:', reaction);
                         return;
                     }
+
                     fetch(`/posts/${postId}/react`, {
                             method: 'POST',
                             headers: {
@@ -1229,6 +1230,15 @@
                                 updateReactionButton(postId, data);
                                 updateReactionSummary(postId, data.reaction_counts, data
                                     .total_reactions);
+                                if (data.user_id != data.post_owner_id) {
+                                    socket.send(JSON.stringify({
+                                        type: 'notification',
+                                        post_id: data.post_id,
+                                        post_owner_id: data.post_owner_id,
+                                        user_id: data.user_id,
+                                    }));
+                                }
+
                                 if (data.action === 'removed') {
                                     currentReaction = null;
                                 }

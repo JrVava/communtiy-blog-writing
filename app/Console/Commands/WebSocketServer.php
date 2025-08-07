@@ -19,7 +19,6 @@ class WebSocketServer extends Command
     {
         $port = $this->option('port');
         $this->info("Starting WebSocket server on port {$port}...");
-        Log::info("hello");
         $server = IoServer::factory(
             new HttpServer(
                 new WsServer(

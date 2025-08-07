@@ -53,6 +53,9 @@ class ChatSocket implements MessageComponentInterface
                 $this->handleFollowResponse($from, $data);
                 break;
 
+            case 'notification':
+                $this->getNotification($from, $data);
+                break;
             case 'ping':
                 $from->send(json_encode(['type' => 'pong']));
                 break;
@@ -69,6 +72,32 @@ class ChatSocket implements MessageComponentInterface
             'type' => 'system',
             'message' => 'Authentication successful'
         ]));
+    }
+
+    protected function getNotification($from, $data)
+    {
+        if (!isset($data['post_id'], $data['post_owner_id'], $data['user_id'], $data['type'])) {
+            $from->send(json_encode(['error' => 'Missing required fields']));
+            return;
+        }
+
+        // Don't notify if user is reacting to their own post
+        if ($data['user_id'] == $data['post_owner_id']) {
+            return;
+        }
+
+        // Get post owner's connection if available
+        if (isset($this->userConnections[$data['post_owner_id']])) {
+            $postOwnerConnection = $this->userConnections[$data['post_owner_id']];
+
+            // Send notification to post owner
+            $postOwnerConnection->send(json_encode([
+                'type' => 'notification', // reaction_notification
+                'post_id' => $data['post_id'],
+                'post_owner_id' => $data['post_owner_id'],
+                'user_id' => $data['user_id']
+            ]));
+        }
     }
 
     protected function handleFollowRequest($from, $data)

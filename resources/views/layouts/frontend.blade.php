@@ -304,8 +304,8 @@
                 <div class="relative">
                     <button id="notifButton" class="text-gray-600 hover:text-blue-500 transition-colors relative">
                         <i class="fas fa-bell text-2xl"></i>
-                        <span
-                            class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">5</span>
+                        <span id="notifBadge"
+                            class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">{{ $noficationsCount }}</span>
                     </button>
                     <!-- Notifications Dropdown -->
                     <div id="notifDropdown"
@@ -313,20 +313,20 @@
                         <div class="px-4 py-2 border-b border-gray-100">
                             <h3 class="font-semibold">Notifications</h3>
                         </div>
-                        <div class="max-h-96 overflow-y-auto">
-                            <!-- Notification Item -->
-                            <div class="px-4 py-3 hover:bg-gray-50 flex items-start">
-                                <img src="https://randomuser.me/api/portraits/women/2.jpg" alt="User"
-                                    class="w-10 h-10 rounded-full mr-3">
-                                <div>
-                                    <p class="font-medium">Sarah liked your post</p>
-                                    <p class="text-sm text-gray-500">2 minutes ago</p>
+                        <div id="notifItems" class="max-h-96 overflow-y-auto">
+                            <!-- Notification items will be dynamically inserted here -->
+                            @foreach ($notifications as $notification)
+                                <div class="px-4 py-3 hover:bg-gray-50 flex items-start"
+                                    data-notification-id="{{ $notification['id'] }}">
+                                    <img src="{{ $notification['user']['avatar'] }}" alt="User"
+                                        class="w-10 h-10 rounded-full mr-3">
+                                    <div>
+                                        <p class="font-medium">{{ $notification['message'] }}</p>
+                                        <p class="text-sm text-gray-500">{{ $notification['created_at'] }}</p>
+                                    </div>
                                 </div>
-                            </div>
-                            <!-- More notifications... -->
+                            @endforeach
                         </div>
-                        <a href="#" class="block px-4 py-2 text-center text-blue-500 hover:bg-gray-50">View
-                            All</a>
                     </div>
                 </div>
 
@@ -447,14 +447,22 @@
                 <span class="text-xs mt-1">Home</span>
             </a>
             <a href="{{ route('chats') }}"
-                class="flex flex-col items-center text-gray-600 hover:text-blue-500 transition-colors px-2">
+                class="flex flex-col items-center text-gray-600 hover:text-blue-500 transition-colors px-2 relative">
                 <i class="fas fa-comment-dots text-xl"></i>
                 <span class="text-xs mt-1">Chat</span>
+                <span id="mobile-message-notification-badge"
+                    class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {{ $messageNotificationCount }}
+                </span>
             </a>
             <a href="#"
-                class="flex flex-col items-center text-gray-600 hover:text-blue-500 transition-colors px-2">
+                class="flex flex-col items-center text-gray-600 hover:text-blue-500 transition-colors px-2 relative">
                 <i class="fas fa-bell text-xl"></i>
                 <span class="text-xs mt-1">Alerts</span>
+                <span id="mobile-message-notification-badge"
+                    class="absolute -top-1 -right-0 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {{ $noficationsCount }}
+                </span>
             </a>
             <button
                 class="mobile-menu-toggle flex flex-col items-center justify-center text-gray-600 hover:text-blue-500 transition-colors px-2">
@@ -516,12 +524,16 @@
 
             socket.onmessage = function(event) {
                 const data = JSON.parse(event.data);
+                console.log(data);
                 switch (data.type) {
                     case 'follow_request':
                         handleFollowRequestNotification(data);
                         break;
                     case 'message':
                         handleIncomingMessage(data);
+                        break;
+                    case 'notification':
+                        handleNotification(data);
                         break;
 
                         // ... handle other message types if needed
@@ -543,6 +555,81 @@
                 type: 'auth',
                 user_id: currentUserId
             }));
+        }
+
+        function handleNotification(data) {
+            console.log(data);
+            fetch(`/notification`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        post_id: data.post_id,
+                        post_owner_id: data.post_owner_id,
+                        user_id: data.user_id
+                    })
+                }).then(response => response.json())
+                .then(response => {
+                    updateNotificationBadge(response.count);
+
+                    // Clear existing notifications and repopulate with new ones
+                    refreshNotificationDropdown(response.notifications);
+                });
+        }
+
+        function updateNotificationBadge(count) {
+            const badge = document.getElementById('notifBadge');
+            badge.textContent = count;
+            badge.classList.toggle('hidden', count === 0);
+        }
+
+        function refreshNotificationDropdown(notifications) {
+            const notifItems = document.getElementById('notifItems');
+
+            // Clear existing notifications
+            notifItems.innerHTML = '';
+
+            // Add each notification to the dropdown
+            notifications.forEach(notification => {
+                const notifElement = createNotificationElement(notification);
+                notifItems.appendChild(notifElement);
+            });
+        }
+
+        function createNotificationElement(notification) {
+            const element = document.createElement('div');
+            element.className = 'px-4 py-3 hover:bg-gray-50 flex items-start';
+
+            // Default image if none exists
+            const profileImage = notification.user.avatar;
+
+            // Format the time (you might want to use moment.js for better formatting)
+            const timeAgo = formatTimeAgo(notification.created_at);
+
+            element.innerHTML = `
+        <img src="${profileImage}" 
+             alt="User" class="w-10 h-10 rounded-full mr-3">
+        <div>
+            <p class="font-medium">${notification.message}</p>
+            <p class="text-sm text-gray-500">${timeAgo}</p>
+        </div>
+    `;
+
+            return element;
+        }
+
+        // Simple time formatter (consider using moment.js or date-fns for better results)
+        function formatTimeAgo(dateString) {
+            const now = new Date();
+            const date = new Date(dateString);
+            const seconds = Math.floor((now - date) / 1000);
+
+            if (seconds < 60) return 'Just now';
+            if (seconds < 3600) return `${Math.floor(seconds/60)} minutes ago`;
+            if (seconds < 86400) return `${Math.floor(seconds/3600)} hours ago`;
+            return `${Math.floor(seconds/86400)} days ago`;
         }
 
         function handleFollowRequestNotification(data) {
@@ -714,7 +801,6 @@
         }
 
         function getMessageNotificationCount(receiver_id) {
-            console.log("hello from getMessageNotificationCount()", receiver_id);
             fetch(`/message-notification-count/${receiver_id}`, {
                     method: 'POST',
                     headers: {
@@ -728,8 +814,9 @@
                 .then(messageNotificationCount => {
                     if (currentUserId === receiver_id) {
                         const badge = document.getElementById('message-notification-badge');
+                        const mobileBadge = document.getElementById('mobile-message-notification-badge');
                         badge.textContent = messageNotificationCount.count;
-                        console.log(messageNotificationCount.count);
+                        mobileBadge.textContent = messageNotificationCount.count;
                     }
                 });
         }
@@ -1021,6 +1108,7 @@
                 e.stopPropagation();
                 notifDropdown.classList.toggle('hidden');
                 usersDropdown.classList.add('hidden');
+                markNotificationsAsRead();
             });
 
             // Close dropdowns when clicking outside
@@ -1036,6 +1124,37 @@
                 });
             });
         });
+
+        function markNotificationsAsRead() {
+            // Get all notification IDs from the dropdown
+            const notificationElements = document.querySelectorAll('#notifItems > div');
+            const notificationIds = Array.from(notificationElements).map(el => el.dataset.notificationId);
+
+            if (notificationIds.length === 0) return;
+
+            fetch('{{ route('notifications.mark-as-read') }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        notification_ids: notificationIds
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update badge count
+                        const badge = document.getElementById('notifBadge');
+                        if (badge) {
+                            badge.textContent = '0';
+                            // badge.classList.add('hidden');
+                        }
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
         // Search Functionality Start Here
         document.addEventListener('DOMContentLoaded', function() {
             const searchRoute = "{{ route('users.search') }}"; // Your existing route
@@ -1339,12 +1458,12 @@
             messageDiv.className = `flex ${isSender ? 'justify-end' : ''} mb-4`;
             messageDiv.innerHTML = `
             ${!isSender ? `
-                                                                <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-2 mt-1">
-                                                                    <img src="${senderAvatar}" 
-                                                         alt="User avatar" 
-                                                         class="w-full h-full object-cover rounded-full">
-                                                                </div>
-                                                            ` : ''}
+                                                                                    <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-2 mt-1">
+                                                                                        <img src="${senderAvatar}" 
+                                                                             alt="User avatar" 
+                                                                             class="w-full h-full object-cover rounded-full">
+                                                                                    </div>
+                                                                                ` : ''}
             <div>
                 <div class="${isSender ? 'bg-green-100' : 'bg-white'} rounded-lg ${isSender ? 'rounded-tr-none' : 'rounded-tl-none'} p-3 shadow-sm max-w-xs md:max-w-md">
                     <p class="text-gray-800">${message}</p>

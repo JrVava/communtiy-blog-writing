@@ -81,7 +81,7 @@
         transform: translateY(0);
     }
 </style>
-@section('title','On Track Eductaion - Home')
+@section('title', 'On Track Eductaion - Home')
 @section('content')
     <div class="container mx-auto px-4 mt-[50px] md:mt-0 py-6 flex flex-col md:flex-row gap-6">
         <!-- Left Sidebar - Community Navigation (Hidden on mobile) -->
@@ -107,8 +107,8 @@
             <div class="bg-white rounded-lg shadow-md p-4 mb-6">
                 <div class="flex items-start space-x-3">
                     <div class="flex-shrink-0">
-                        <img src="@if (isset(Auth::user()->currentProfileImage->path)) {{ Storage::url(Auth::user()->currentProfileImage->path) }} @else {{ secure_asset('assets/img/dummy-user.jpg') }} @endif" alt="User Avatar"
-                            class="w-10 h-10 rounded-full object-cover border border-gray-200">
+                        <img src="@if (isset(Auth::user()->currentProfileImage->path)) {{ Storage::url(Auth::user()->currentProfileImage->path) }} @else {{ secure_asset('assets/img/dummy-user.jpg') }} @endif"
+                            alt="User Avatar" class="w-10 h-10 rounded-full object-cover border border-gray-200">
                     </div>
                     <div class="flex-1">
                         <form action="{{ route('posts.store') }}" method="POST" enctype="multipart/form-data">
@@ -943,6 +943,16 @@
                                 updateReactionButton(postId, data);
                                 updateReactionSummary(postId, data.reaction_counts, data
                                     .total_reactions);
+
+                                if (data.user_id != data.post_owner_id) {
+                                    socket.send(JSON.stringify({
+                                        type: 'notification',
+                                        post_id: data.post_id,
+                                        post_owner_id: data.post_owner_id,
+                                        user_id: data.user_id,
+                                    }));
+                                }
+
                                 if (data.action === 'removed') {
                                     currentReaction = null;
                                 }
