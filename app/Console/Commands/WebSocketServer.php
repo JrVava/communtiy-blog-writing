@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Log;
 
 class WebSocketServer extends Command
 {
-    protected $signature = 'websocket:serve {--port=8080 : The port to serve the WebSocket server on}';
+    protected $signature = 'websocket:serve {--port=8082 : The port to serve the WebSocket server on}';
     protected $description = 'Start the WebSocket server';
 
     public function handle()
