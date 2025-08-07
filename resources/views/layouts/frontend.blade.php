@@ -515,8 +515,13 @@
         });
 
         function initializeWebSocket() {
+            const socketUrl = window.location.protocol === 'https:' 
+    ? 'wss://studyabroadcommunity.com' 
+    : 'ws://studyabroadcommunity.com';
+
+socket = new WebSocket(socketUrl + ':8082');
             // socket = new WebSocket('ws://127.0.0.1:8082');
-            socket = new WebSocket('wss://studyabroadcommunity.com:8082');
+            // socket = new WebSocket('wss://studyabroadcommunity.com:8082');
 
             socket.onopen = function() {
                 console.log('WebSocket connection established');
