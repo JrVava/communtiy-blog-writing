@@ -26,7 +26,6 @@ class WebSocketServer extends Command
                 )
             ),
             $port,
-            '0.0.0.0'
         );
 
         $server->run();
