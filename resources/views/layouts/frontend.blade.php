@@ -515,7 +515,9 @@
         });
 
         function initializeWebSocket() {
-            socket = new WebSocket('ws://127.0.0.1:8082');
+            // socket = new WebSocket('ws://127.0.0.1:8082');
+            socket = new WebSocket('wss://studyabroadcommunity.com/ws');
+
 
             socket.onopen = function() {
                 console.log('WebSocket connection established');
