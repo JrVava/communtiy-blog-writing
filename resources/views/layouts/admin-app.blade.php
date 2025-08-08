@@ -30,10 +30,15 @@
     <link href="{{ asset('/assets/css/custom-css.css') }}" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <!-- CSS -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
-<!-- JavaScript (optional, only needed if you want to dynamically load icons) -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <!-- JavaScript (optional, only needed if you want to dynamically load icons) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    
+
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.css">
+
+
 </head>
 
 <body>
@@ -49,7 +54,17 @@
     <!-- Scripts below are for demo only -->
     <script src="{{ asset('/assets/js/app.js') }}"></script>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
     @yield('scripts')
+    <script>
+    @if (Session::has('success'))
+        toastr.success("{{ Session::get('success') }}");
+    @endif
+
+    @if (Session::has('error'))
+        toastr.error("{{ Session::get('error') }}");
+    @endif
+    </script>
 </body>
 
 </html>

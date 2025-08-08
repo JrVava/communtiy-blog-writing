@@ -57,7 +57,7 @@ Route::middleware([
             Route::get('/users', 'index')->name('users');
             Route::get('users-view/{id}', 'viewUserProfile')->name('users-view');
             Route::get('users-approve-deny/{id}', 'userProfileApproveDeny')->name('users-approve-deny');
-            // Route::get('users-post', [AdminPostController::class, 'index'])->name('users-post');
+            Route::post('/users/approve', 'approveUser')->name('users.approve');
         });
         Route::controller(AdminPostController::class)->group(function () {
             Route::get('users-post', 'index')->name('users-post');

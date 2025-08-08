@@ -21,11 +21,22 @@ class UserController extends Controller
         if ($request->ajax()) {
             return DataTables::of($users)
                 ->addIndexColumn()
+                ->addColumn('status', function ($row) {
+                    $status = $row->is_approve ? 'Approved' : 'Not Approved';
+                    $badgeClass = $row->is_approve ? 'bg-success' : 'bg-danger';
+                    return '<span class="badge ' . $badgeClass . '">' . $status . '</span>';
+                })
+                ->addColumn('approve_switch', function ($row) {
+                    $checked = $row->is_approve ? 'checked' : '';
+                    return '<div class="form-check form-switch">
+                            <input class="form-check-input approve-switch" type="checkbox" data-user-id="' . $row->id . '" ' . $checked . '>
+                        </div>';
+                })
                 ->addColumn('action', function ($row) {
                     $btn = '<a href="' . route('admin.users-view', ['id' => $row['id']]) . '" class="edit btn btn-primary btn-sm">View Profile</a>';
                     return $btn;
                 })
-                ->rawColumns(['action'])
+                ->rawColumns(['status', 'approve_switch', 'action'])
                 ->make(true);
         }
         return view('admin.user.index', ['users' => $users]);
@@ -68,10 +79,10 @@ class UserController extends Controller
         ])->first();
 
         $relationShip = Relationship::where('user_id', '=', $id)->first();
-        
+
         $currentProfileImage = $user->currentProfileImage()->first();
         $currentCoverImage = $user->currentCoverImage()->first();
-        
+
         return view('admin.user.profile', [
             'user' => $user,
             'works' => $works,
@@ -92,5 +103,14 @@ class UserController extends Controller
         User::where('id', '=', $id)->update(['is_approve' => $is_approve]);
 
         return redirect()->route('admin.users-view', ['id' => $id]);
+    }
+
+    public function approveUser(Request $request)
+    {
+        $user = User::findOrFail($request->user_id);
+        $user->is_approve = $request->is_approve;
+        $user->save();
+
+        return response()->json(['success' => true]);
     }
 }

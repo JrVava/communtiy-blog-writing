@@ -12,6 +12,8 @@
                         <th>No</th>
                         <th>Full Name</th>
                         <th>Email</th>
+                        <th>Status</th>
+                        <th>Manage Status</th>
                         <th width="100px">Action</th>
                     </tr>
                 </thead>
@@ -25,7 +27,7 @@
 @endsection
 
 @section('scripts')
-    <script type="text/javascript">
+    <script>
         $(function() {
             var table = $('.user-data-table').DataTable({
                 processing: true,
@@ -44,6 +46,18 @@
                         name: 'email'
                     },
                     {
+                        data: 'status',
+                        name: 'status',
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        data: 'approve_switch',
+                        name: 'approve_switch',
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
                         data: 'action',
                         name: 'action',
                         orderable: false,
@@ -51,6 +65,28 @@
                     },
                 ]
 
+            });
+            $('.user-data-table').on('change', '.approve-switch', function() {
+                var userId = $(this).data('user-id');
+                var isApproved = $(this).is(':checked') ? 1 : 0;
+
+                $.ajax({
+                    url: "{{ route('admin.users.approve') }}",
+                    type: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        user_id: userId,
+                        is_approve: isApproved
+                    },
+                    success: function(response) {
+                        table.ajax.reload();
+                        toastr.success('User approval status updated successfully');
+                    },
+                    error: function(xhr) {
+                        table.ajax.reload();
+                        toastr.error('Error updating approval status');
+                    }
+                });
             });
         });
     </script>
