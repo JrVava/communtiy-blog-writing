@@ -38,6 +38,7 @@ class ProfileController extends Controller
         $posts = Post::where('user_id', '=', $userProfileId)
             ->with('user', 'reactions') // Eager load the user relationship
             ->withCount(['comments'])
+            ->where('is_active', true)
             ->latest()
             ->get();
 
