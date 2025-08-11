@@ -7,7 +7,9 @@
     <div class="bg-gray-50 rounded-lg p-4 mb-6">
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-lg font-medium">Relationship</h3>
+            @if($user->id == Auth::id())
             <button class="text-blue-500 hover:text-blue-600" id="editRelationshipBtn">Edit</button>
+            @endif
         </div>
 
         <!-- Relationship Status Display -->
@@ -110,7 +112,9 @@
     <div class="bg-gray-50 rounded-lg p-4">
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-lg font-medium">Family Members</h3>
+            @if($user->id == Auth::id())
             <button class="text-blue-500 hover:text-blue-600" id="addFamilyMemberBtn">Add family member</button>
+            @endif
         </div>
 
         <!-- Family Members List -->

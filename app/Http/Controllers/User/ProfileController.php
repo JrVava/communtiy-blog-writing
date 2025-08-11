@@ -49,13 +49,13 @@ class ProfileController extends Controller
         $contacts = $user->contacts()->get();
         $basicInfo = $user->basicInfo()->firstOrNew();
 
-        $works = Auth::user()->workExperiences()->orderBy('start_date', 'desc')->get();
-        $educations = Auth::user()->educations()->orderBy('start_date', 'desc')->get();
+        $works = $user->workExperiences()->orderBy('start_date', 'desc')->get();
+        $educations = $user->educations()->orderBy('start_date', 'desc')->get();
 
-        $relationship = Auth::user()->relationship;
+        $relationship = $user->relationship;
 
         
-        $familyMembers = Auth::user()->familyMembers()->with('familyMember')->get();
+        $familyMembers = $user->familyMembers()->with('familyMember')->get();
         $friendList = $user->followingUsers;
         
         $overViewData = $this->getOverviewData($user_id);
