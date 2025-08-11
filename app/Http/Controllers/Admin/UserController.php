@@ -9,6 +9,7 @@ use App\Models\Relationship;
 use App\Models\User;
 use App\Models\WorkExperience;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\Facades\DataTables;
 
 class UserController extends Controller
@@ -21,6 +22,15 @@ class UserController extends Controller
         if ($request->ajax()) {
             return DataTables::of($users)
                 ->addIndexColumn()
+                ->addColumn('image',function($row){
+                    $image = "";
+                    if (isset($row->currentProfileImage)){
+                        $image = Storage::url($row->currentProfileImage->path);
+                    }else{
+                        $image = secure_asset('assets/img/dummy-user.jpg');
+                    }
+                    return "<img src='" . $image . "' width='100' height='100' class='rounded-circle'>";
+                })
                 ->addColumn('status', function ($row) {
                     $status = $row->is_approve ? 'Approved' : 'Not Approved';
                     $badgeClass = $row->is_approve ? 'bg-success' : 'bg-danger';
@@ -36,7 +46,7 @@ class UserController extends Controller
                     $btn = '<a href="' . route('admin.users-view', ['id' => $row['id']]) . '" class="edit btn btn-primary btn-sm">View Profile</a>';
                     return $btn;
                 })
-                ->rawColumns(['status', 'approve_switch', 'action'])
+                ->rawColumns(['status', 'approve_switch', 'action','image'])
                 ->make(true);
         }
         return view('admin.user.index', ['users' => $users]);

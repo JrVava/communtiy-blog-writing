@@ -10,6 +10,7 @@
                 <thead>
                     <tr>
                         <th>No</th>
+                        <th>Image</th>
                         <th>Full Name</th>
                         <th>Email</th>
                         <th>Status</th>
@@ -33,9 +34,23 @@
                 processing: true,
                 serverSide: true,
                 ajax: "{{ route('admin.users') }}",
-                columns: [{
+                pageLength: 25, // Set default to 25 records per page
+                lengthMenu: [10, 25, 50, 100], // Optional: Define dropdown menu options
+                columns: [
+                    //             {
+                    //     data: 'DT_RowIndex',
+                    //     name: 'DT_RowIndex',
+                    //     orderable: false,
+                    //     searchable: false,
+                    //     title: '#'
+                    // }    
+                    {
                         data: 'id',
                         name: 'id'
+                    },
+                    {
+                        data: 'image',
+                        name: 'image'
                     },
                     {
                         data: 'full_name',
