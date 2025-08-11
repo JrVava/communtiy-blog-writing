@@ -30,7 +30,7 @@
                             <h4 class="font-medium">{{ $work->position }}</h4>
                             <p class="text-gray-600 text-sm">{{ $work->company }}</p>
                             <p class="text-gray-500 text-xs">
-                                {{ $work->start_date->format('M Y') }} -
+                                {{ $work->start_date ? $work->start_date->format('M Y') : "" }} -
                                 {{ $work->is_current ? 'Present' : ($work->end_date ? $work->end_date->format('M Y') : 'Present') }}
                                 ·
                                 {{ $work->duration }}
@@ -233,7 +233,7 @@
                                 <p class="text-gray-600 text-sm">{{ $education->field_of_study }}</p>
                             @endif
                             <p class="text-gray-500 text-xs">
-                                {{ $education->start_date->format('Y') }} -
+                                {{ $education->start_date ? $education->start_date->format('Y') : "" }} -
                                 {{ $education->end_date ? $education->end_date->format('Y') : 'Present' }}
                             </p>
                         </div>

@@ -25,7 +25,7 @@
                         @endif
                         @if ($relationship->anniversary_date)
                             <p class="text-gray-500 text-sm">Anniversary:
-                                {{ $relationship->anniversary_date->format('F j, Y') }}
+                                {{ $relationship->anniversary_date ? $relationship->anniversary_date->format('F j, Y')  : "" }}
                             </p>
                         @endif
                     </div>

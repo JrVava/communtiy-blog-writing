@@ -23,8 +23,12 @@
                 <div class="pl-13">
                     <p class="font-medium">{{ $work->position }}</p>
                     <p class="text-gray-600 text-sm">{{ $work->company }}</p>
-                    <p class="text-gray-500 text-xs">{{ $work->start_date->format('Y') }} -
-                        {{ $work->currently_working ? 'Present' : $work->end_date->format('Y') }} ·
+                    <p class="text-gray-500 text-xs">{{ $work->start_date ? $work->start_date->format('Y') : "" }} -
+                        @if($work->currently_working)
+                            Present
+                        @elseif($work->end_date)
+                            {{ $work->end_date->format('Y') }}
+                        @endif ·
                         {{ $work->location }}</p>
                 </div>
             </div>
@@ -113,7 +117,7 @@
                         @endif
                         @if ($relationship->anniversary_date)
                             <p class="text-gray-500 text-xs">
-                                Since {{ \Carbon\Carbon::parse($relationship->anniversary_date)->format('Y') }}
+                                Since {{ $relationship->anniversary_date ? \Carbon\Carbon::parse($relationship->anniversary_date)->format('Y') : '' }}
                             </p>
                         @endif
                     @endif
@@ -134,7 +138,7 @@
                 <h3 class="font-semibold">Joined Facebook</h3>
             </div>
             <div class="pl-13">
-                <p class="font-medium">{{ $user->created_at->format('F Y') }}</p>
+                <p class="font-medium">{{ $user->created_at ? $user->created_at->format('F Y') : '' }}</p>
                 <p class="text-gray-500 text-xs">{{ $user->created_at->diffForHumans() }}</p>
             </div>
         </div>
