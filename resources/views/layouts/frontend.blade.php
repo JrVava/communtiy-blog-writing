@@ -260,7 +260,7 @@
                         <div class="px-4 py-2 border-b border-gray-100 flex justify-between items-center">
                             <h3 class="font-semibold">Follow Requests</h3>
                         </div>
-                        <div class="max-h-96 overflow-y-auto" id="followRequestsContainer">
+                        <div class="max-h-96 overflow-y-auto followRequestsContainer" >
                             @foreach ($followRequests as $followRequest)
                                 <div class="px-4 py-3 hover:bg-gray-50 flex items-center follow-request-item"
                                     data-follower-id="fc971c3e-143c-491c-ad54-c3707130c7dd">
@@ -439,6 +439,69 @@
             </div>
         </div>
 
+        <div id="mobileNotification"
+            class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-full p-2 bg-white rounded-md shadow-lg py-1 hidden">
+            <div class="px-4 py-2 border-b border-gray-100">
+                <h3 class="font-semibold">Notifications</h3>
+            </div>
+            <div id="mobile-notifItems" class="max-h-96 overflow-y-auto">
+                <!-- Notification items will be dynamically inserted here -->
+                @foreach ($notifications as $notification)
+                    <div class="px-4 py-3 hover:bg-gray-50 flex items-start"
+                        data-notification-id="{{ $notification['id'] }}">
+                        <img src="{{ $notification['user']['avatar'] }}" alt="User"
+                            class="w-10 h-10 rounded-full mr-3">
+                        <div>
+                            <p class="font-medium">{{ $notification['message'] }}</p>
+                            <p class="text-sm text-gray-500">{{ $notification['created_at'] }}</p>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+        <div id="mobilePendingRequestBlock"
+            class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-full p-2 bg-white rounded-md shadow-lg py-1 hidden">
+            <div class="px-4 py-2 border-b border-gray-100 flex justify-between items-center">
+                            <h3 class="font-semibold">Follow Requests</h3>
+                        </div>
+            <div class="max-h-96 overflow-y-auto followRequestsContainer">
+                @foreach ($followRequests as $followRequest)
+                    <div class="px-4 py-3 hover:bg-gray-50 flex items-center follow-request-item"
+                        data-follower-id="fc971c3e-143c-491c-ad54-c3707130c7dd">
+                        <img src="@if (isset($followRequest->follower->currentProfileImage)) {{ Storage::url($followRequest->follower->currentProfileImage->path) }} @else {{ secure_asset('assets/img/dummy-user.jpg') }} @endif"
+                            alt="User" class="w-10 h-10 rounded-full mr-3">
+                        <div class="flex-1">
+                            <a href="{{ route('profile', ['user_id' => $followRequest->follower->id]) }}"
+                                class="font-medium">{{ $followRequest->follower->full_name }}</a>
+                            <p class="text-sm text-gray-500">Sent you a follow request</p>
+                        </div>
+                        <div class="flex space-x-2">
+                            @if (auth()->user()->hasPendingFollowRequestFrom($followRequest->follower))
+                                {{-- Show Accept/Decline buttons if someone requested to follow you --}}
+                                <div class="flex space-x-2">
+                                    <button class="accept-follow text-green-500 hover:text-green-700"
+                                        data-user-id="{{ $followRequest->follower->id }}">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                    <button class="decline-follow text-red-500 hover:text-red-700"
+                                        data-user-id="{{ $followRequest->follower->id }}">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            @else
+                                @if ($user->isFollowing(auth()->user()))
+                                    <button class="follow-button bg-blue-500 text-white px-4 py-2"
+                                        data-user-id="{{ $followRequest->follower->id }}" data-state="follow">
+                                        <i class="fas fa-user-plus"></i>
+                                    </button>
+                                @endif
+                            @endif
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+
         <!-- Bottom navigation bar -->
         <div class="flex justify-around py-3">
             <a href="{{ route('user.post') }}"
@@ -456,11 +519,21 @@
                 </span>
             </a>
             <a href="#"
-                class="flex flex-col items-center text-gray-600 hover:text-blue-500 transition-colors px-2 relative">
+                class="flex flex-col items-center text-gray-600 hover:text-blue-500 transition-colors px-2 relative" id="mobile-pending-request-btn">
+                <i class="fas fa-users text-xl"></i>
+                <span class="text-xs mt-1">Follow Request</span>
+                <span id="mobile-pendingRequestCount"
+                    class="absolute -top-1 right-[20px] bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {{ $pendingCount }}
+                </span>
+            </a>
+            <a href="#"
+                class="flex flex-col items-center text-gray-600 hover:text-blue-500 transition-colors px-2 relative"
+                id="mobile-notification-toggle">
                 <i class="fas fa-bell text-xl"></i>
-                <span class="text-xs mt-1">Alerts</span>
-                <span id="mobile-message-notification-badge"
-                    class="absolute -top-1 -right-0 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                <span class="text-xs mt-1">Notification</span>
+                <span id="mobile-notifBadge"
+                    class="absolute -top-1 right-[20px] bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                     {{ $noficationsCount }}
                 </span>
             </a>
@@ -559,7 +632,6 @@
         }
 
         function handleNotification(data) {
-            console.log(data);
             fetch(`/notification`, {
                     method: 'POST',
                     headers: {
@@ -582,20 +654,28 @@
 
         function updateNotificationBadge(count) {
             const badge = document.getElementById('notifBadge');
+            const mobileBadge = document.getElementById('mobile-notifBadge')
             badge.textContent = count;
+            mobileBadge.textContent = count;
+            mobileBadge.classList.toggle('hidden', count === 0);
             badge.classList.toggle('hidden', count === 0);
         }
 
         function refreshNotificationDropdown(notifications) {
             const notifItems = document.getElementById('notifItems');
+            const mobileNotifItems = document.getElementById('mobile-notifItems');
 
             // Clear existing notifications
             notifItems.innerHTML = '';
+            mobileNotifItems.innerHTML = "";
 
             // Add each notification to the dropdown
             notifications.forEach(notification => {
-                const notifElement = createNotificationElement(notification);
-                notifItems.appendChild(notifElement);
+                const desktopElement = createNotificationElement(notification);
+                const mobileElement = createNotificationElement(notification);
+
+                notifItems.appendChild(desktopElement);
+                mobileNotifItems.appendChild(mobileElement);
             });
         }
 
@@ -635,13 +715,14 @@
 
         function handleFollowRequestNotification(data) {
             // Get the dropdown and container elements
-            const dropdown = document.getElementById('usersDropdown');
+            let dropdown = document.getElementById('usersDropdown');
+            dropdown = document.getElementById('mobilePendingRequestBlock')
             if (!dropdown) {
                 console.error("Dropdown element not found");
                 return;
             }
 
-            const requestsContainer = dropdown.querySelector('.max-h-96');
+            const requestsContainer = dropdown.querySelector('.followRequestsContainer');
             if (!requestsContainer) {
                 console.error("Requests container not found");
                 return;
@@ -667,7 +748,7 @@
                     </button>
                 </div>
             `;
-
+                
                 // Add the new request to the container
                 requestsContainer.insertBefore(requestElement, requestsContainer.firstChild);
 
@@ -776,6 +857,7 @@
         function updatePendingRequestCount() {
             // Get current count from the DOM (if any requests exist)
             const currentCountElement = document.getElementById('pendingRequestCount');
+            const currentMobileCountElement = document.getElementById('mobile-pendingRequestCount');
             const requestItems = document.querySelectorAll('.follow-request-item');
             const newCount = requestItems.length;
 
@@ -786,6 +868,15 @@
                     currentCountElement.classList.remove('hidden');
                 } else {
                     currentCountElement.classList.add('hidden');
+                }
+            }
+
+            if (currentMobileCountElement) {
+                currentMobileCountElement.textContent = newCount;
+                if (newCount > 0) {
+                    currentMobileCountElement.classList.remove('hidden');
+                } else {
+                    currentMobileCountElement.classList.add('hidden');
                 }
             }
 
@@ -1018,6 +1109,13 @@
         });
 
         // Mobile Menu Toggle
+        const mobileNotificationToggles = document.getElementById('mobile-notification-toggle');
+        const mobileNotification = document.getElementById('mobileNotification');
+
+        const mobilePendingRequestBtn = document.getElementById('mobile-pending-request-btn');
+        const mobilePendingRequestBlock = document.getElementById('mobilePendingRequestBlock');
+        
+
         const mobileMenuToggles = document.querySelectorAll('.mobile-menu-toggle');
         const mobileMenu = document.getElementById('mobileMenu');
         const contentArea = document.querySelector('.content-area');
@@ -1027,10 +1125,31 @@
         const profileToggle = document.getElementById('profileToggle');
         const profileDropdown = document.getElementById('profileDropdown');
 
+        mobilePendingRequestBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            mobilePendingRequestBlock.classList.toggle('hidden');
+            profileDropdown.classList.add('hidden');
+            mobileMenu.classList.remove('active'); // Close mobile menu if open
+            contentArea.classList.remove('no-scroll');
+            body.classList.remove('no-scroll');
+        });
+
+        mobileNotificationToggles.addEventListener('click', function(e) {
+            e.stopPropagation();
+            mobileNotification.classList.toggle('hidden');
+            mobilePendingRequestBlock.classList.add('hidden');
+            profileDropdown.classList.add('hidden');
+            mobileMenu.classList.remove('active'); // Close mobile menu if open
+            contentArea.classList.remove('no-scroll');
+            body.classList.remove('no-scroll');
+        });
+
         // Profile dropdown toggle
         profileToggle.addEventListener('click', function(e) {
             e.stopPropagation();
             profileDropdown.classList.toggle('hidden');
+            mobileNotification.classList.add('hidden');
+            mobilePendingRequestBlock.classList.add('hidden');
             mobileMenu.classList.remove('active'); // Close mobile menu if open
             contentArea.classList.remove('no-scroll');
             body.classList.remove('no-scroll');
@@ -1056,6 +1175,7 @@
                 e.stopPropagation();
                 mobileMenu.classList.toggle('active');
                 profileDropdown.classList.add('hidden'); // Close profile dropdown if open
+                mobileNotification.classList.add('hidden');
 
                 // Toggle scroll lock based on menu state
                 if (mobileMenu.classList.contains('active')) {
@@ -1129,7 +1249,9 @@
         function markNotificationsAsRead() {
             // Get all notification IDs from the dropdown
             const notificationElements = document.querySelectorAll('#notifItems > div');
-            const notificationIds = Array.from(notificationElements).map(el => el.dataset.notificationId);
+            const mobileNotificationElements = document.querySelectorAll('#mobile-notifItems > div');
+            let notificationIds = Array.from(notificationElements).map(el => el.dataset.notificationId);
+            notificationIds = Array.from(mobileNotificationElements).map(el => el.dataset.notificationId);
 
             if (notificationIds.length === 0) return;
 
@@ -1459,12 +1581,12 @@
             messageDiv.className = `flex ${isSender ? 'justify-end' : ''} mb-4`;
             messageDiv.innerHTML = `
             ${!isSender ? `
-                                                                                    <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-2 mt-1">
-                                                                                        <img src="${senderAvatar}" 
-                                                                             alt="User avatar" 
-                                                                             class="w-full h-full object-cover rounded-full">
-                                                                                    </div>
-                                                                                ` : ''}
+                                                                                                    <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-2 mt-1">
+                                                                                                        <img src="${senderAvatar}" 
+                                                                                             alt="User avatar" 
+                                                                                             class="w-full h-full object-cover rounded-full">
+                                                                                                    </div>
+                                                                                                ` : ''}
             <div>
                 <div class="${isSender ? 'bg-green-100' : 'bg-white'} rounded-lg ${isSender ? 'rounded-tr-none' : 'rounded-tl-none'} p-3 shadow-sm max-w-xs md:max-w-md">
                     <p class="text-gray-800">${message}</p>
