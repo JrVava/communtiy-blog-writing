@@ -155,6 +155,11 @@
                                 {{ $user->isFollowing(auth()->user()) ? 'Follow Back' : 'Follow' }}
                             </button>
                         @endif
+                        @else
+                        <select name="user_privacy" id="user_privacy" class="user_privacy border bg-[#374697] text-white text-sm rounded-lg focus:ring-[#374697d9] focus:border-[#374697d9] block w-full p-2.5" onchange="updatePrivacy(this.value, '{{ Auth::id() }}')">
+                            <option value="Private" @if(Auth::user()->user_privacy == "Private") selected @endif>Private</option>
+                            <option value="Public" @if(Auth::user()->user_privacy == "Public") selected @endif>Public</option>
+                        </select>
                     @endif
                 </div>
             </div>
@@ -266,6 +271,29 @@
     @include('frontend.profile.edit-post-modal')
 @section('scripts')
     <script>
+
+        function updatePrivacy(privacy, userId) {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                fetch(`/update-user-privacy`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken // important for Laravel
+                    },
+                    body: JSON.stringify({
+                        user_id: userId,
+                        user_privacy: privacy
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data.message);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            }
+
         function openEditModal(button) {
             const postId = button.getAttribute('data-post-id');
             const postContent = button.getAttribute('data-post-content');

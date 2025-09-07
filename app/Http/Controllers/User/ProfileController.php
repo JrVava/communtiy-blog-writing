@@ -23,17 +23,23 @@ class ProfileController extends Controller
     public function index($user_id, $parentTab = null, $tab = null)
     {
         $user = User::find($user_id);
+        $userIds = User::where([
+            ['user_privacy','=','Public'],
+            ['id','=',$user_id],
+        ])->select('id')->first();
 
         $followingIds = $user->following()
             ->where('status', Follow::STATUS_ACCEPTED)
             ->pluck('users.id');
-        $userProfileId = null;
+
+        $userProfileId = isset($userIds) ? $userIds->id : null;
         if (isset($followingIds[0]) && $followingIds[0] != $user_id) {
             $userProfileId = $user_id;
         } elseif ($user_id == Auth::id()) {
             $userProfileId = Auth::id();
             ;
         }
+
         // Get posts from followed users AND the authenticated user
         $posts = Post::where('user_id', '=', $userProfileId)
             ->with('user', 'reactions') // Eager load the user relationship
@@ -260,4 +266,19 @@ class ProfileController extends Controller
 
         return response()->json(['success' => true]);
     }
+
+
+    public function updatePrivacy(Request $request) {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'user_privacy' => 'required|in:Private,Public',
+        ]);
+
+        $user = User::findOrFail($request->user_id);
+        $user->user_privacy = $request->user_privacy;
+        $user->save();
+
+        return response()->json(['message' => 'Privacy updated successfully']);
+    }
+
 }

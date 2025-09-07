@@ -16,12 +16,15 @@ class PostController extends Controller
 {
     public function index(User $user)
     {
+        $userIds = User::where('user_privacy','=','Public')->pluck('id');
+        
         $followingIds = auth()->user()->following()
             ->where('status', Follow::STATUS_ACCEPTED)
             ->pluck('users.id');
 
         // Include the authenticated user's ID
         $followingIds->push(auth()->id());
+        $followingIds = $followingIds->merge($userIds)->unique()->values();
 
         // Get posts from followed users AND the authenticated user
         $posts = Post::whereIn('user_id', $followingIds)

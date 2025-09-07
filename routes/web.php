@@ -100,6 +100,8 @@ Route::middleware([
         Route::delete('/profile/contact-info/{id}/delete', 'deleteContact')->name('profile.contact-info.delete');
         Route::post('/profile/contact-info/basic/create', 'createBasicInfo')->name('profile.contact-info.basic.create');
         Route::post('/media/upload', 'uploadMedia')->name('media.upload');
+
+        Route::post('/update-user-privacy','updatePrivacy')->name('update.user.privacy');
     });
 
     Route::controller(FollowController::class)->group(function () {

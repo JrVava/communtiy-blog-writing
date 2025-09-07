@@ -29,7 +29,8 @@ class User extends Authenticatable
         'dob',
         'is_admin',
         'is_approve',
-        'image'
+        'image',
+        'user_privacy'
     ];
 
     protected $dates = ['deleted_at'];
@@ -51,6 +52,7 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'user_privacy' => 'string',
     ];
 
     protected static function boot()
