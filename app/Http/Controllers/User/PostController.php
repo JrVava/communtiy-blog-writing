@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Models\Comment;
 use App\Models\Follow;
 use App\Models\Post;
 use App\Models\PostReaction;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class PostController extends Controller
 {
@@ -60,6 +62,26 @@ class PostController extends Controller
         $post->save();
 
         return redirect()->back()->with('success', 'Post created successfully!');
+    }
+
+    public function deletePost($postId){
+        $postFind = Post::find($postId);
+        if ($postFind->media_path) {
+            Storage::disk('public')->delete($postFind->media_path);
+        }
+        
+        $deleteComments = Comment::where('post_id','=',$postId)->delete();
+        $deleteReactions = PostReaction::where('post_id','=',$postId)->delete();
+        $deletePost = Post::where('id','=',$postId)->delete();
+
+        return redirect()->route('profile', ['user_id' => Auth::id(), 'parentTab' => 'posts-tab'])->with('success', 'Post deleted successfully!');
+    }
+
+    public function editPost($postId){
+
+        $posts = Post::whereIn('id', $postId)
+            ->first();
+        dd($postId);
     }
 
 }

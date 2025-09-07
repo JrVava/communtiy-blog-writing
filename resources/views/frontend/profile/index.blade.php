@@ -176,9 +176,9 @@
                 <a href="#" class="profile-tab-link px-6 py-4 text-gray-600 hover:bg-gray-100 whitespace-nowrap"
                     data-tab="friends-tab">Friends</a>
                 <!-- <a href="#" class="profile-tab-link px-6 py-4 text-gray-600 hover:bg-gray-100 whitespace-nowrap"
-                                                                                data-tab="photos-tab">Photos</a>
-                                                                            <a href="#" class="profile-tab-link px-6 py-4 text-gray-600 hover:bg-gray-100 whitespace-nowrap"
-                                                                data-tab="videos-tab">Videos</a> -->
+                                    data-tab="photos-tab">Photos</a>
+                                <a href="#" class="profile-tab-link px-6 py-4 text-gray-600 hover:bg-gray-100 whitespace-nowrap"
+                    data-tab="videos-tab">Videos</a> -->
             </nav>
         </div>
     </div>
@@ -188,401 +188,17 @@
             <div class="container mx-auto px-4 md:mt-0 py-6">
                 <div class="flex flex-col md:flex-row gap-6 in-mobile-content">
                     <!-- Left Sidebar - Community -->
-                    <aside
-                        class="hidden md:block md:w-1/4 lg:w-1/5 bg-white rounded-lg shadow-md p-4 sticky top-20 self-start">
-                        <h2 class="text-xl font-bold mb-4">Community</h2>
-                        <nav class="space-y-2">
-                            <a href="#" class="block py-2 px-3 rounded hover:bg-gray-100"><i
-                                    class="fas fa-home mr-2"></i>
-                                Home</a>
-                            <a href="#" class="block py-2 px-3 rounded hover:bg-gray-100"><i
-                                    class="fas fa-users mr-2"></i> My
-                                Groups</a>
-                            <a href="#" class="block py-2 px-3 rounded hover:bg-gray-100"><i
-                                    class="fas fa-comments mr-2"></i>
-                                Discussions</a>
-                            <a href="#" class="block py-2 px-3 rounded hover:bg-gray-100"><i
-                                    class="fas fa-calendar-alt mr-2"></i>
-                                Events</a>
-                            <a href="#" class="block py-2 px-3 rounded hover:bg-gray-100"><i
-                                    class="fas fa-book mr-2"></i>
-                                Resources</a>
-                            <a href="#" class="block py-2 px-3 rounded hover:bg-gray-100"><i
-                                    class="fas fa-cog mr-2"></i>
-                                Settings</a>
-                        </nav>
-                    </aside>
+                    @include('frontend.profile.left-sidebar')
 
                     <!-- Main Content - Posts -->
                     <main class="flex-1 space-y-6">
                         <!-- Post Creation -->
-                        @if ($user->id == Auth::id())
-                            <div class="bg-white rounded-lg shadow-md p-4 mb-6">
-                                <div class="flex items-start space-x-3">
-                                    <div class="flex-shrink-0">
-                                        <img src="@if (isset($currentProfileImage)) {{ Storage::url($currentProfileImage->path) }} @else {{ secure_asset('assets/img/dummy-user.jpg') }} @endif"
-                                            alt="User Avatar"
-                                            class="w-10 h-10 rounded-full object-cover border border-gray-200">
-                                    </div>
-                                    <div class="flex-1">
-                                        <form action="{{ route('posts.store') }}" method="POST"
-                                            enctype="multipart/form-data">
-                                            @csrf
-                                            <textarea placeholder="What's on your mind?" name="content"
-                                                class="w-full p-3 border-0 focus:ring-0 resize-none text-gray-700 placeholder-gray-500 @error('content') border-red-500 @enderror"
-                                                rows="3"></textarea>
-                                            @error('content')
-                                                <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
-                                            @enderror
-                                            <div class="image-preview-container">
-                                                <img id="imagePreview" src="#" alt="Preview">
-                                                <div class="remove-image-btn" onclick="removeImage()">
-                                                    <i class="fas fa-times text-xs"></i>
-                                                </div>
-                                            </div>
-                                            <div class="flex items-center justify-between border-t border-gray-200 pt-3">
-                                                <div class="relative">
-                                                    <input type="file" id="imageUpload" name="media"
-                                                        accept="image/*,video/*" class="hidden"
-                                                        onchange="previewImage(this)">
-                                                    <label for="imageUpload"
-                                                        class="flex items-center text-gray-500 hover:bg-gray-100 rounded-md px-3 py-1 cursor-pointer">
-                                                        <i class="fas fa-image text-green-500 mr-2"></i>
-                                                        <span>Photo/Video</span>
-                                                    </label>
-                                                    @error('media')
-                                                        <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
-                                                <button type="submit"
-                                                    class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1 rounded-md font-medium">
-                                                    Post <i class="fas fa-paper-plane text-sm"></i>
-                                                </button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        @endif
-                        <div class="space-y-6">
-                            @foreach ($posts as $post)
-                                <div class="bg-white rounded-lg shadow-md overflow-hidden mb-6"
-                                    data-post-id="{{ $post->id }}">
-                                    <!-- ... (previous post content) ... -->
-                                    <!-- Post Header -->
-                                    <div class="p-4 flex items-center space-x-3">
-                                        <img src="@if (isset($currentProfileImage)) {{ Storage::url($currentProfileImage->path) }} @else {{ secure_asset('assets/img/dummy-user.jpg') }} @endif"
-                                            alt="User" class="w-10 h-10 rounded-full">
-                                        <div>
-                                            <h3 class="font-semibold">{{ $post->user->full_name }}</h3>
-                                            <p class="text-gray-500 text-sm">{{ $post->created_at->diffForHumans() }}</p>
-                                        </div>
-                                    </div>
-
-                                    <!-- Post Content -->
-                                    <div class="px-4 pb-3">
-                                        <p>{{ $post->content }}</p>
-                                        {{-- Post Medie Code Start here --}}
-                                        @if ($post->media_path)
-                                            @if ($post->media_type === 'image')
-                                                <img src="{{ $post->media_url }}" alt="Post image"
-                                                    class="mt-3 rounded-lg w-full">
-                                            @elseif($post->media_type === 'video')
-                                                <div
-                                                    class="video-container mt-3 rounded-lg w-full relative bg-black aspect-video">
-                                                    <video class="w-full h-full object-contain" loop preload="metadata"
-                                                        playsinline>
-                                                        <source src="{{ $post->media_url }}" type="video/mp4">
-                                                    </video>
-
-                                                    <div
-                                                        class="video-controls absolute inset-0 flex flex-col justify-end opacity-0 transition-opacity duration-300">
-                                                        <!-- Progress bar -->
-                                                        <div class="w-full px-4 pt-2">
-                                                            <input type="range" class="w-full h-1 video-progress"
-                                                                value="0" min="0" max="100"
-                                                                step="0.1">
-                                                            <div class="flex justify-between text-white text-xs mt-1">
-                                                                <span class="current-time">0:00</span>
-                                                                <span class="duration">0:00</span>
-                                                            </div>
-                                                        </div>
-
-                                                        <!-- Bottom controls -->
-                                                        <div class="bg-gradient-to-t from-black/70 to-transparent p-4">
-                                                            <div class="flex items-center justify-between">
-                                                                <!-- Left controls -->
-                                                                <div class="flex items-center space-x-4">
-                                                                    <button class="play-pause text-white text-xl">
-                                                                        <i class="fas fa-play"></i>
-                                                                    </button>
-
-                                                                    <!-- Volume controls -->
-                                                                    <div class="flex items-center space-x-2 group">
-                                                                        <button class="volume-toggle text-white text-xl">
-                                                                            <i class="fas fa-volume-up"></i>
-                                                                        </button>
-                                                                        <input type="range"
-                                                                            class="volume-slider w-20 h-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                                                                            min="0" max="1" step="0.01"
-                                                                            value="1">
-                                                                    </div>
-                                                                </div>
-
-                                                                <!-- Right controls -->
-                                                                <div class="flex items-center space-x-3">
-                                                                    <button class="fullscreen-toggle text-white text-xl">
-                                                                        <i class="fas fa-expand"></i>
-                                                                    </button>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            @endif
-                                        @endif
-                                        {{-- Post Medie Code End here --}}
-                                    </div>
-                                    <!-- Post Stats -->
-                                    <div
-                                        class="px-4 py-2 border-t border-b border-gray-100 flex justify-between text-sm text-gray-500">
-                                        <div class="flex items-center space-x-1 reactions-summary"
-                                            data-post-id="{{ $post->id }}">
-                                            @php
-                                                $reactionCounts = $post->reactions
-                                                    ? $post->reactions->getReactionCounts()
-                                                    : [];
-                                                $totalReactions = $post->reactions
-                                                    ? $post->reactions->getTotalReactions()
-                                                    : 0;
-                                                $displayedReactions = 0;
-                                            @endphp
-
-                                            @if ($totalReactions > 0)
-                                                @foreach ($reactionCounts as $type => $count)
-                                                    @if ($count > 0 && $displayedReactions < 3)
-                                                        <span
-                                                            class="reaction-emoji">{{ App\Models\PostReaction::$reactionTypes[$type] }}</span>
-                                                        @php $displayedReactions++; @endphp
-                                                    @endif
-                                                @endforeach
-                                                <span
-                                                    class="reaction-count text-sm text-gray-500">{{ $totalReactions }}</span>
-                                            @endif
-                                        </div>
-                                        <span class="comment-count"
-                                            data-post-id="{{ $post->id }}">{{ $post->comments_count ?? 0 }}
-                                            comments</span>
-                                    </div>
-                                    <!-- Post Actions -->
-                                    <div class="px-4 py-2 flex justify-between">
-                                        <div class="reaction-container relative inline-block"
-                                            data-post-id="{{ $post->id }}">
-                                            <button
-                                                class="like-btn flex items-center space-x-1 text-gray-500 hover:text-blue-500 focus:outline-none">
-                                                @php
-                                                    $userReaction = null;
-                                                    $reactionRecord = $post->reactions;
-
-                                                    if ($reactionRecord) {
-                                                        foreach ($reactionRecord->reactions as $type => $userIds) {
-                                                            if (in_array(auth()->id(), $userIds)) {
-                                                                $userReaction = $type;
-                                                                break;
-                                                            }
-                                                        }
-                                                    }
-
-                                                    $reactionConfig = [
-                                                        'like' => ['icon' => 'fas fa-thumbs-up', 'text' => 'Like'],
-                                                        'love' => ['icon' => 'fas fa-heart', 'text' => 'Love'],
-                                                        'haha' => ['icon' => 'far fa-laugh-squint', 'text' => 'Haha'],
-                                                        'wow' => ['icon' => 'far fa-surprise', 'text' => 'Wow'],
-                                                        'sad' => ['icon' => 'far fa-sad-tear', 'text' => 'Sad'],
-                                                        'angry' => ['icon' => 'far fa-angry', 'text' => 'Angry'],
-                                                    ];
-                                                @endphp
-
-                                                @if ($userReaction)
-                                                    <i class="{{ $reactionConfig[$userReaction]['icon'] }}"></i>
-                                                    <span>{{ $reactionConfig[$userReaction]['text'] }}</span>
-                                                @else
-                                                    <i class="far fa-thumbs-up"></i>
-                                                    <span>Like</span>
-                                                @endif
-                                            </button>
-                                            <!-- Emoji reaction picker -->
-                                            <div
-                                                class="emoji-picker absolute bottom-full left-0 bg-white shadow-lg rounded-full p-2 hidden">
-                                                <div class="flex space-x-2">
-                                                    @foreach ($reactions as $type => $emoji)
-                                                        <span
-                                                            class="emoji-option hover:scale-125 transition-transform cursor-pointer text-xl"
-                                                            data-reaction="{{ $type }}"
-                                                            title="{{ ucfirst($type) }}">
-                                                            {{ $emoji }}
-                                                        </span>
-                                                    @endforeach
-                                                </div>
-                                            </div>
-
-                                            <!-- Reaction counts display -->
-                                            <div class="reactions-count ml-2 text-sm text-gray-500"></div>
-                                        </div>
-                                        <button
-                                            class="comment-toggle flex items-center space-x-1 text-gray-500 hover:text-green-500 focus:outline-none">
-                                            <i class="far fa-comment"></i>
-                                            <span>Comment</span>
-                                        </button>
-                                    </div>
-                                    <!-- Inside your post loop, replace the comments section with this: -->
-                                    <div class="comments-section hidden bg-gray-50 p-4 border-t border-gray-100">
-                                        <!-- Existing Comments -->
-                                        <div class="space-y-3 mb-4" id="comments-container-{{ $post->id }}">
-                                            @if (isset($post->comments))
-                                                @foreach ($post->comments as $comment)
-                                                    <div class="comment flex space-x-2"
-                                                        data-comment-id="{{ $comment->id }}">
-                                                        <img src="@if (isset($comment->user->currentProfileImage)) {{ Storage::url($comment->user->currentProfileImage->path) }} @else {{ secure_asset('assets/img/dummy-user.jpg') }} @endif"
-                                                            alt="User" class="w-8 h-8 rounded-full mt-1">
-                                                        <div class="bg-white p-3 rounded-lg flex-1 relative">
-                                                            <div class="flex justify-between items-start">
-                                                                <h4 class="font-semibold text-sm">
-                                                                    {{ $comment->user->full_name }}</h4>
-                                                                <span
-                                                                    class="text-xs text-gray-400">{{ $comment->created_at->diffForHumans() }}</span>
-                                                            </div>
-                                                            <p class="text-sm mt-1 comment-content">
-                                                                {{ $comment->content }}</p>
-
-                                                            <!-- Comment actions (only show for comment owner) -->
-                                                            @if (auth()->id() === $comment->user_id)
-                                                                <div class="flex space-x-1 justify-end">
-                                                                    <button
-                                                                        class="edit-comment text-gray-500 hover:text-blue-500 text-sm">
-                                                                        <i class="fas fa-edit"></i>
-                                                                    </button>
-                                                                    <button
-                                                                        class="delete-comment text-gray-500 hover:text-red-500 text-sm">
-                                                                        <i class="fas fa-trash"></i>
-                                                                    </button>
-                                                                </div>
-                                                            @endif
-                                                        </div>
-                                                    </div>
-                                                @endforeach
-                                            @endif
-                                        </div>
-
-                                        <!-- Add Comment Form -->
-                                        <div class="flex space-x-2">
-                                            <img src="@if (isset(Auth::user()->currentProfileImage->path)) {{ Storage::url(Auth::user()->currentProfileImage->path) }} @else {{ secure_asset('assets/img/dummy-user.jpg') }} @endif"
-                                                alt="User" class="w-8 h-8 rounded-full mt-1">
-                                            <div class="flex-1 flex">
-                                                <input type="text" placeholder="Write a comment..."
-                                                    class="comment-input flex-1 text-sm px-3 py-2 rounded-l-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-500">
-                                                <button
-                                                    class="comment-submit bg-blue-500 text-white px-3 py-2 rounded-r-lg hover:bg-blue-600 focus:outline-none"
-                                                    data-post-id="{{ $post->id }}">
-                                                    <i class="fas fa-paper-plane"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            @endforeach
-                            @if (count($posts) == 0)
-                                <h1 class="text-3xl font-bold flex justify-center">No Post Found</h1>
-                            @endif
-                        </div>
+                        @include('frontend.profile.create-post')
+                        @include('frontend.profile.posts')
                     </main>
 
                     <!-- Right Sidebar - Events -->
-                    <aside class="hidden md:block md:w-1/4 lg:w-1/5 space-y-4 sticky top-20 self-start">
-                        <!-- Events Card -->
-                        <div class="bg-white rounded-lg shadow-md p-4">
-                            <h2 class="text-xl font-bold mb-4">Upcoming Events</h2>
-                            <div class="space-y-4">
-                                <div class="flex items-start gap-3 p-2 hover:bg-gray-50 rounded-lg transition">
-                                    <i class="fas fa-calendar-alt mt-1"></i>
-                                    <div>
-                                        <h3 class="font-semibold text-gray-800">Group Meeting</h3>
-                                        <p class="text-sm text-gray-600">Apr 28 - 18:00</p>
-                                    </div>
-                                </div>
-                                <div class="flex items-start gap-3 p-2 hover:bg-gray-50 rounded-lg transition">
-                                    <i class="fas fa-calendar-alt mt-1"></i>
-                                    <div>
-                                        <h3 class="font-semibold text-gray-800">Community Member</h3>
-                                        <p class="text-sm text-gray-600">Apr 27 - 14:00</p>
-                                    </div>
-                                </div>
-                                <div class="flex items-start gap-3 p-2 hover:bg-gray-50 rounded-lg transition">
-                                    <i class="fas fa-calendar-alt mt-1"></i>
-                                    <div>
-                                        <h3 class="font-semibold text-gray-800">Workshop</h3>
-                                        <p class="text-sm text-gray-600">May 1 - 10:35</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="mt-8">
-                                <h3 class="font-semibold mb-2">Recent Posts</h3>
-                                <div class="space-y-2">
-                                    <a href="#" class="block text-sm text-blue-500 hover:underline">ComSolar Benefit
-                                        Issues...</a>
-                                    <a href="#" class="block text-sm text-blue-500 hover:underline">Vote</a>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Second Card - New Card -->
-                        <div class="bg-white rounded-lg shadow-md p-4">
-                            <!-- Heading -->
-                            <h2 class="text-xl font-bold mb-4">Quick Access</h2>
-
-                            <div class="space-y-4">
-                                <!-- Announcement Card -->
-                                <div class="flex gap-3 p-3 hover:bg-gray-50 rounded-lg transition">
-                                    <div class="flex-shrink-0 mt-1 text-blue-500">
-                                        <i class="fas fa-bullhorn text-lg"></i> <!-- Announcement icon -->
-                                    </div>
-                                    <div>
-                                        <h3 class="font-semibold text-gray-800">Announcement</h3>
-                                        <p class="text-sm text-gray-600 mt-1">Community guidelines updated - please
-                                            review</p>
-                                    </div>
-                                </div>
-
-                                <!-- Poll Card -->
-                                <div class="flex gap-3 p-3 hover:bg-gray-50 rounded-lg transition">
-                                    <div class="flex-shrink-0 mt-1 text-purple-500">
-                                        <i class="fas fa-poll text-lg"></i> <!-- Poll icon -->
-                                    </div>
-                                    <div>
-                                        <h3 class="font-semibold text-gray-800">Poll</h3>
-                                        <p class="text-sm text-gray-600 mt-1">Should we host monthly meetups?</p>
-                                        <button
-                                            class="mt-2 text-sm bg-purple-500 hover:bg-purple-600 text-white py-1 px-3 rounded-md transition-colors">
-                                            Vote Now
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <!-- Suggestion Group Card -->
-                                <div class="flex gap-3 p-3 hover:bg-gray-50 rounded-lg transition">
-                                    <div class="flex-shrink-0 mt-1 text-green-500">
-                                        <i class="fas fa-lightbulb text-lg"></i> <!-- Suggestion icon -->
-                                    </div>
-                                    <div>
-                                        <h3 class="font-semibold text-gray-800">Suggestion Group</h3>
-                                        <p class="text-sm text-gray-600 mt-1">Share your ideas for community improvement
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </aside>
+                    @include('frontend.profile.right-sidebar')
                 </div>
             </div>
         </div>
@@ -646,9 +262,38 @@
             @include('frontend.profile.friends-list')
         </div>
     </div>
+
+    @include('frontend.profile.edit-post-modal')
 @section('scripts')
     <script>
+        function openEditModal(button) {
+            const postId = button.getAttribute('data-post-id');
+            const postContent = button.getAttribute('data-post-content');
+            const postMedia = button.getAttribute('data-post-media');
+            // Fill textarea
+            document.getElementById('content').value = postContent;
+            const previewImg = document.getElementById('editImagePreview');
+            
+            if (postMedia) {
+                document.querySelector('.edit-image-preview-container').style.display = 'block';
+
+                previewImg.src = postMedia;
+                previewImg.style.display = 'block';
+            } else {
+                previewImg.style.display = 'none';
+            }
+            document.getElementById('myModal').classList.remove('hidden');
+        }
+        
         document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.profile-action-trigger').forEach(button => {
+                button.addEventListener('click', () => {
+                    const dropdown = button.nextElementSibling;
+                    dropdown.classList.toggle('hidden');
+                });
+            });
+
+
             const tabLinks = document.querySelectorAll('.profile-tab-link');
             const tabContents = document.querySelectorAll('.profile-tab-content');
 
@@ -698,10 +343,34 @@
             }
         }
 
+        function editPreviewImage(input) {
+            const editPreviewContainer = document.querySelector('.edit-image-preview-container');
+            const editPreview = document.getElementById('editImagePreview');
+            const editFile = input.files[0];
+
+            if (editFile) {
+                const editReader = new FileReader();
+
+                editReader.onload = function(e) {
+                    editPreview.src = e.target.result;
+                    editPreviewContainer.style.display = 'block';
+                }
+
+                editReader.readAsDataURL(editFile);
+            }
+        }
+
         function removeImage() {
             const previewContainer = document.querySelector('.image-preview-container');
             previewContainer.style.display = 'none';
             document.getElementById('imageUpload').value = '';
+        }
+
+
+        function editRemoveImage() {
+            const previewContainer = document.querySelector('.edit-image-preview-container');
+            previewContainer.style.display = 'none';
+            document.getElementById('editImageUpload').value = '';
         }
 
         document.addEventListener('DOMContentLoaded', function() {

@@ -130,7 +130,7 @@
                                     <input type="file" id="imageUpload" name="media" accept="image/*,video/*"
                                         class="hidden" onchange="previewImage(this)">
                                     <label for="imageUpload"
-                                        class="flex items-center text-gray-500 hover:bg-gray-100 rounded-md px-3 py-1 cursor-pointer">
+                                        class="flex items-center text-gray-500 hover:bg-[#374697d9] hover:text-white rounded-md px-3 py-1 cursor-pointer">
                                         <i class="fas fa-image text-green-500 mr-2"></i>
                                         <span>Photo/Video</span>
                                     </label>
@@ -139,7 +139,7 @@
                                     @enderror
                                 </div>
                                 <button type="submit"
-                                    class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1 rounded-md font-medium">
+                                    class="bg-[#374697] hover:bg-[#374697d9] text-white px-4 py-1 rounded-md font-medium">
                                     Post <i class="fas fa-paper-plane text-sm"></i>
                                 </button>
                             </div>

@@ -73,6 +73,8 @@ Route::middleware([
     Route::controller(PostController::class)->group(function () {
         Route::get('/', 'index')->name('user.post');
         Route::post('posts-store', 'store')->name('posts.store');
+        Route::get('/delete-post/{postId}','deletePost')->name('delete-post');
+        Route::get('/edit-post/{postId}','editPost')->name('edit-post');
     });
 
     Route::controller(CommentController::class)->group(function () {

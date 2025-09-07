@@ -39,6 +39,13 @@
             margin-bottom: 12px;
         }
 
+        .edit-image-preview-container {
+            display: none;
+            position: relative;
+            /* Added this */
+            margin-bottom: 12px;
+        }
+
         #imagePreview {
             max-height: 200px;
             object-fit: contain;
@@ -46,6 +53,27 @@
             border-radius: 8px;
         }
 
+        #editImagePreview {
+            max-height: 200px;
+            object-fit: contain;
+            width: 100%;
+            border-radius: 8px;
+        }
+
+        .edit-remove-image-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
         .remove-image-btn {
             position: absolute;
             top: 8px;
@@ -243,13 +271,13 @@
 
             <!-- Navigation Icons (Left) -->
             <nav class="flex items-center space-x-6">
-                <a href="{{ route('user.post') }}" class="text-gray-600 hover:text-blue-500 transition-colors">
+                <a href="{{ route('user.post') }}" class="text-gray-600 hover:text-[#374697d9] transition-colors">
                     <i class="fas fa-home text-2xl"></i>
                 </a>
 
                 <!-- Users Dropdown -->
                 <div class="relative">
-                    <button id="usersButton" class="text-gray-600 hover:text-blue-500 transition-colors relative">
+                    <button id="usersButton" class="text-gray-600 hover:text-[#374697d9] transition-colors relative">
                         <i class="fas fa-users text-2xl"></i>
                         <span id="pendingRequestCount"
                             class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">{{ $pendingCount }}</span>
@@ -302,7 +330,7 @@
 
                 <!-- Notifications Dropdown -->
                 <div class="relative">
-                    <button id="notifButton" class="text-gray-600 hover:text-blue-500 transition-colors relative">
+                    <button id="notifButton" class="text-gray-600 hover:text-[#374697d9] transition-colors relative">
                         <i class="fas fa-bell text-2xl"></i>
                         <span id="notifBadge"
                             class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">{{ $noficationsCount }}</span>
@@ -331,7 +359,7 @@
                 </div>
 
                 <a href="{{ route('chats') }}"
-                    class="relative inline-flex items-center text-gray-600 hover:text-blue-500 transition-colors duration-200">
+                    class="relative inline-flex items-center text-gray-600 hover:text-[#374697d9] transition-colors duration-200">
                     <i class="fas fa-comment-dots text-2xl"></i>
                     <span
                         class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center"
