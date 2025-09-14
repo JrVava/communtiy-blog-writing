@@ -7,7 +7,7 @@
         <!-- Friend 1 -->
         @foreach ($friendList as $friend)
             <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
-                <img src="@if(isset($friend->currentProfileImage)) {{ Storage::url($friend->currentProfileImage->path) }} @else {{ secure_asset('assets/img/dummy-user.jpg') }} @endif" alt="Friend" class="w-full h-[152px] object-cover">
+                <img src="@if(isset($friend->currentProfileImage)) {{ Storage::url($friend->currentProfileImage->path) }} @else {{ secure_asset('assets/img/dummy-user.jpg') }} @endif" alt="Friend" class="w-full h-[252px] object-cover">
                 <div class="p-3">
                     <h3 class="font-semibold">{{ $friend->full_name }}</h3>
                     {{-- <p class="text-gray-500 text-sm">12 mutual friends</p> --}}

@@ -159,7 +159,7 @@
                             <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
                                 <a href="{{ route('profile',['user_id' => $suggestionFriend->id]) }}">
                                 <img src="@if (isset($suggestionFriend->currentProfileImage)) {{ Storage::url($suggestionFriend->currentProfileImage->path) }} @else {{ secure_asset('assets/img/dummy-user.jpg') }} @endif"
-                                    alt="Friend" class="w-full h-[152px] object-cover">
+                                    alt="Friend" class="w-full h-[252px] object-cover">
                                 <div class="p-3">
                                     <h3 class="font-semibold">{{ $suggestionFriend->full_name }}</h3>
                                 </div>
