@@ -1126,43 +1126,64 @@
 
         // Suggestion Friend code Start Here
         document.addEventListener('DOMContentLoaded', function() {
-            const slider = document.getElementById('friend-slider-inner');
-            const prevButton = document.getElementById('prev-button');
-            const nextButton = document.getElementById('next-button');
-            const friends = document.querySelectorAll('#friend-slider-inner > div');
-            let currentIndex = 0;
-            const cardsPerView = Math.floor(slider.parentElement.offsetWidth / friends[0].offsetWidth);
+    const slider = document.getElementById('friend-slider-inner');
+    const prevButton = document.getElementById('prev-button');
+    const nextButton = document.getElementById('next-button');
+    const friends = document.querySelectorAll('#friend-slider-inner > div');
+    let currentIndex = 0;
 
-            function updateSlider() {
-                const translateX = -currentIndex * (100 / cardsPerView);
-                slider.style.transform = `translateX(${translateX}%)`;
-            }
+    function getCardsPerView() {
+        const width = window.innerWidth;
+        if (width >= 1024) return 5; // lg:w-1/5
+        if (width >= 768) return 4;  // md:w-1/4
+        if (width >= 640) return 3;  // sm:w-1/3
+        return 2;                    // w-1/2
+    }
 
-            nextButton.addEventListener('click', function() {
-                if (currentIndex < friends.length - cardsPerView) {
-                    currentIndex++;
-                    updateSlider();
-                }
-            });
+    function updateSlider() {
+        const cardsPerView = getCardsPerView();
+        const maxIndex = Math.max(0, friends.length - cardsPerView);
+        
+        // Adjust currentIndex if it's beyond the new maxIndex
+        if (currentIndex > maxIndex) {
+            currentIndex = maxIndex;
+        }
+        
+        const translateX = -currentIndex * (100 / cardsPerView);
+        slider.style.transform = `translateX(${translateX}%)`;
 
-            prevButton.addEventListener('click', function() {
-                if (currentIndex > 0) {
-                    currentIndex--;
-                    updateSlider();
-                }
-            });
+        // Show/hide navigation buttons
+        prevButton.style.display = currentIndex === 0 ? 'none' : 'block';
+        nextButton.style.display = currentIndex >= maxIndex ? 'none' : 'block';
+    }
 
-            // Update on window resize
-            window.addEventListener('resize', function() {
-                const newCardsPerView = Math.floor(slider.parentElement.offsetWidth / friends[0]
-                    .offsetWidth);
-                if (newCardsPerView !== cardsPerView) {
-                    // Reset the currentIndex if needed
-                    currentIndex = 0;
-                    updateSlider();
-                }
-            });
-        });
+    nextButton.addEventListener('click', function() {
+        const cardsPerView = getCardsPerView();
+        if (currentIndex < friends.length - cardsPerView) {
+            currentIndex++;
+            updateSlider();
+        }
+    });
+
+    prevButton.addEventListener('click', function() {
+        if (currentIndex > 0) {
+            currentIndex--;
+            updateSlider();
+        }
+    });
+
+    // Debounce resize event
+    let resizeTimer;
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            updateSlider();
+        }, 250);
+    });
+
+    // Initialize
+    updateSlider();
+});
     </script>
 @endsection
 @endsection
