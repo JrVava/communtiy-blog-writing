@@ -155,7 +155,7 @@
                         <div class="flex overflow-hidden" id="friend-slider">
                             <div class="flex transition-transform duration-300 ease-in-out" id="friend-slider-inner">
                                 @foreach ($suggestionFriends as $suggestionFriend)
-                                    <div class="w-1/2 sm:w-1/3 md:w-1/4 lg:w-1/5 flex-shrink-0 p-2">
+                                    <div class="w-full max-w-[100px] h-full min-h-[100px] flex-shrink-0 p-2">
                                         <div
                                             class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
                                             <a href="{{ route('profile', ['user_id' => $suggestionFriend->id]) }}">
