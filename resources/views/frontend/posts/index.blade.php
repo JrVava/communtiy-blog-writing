@@ -149,44 +149,52 @@
             </div>
 
             @if (isset($suggestionFriends) && $suggestionFriends->count() > 0)
-                <div class="container mx-auto px-4 py-6">
-                    <h1 class="text-2xl font-bold mb-6">Suggestion Friends</h1>
-                    <div class="relative">
-                        <div class="flex overflow-hidden" id="friend-slider">
-                            <div class="flex transition-transform duration-300 ease-in-out" id="friend-slider-inner">
-                                @foreach ($suggestionFriends as $suggestionFriend)
-                                    <div class="w-1/2 sm:w-1/3 md:w-1/4 lg:w-1/5 flex-shrink-0 p-2">
-                                        <div
-                                            class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
-                                            <a href="{{ route('profile', ['user_id' => $suggestionFriend->id]) }}">
-                                                <img src="@if (isset($suggestionFriend->currentProfileImage)) {{ Storage::url($suggestionFriend->currentProfileImage->path) }} @else {{ secure_asset('assets/img/dummy-user.jpg') }} @endif"
-                                                    alt="Friend" class="w-full h-[70%] min-h-[100px] object-fill">
-                                                <div class="p-3">
-                                                    <h3 class="font-semibold">{{ $suggestionFriend->full_name }}</h3>
-                                                </div>
-                                            </a>
-                                        </div>
+    <div class="container mx-auto px-4 py-6">
+        <h1 class="text-2xl font-bold mb-6">Suggestion Friends</h1>
+        <div class="relative">
+            <div class="flex overflow-hidden" id="friend-slider">
+                <div class="flex transition-transform duration-300 ease-in-out" id="friend-slider-inner">
+                    @foreach ($suggestionFriends as $suggestionFriend)
+                        <div class="w-1/3 sm:w-1/4 md:w-1/6 lg:w-1/8 xl:w-1/10 flex-shrink-0 p-2">
+                            <div
+                                class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition text-center">
+                                <a href="{{ route('profile', ['user_id' => $suggestionFriend->id]) }}">
+                                    <img src="@if (isset($suggestionFriend->currentProfileImage)) {{ Storage::url($suggestionFriend->currentProfileImage->path) }} @else {{ secure_asset('assets/img/dummy-user.jpg') }} @endif"
+                                         alt="Friend"
+                                         class="w-full h-[100px] object-cover">
+                                    <div class="p-2">
+                                        <h3 class="font-medium text-sm truncate">
+                                            {{ $suggestionFriend->full_name }}
+                                        </h3>
                                     </div>
-                                @endforeach
+                                </a>
                             </div>
                         </div>
-                        <button id="prev-button"
-                            class="absolute left-0 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-2 shadow-md hover:bg-gray-200 focus:outline-none">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                            </svg>
-                        </button>
-                        <button id="next-button"
-                            class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-2 shadow-md hover:bg-gray-200 focus:outline-none">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                            </svg>
-                        </button>
-                    </div>
+                    @endforeach
                 </div>
-            @endif
+            </div>
+
+            <!-- Prev button -->
+            <button id="prev-button"
+                    class="absolute left-0 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-2 shadow-md hover:bg-gray-200 focus:outline-none">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                     stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+            </button>
+
+            <!-- Next button -->
+            <button id="next-button"
+                    class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-2 shadow-md hover:bg-gray-200 focus:outline-none">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                     stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+@endif
+
 
 
             <div class="space-y-6">
@@ -1134,25 +1142,24 @@
 
     function getCardsPerView() {
         const width = window.innerWidth;
-        if (width >= 1024) return 5; // lg:w-1/5
-        if (width >= 768) return 4;  // md:w-1/4
-        if (width >= 640) return 3;  // sm:w-1/3
-        return 2;                    // w-1/2
+        if (width >= 1280) return 10; // xl:w-1/10
+        if (width >= 1024) return 8;  // lg:w-1/8
+        if (width >= 768) return 6;   // md:w-1/6
+        if (width >= 640) return 4;   // sm:w-1/4
+        return 3;                     // w-1/3
     }
 
     function updateSlider() {
         const cardsPerView = getCardsPerView();
         const maxIndex = Math.max(0, friends.length - cardsPerView);
-        
-        // Adjust currentIndex if it's beyond the new maxIndex
+
         if (currentIndex > maxIndex) {
             currentIndex = maxIndex;
         }
-        
+
         const translateX = -currentIndex * (100 / cardsPerView);
         slider.style.transform = `translateX(${translateX}%)`;
 
-        // Show/hide navigation buttons
         prevButton.style.display = currentIndex === 0 ? 'none' : 'block';
         nextButton.style.display = currentIndex >= maxIndex ? 'none' : 'block';
     }
@@ -1172,7 +1179,6 @@
         }
     });
 
-    // Debounce resize event
     let resizeTimer;
     window.addEventListener('resize', function() {
         clearTimeout(resizeTimer);
@@ -1181,7 +1187,6 @@
         }, 250);
     });
 
-    // Initialize
     updateSlider();
 });
     </script>
