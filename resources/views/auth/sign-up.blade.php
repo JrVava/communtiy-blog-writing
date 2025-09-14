@@ -85,6 +85,83 @@
                         @enderror
                     </div>
 
+
+                    <!-- counsellor_name -->
+                    <div>
+                        <label for="counsellor_name" class="block text-sm font-medium text-gray-700">Counsellor
+                            Name</label>
+                        <div class="relative">
+                            <input type="text" id="counsellor_name" name="counsellor_name"
+                                class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-[#374697] focus:border-[#374697] datepicker-input"
+                                placeholder="Counsellor Name">
+                        </div>
+                        @error('counsellor_name')
+                            <span class="block text-sm text-red-600 mt-1" role="alert">
+                                <strong>{{ $message }}</strong>
+                            </span>
+                        @enderror
+                    </div>
+
+                    <!-- university_name -->
+                    <div>
+                        <label for="university_name" class="block text-sm font-medium text-gray-700">University
+                            Name</label>
+                        <div class="relative">
+                            <input type="text" id="university_name" name="university_name"
+                                class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-[#374697] focus:border-[#374697] datepicker-input"
+                                placeholder="University Name">
+                        </div>
+                        @error('university_name')
+                            <span class="block text-sm text-red-600 mt-1" role="alert">
+                                <strong>{{ $message }}</strong>
+                            </span>
+                        @enderror
+                    </div>
+
+                    <!-- Date of Birth (with Datepicker) -->
+                    {{-- <div>
+                        <label for="year_of_admission" class="block text-sm font-medium text-gray-700">Year of Admission</label>
+                        <div class="relative">
+                            <input type="text" id="year_of_admission" name="year_of_admission"
+                                class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-[#374697] focus:border-[#374697] datepicker-input"
+                                placeholder="Year of Admission" datepicker>
+                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none mt-1">
+                                <svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd"
+                                        d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        @error('year_of_admission')
+                            <span class="block text-sm text-red-600 mt-1" role="alert">
+                                <strong>{{ $message }}</strong>
+                            </span>
+                        @enderror
+                    </div> --}}
+
+                    <div class="mb-6">
+                        <label for="year_of_admission" class="block text-sm font-medium text-gray-700">Year of
+                            Admission</label>
+                        <div class="relative mt-1">
+                            <select id="year_of_admission" name="year_of_admission"
+                                class="block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary appearance-none">
+                                <option value="" disabled selected>Select Year</option>
+                                <!-- Options will be populated by JavaScript -->
+                            </select>
+                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                <svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd"
+                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">Select your year of admission from the dropdown</p>
+                    </div>
+
                     <!-- Password -->
                     <div>
                         <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
@@ -120,7 +197,8 @@
                 <div class="mt-6 text-center">
                     <p class="text-sm text-gray-600">
                         Already have an account?
-                        <a href="{{ route('login') }}" class="font-medium text-[#374697] hover:text-[#2a3a80]">Sign in</a>
+                        <a href="{{ route('login') }}" class="font-medium text-[#374697] hover:text-[#2a3a80]">Sign
+                            in</a>
                     </p>
                 </div>
             </div>
@@ -354,6 +432,25 @@
             if (indicator) {
                 indicator.setAttribute('data-strength', strength);
             }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const yearSelect = document.getElementById('year_of_admission');
+            const currentYear = new Date().getFullYear();
+            const startYear = 1950;
+
+            // Add years from 1950 to current year
+            for (let year = currentYear; year >= startYear; year--) {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                yearSelect.appendChild(option);
+            }
+
+            // Add change event listener
+            yearSelect.addEventListener('change', function() {
+                console.log('Selected year:', this.value);
+            });
         });
     </script>
 </body>

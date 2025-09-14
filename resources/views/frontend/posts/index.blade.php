@@ -148,6 +148,47 @@
                 </div>
             </div>
 
+            @if (isset($suggestionFriends) && $suggestionFriends->count() > 0)
+                <div class="container mx-auto px-4 py-6">
+                    <h1 class="text-2xl font-bold mb-6">Suggestion Friends</h1>
+                    <div class="relative">
+                        <div class="flex overflow-hidden" id="friend-slider">
+                            <div class="flex transition-transform duration-300 ease-in-out" id="friend-slider-inner">
+                                @foreach ($suggestionFriends as $suggestionFriend)
+                                    <div class="w-1/2 sm:w-1/3 md:w-1/4 lg:w-1/5 flex-shrink-0 p-2">
+                                        <div
+                                            class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
+                                            <a href="{{ route('profile', ['user_id' => $suggestionFriend->id]) }}">
+                                                <img src="@if (isset($suggestionFriend->currentProfileImage)) {{ Storage::url($suggestionFriend->currentProfileImage->path) }} @else {{ secure_asset('assets/img/dummy-user.jpg') }} @endif"
+                                                    alt="Friend" class="w-full h-[70%] min-h-[100px] object-fill">
+                                                <div class="p-3">
+                                                    <h3 class="font-semibold">{{ $suggestionFriend->full_name }}</h3>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                        <button id="prev-button"
+                            class="absolute left-0 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-2 shadow-md hover:bg-gray-200 focus:outline-none">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </button>
+                        <button id="next-button"
+                            class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-2 shadow-md hover:bg-gray-200 focus:outline-none">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            @endif
+
+
             <div class="space-y-6">
                 @foreach ($posts as $post)
                     <div class="bg-white rounded-lg shadow-md overflow-hidden mb-6" data-post-id="{{ $post->id }}">
@@ -1047,6 +1088,78 @@
                         text.textContent = reactionConfig[response.reaction].text;
                         currentReaction = response.reaction;
                     }
+                }
+            });
+        });
+
+        // SLider Code Start Here
+        document.addEventListener('DOMContentLoaded', function() {
+            const swiper = new Swiper('.suggestion-swiper', {
+                slidesPerView: 2,
+                spaceBetween: 16,
+                loop: false,
+                centeredSlides: false,
+                navigation: {
+                    nextEl: '.suggestion-next',
+                    prevEl: '.suggestion-prev',
+                },
+                pagination: {
+                    el: '.swiper-pagination',
+                    clickable: true,
+                },
+                breakpoints: {
+                    640: {
+                        slidesPerView: 3,
+                        spaceBetween: 16,
+                    },
+                    768: {
+                        slidesPerView: 4,
+                        spaceBetween: 20,
+                    },
+                    1024: {
+                        slidesPerView: 5,
+                        spaceBetween: 24,
+                    },
+                },
+            });
+        });
+
+        // Suggestion Friend code Start Here
+        document.addEventListener('DOMContentLoaded', function() {
+            const slider = document.getElementById('friend-slider-inner');
+            const prevButton = document.getElementById('prev-button');
+            const nextButton = document.getElementById('next-button');
+            const friends = document.querySelectorAll('#friend-slider-inner > div');
+            let currentIndex = 0;
+            const cardsPerView = Math.floor(slider.parentElement.offsetWidth / friends[0].offsetWidth);
+
+            function updateSlider() {
+                const translateX = -currentIndex * (100 / cardsPerView);
+                slider.style.transform = `translateX(${translateX}%)`;
+            }
+
+            nextButton.addEventListener('click', function() {
+                if (currentIndex < friends.length - cardsPerView) {
+                    currentIndex++;
+                    updateSlider();
+                }
+            });
+
+            prevButton.addEventListener('click', function() {
+                if (currentIndex > 0) {
+                    currentIndex--;
+                    updateSlider();
+                }
+            });
+
+            // Update on window resize
+            window.addEventListener('resize', function() {
+                const newCardsPerView = Math.floor(slider.parentElement.offsetWidth / friends[0]
+                    .offsetWidth);
+                if (newCardsPerView !== cardsPerView) {
+                    // Reset the currentIndex if needed
+                    currentIndex = 0;
+                    updateSlider();
                 }
             });
         });

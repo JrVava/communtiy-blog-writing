@@ -25,6 +25,24 @@
                                     <span class="fw-bold">Email:</span>
                                     <span>{{ $user->email }}</span>
                                 </li>
+                                @if(isset($user->counsellor_name))
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span class="fw-bold">Counsellor Name:</span>
+                                    <span>{{ $user->counsellor_name }}</span>
+                                </li>
+                                @endif
+                                @if(isset($user->university_name))
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span class="fw-bold">University Name:</span>
+                                    <span>{{ $user->university_name }}</span>
+                                </li>
+                                @endif
+                                @if(isset($user->year_of_admission))
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span class="fw-bold">Year of Admission:</span>
+                                    <span>{{ $user->year_of_admission }}</span>
+                                </li>
+                                @endif
                                 @if (isset($relationShip))
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
                                     <span class="fw-bold">Relationship:</span>

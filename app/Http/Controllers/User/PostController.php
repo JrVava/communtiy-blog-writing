@@ -26,6 +26,8 @@ class PostController extends Controller
         $followingIds->push(auth()->id());
         $followingIds = $followingIds->merge($userIds)->unique()->values();
 
+        $suggestionFriends = User::whereNotIn('id',$followingIds)->where('is_admin','=',false)->get();
+        
         // Get posts from followed users AND the authenticated user
         $posts = Post::whereIn('user_id', $followingIds)
             ->where('is_active', true)
@@ -36,7 +38,8 @@ class PostController extends Controller
         
         return view('frontend.posts.index', [
             'posts' => $posts,
-            'reactions' => PostReaction::$reactionTypes
+            'reactions' => PostReaction::$reactionTypes,
+            'suggestionFriends' => $suggestionFriends
         ]);
     }
 

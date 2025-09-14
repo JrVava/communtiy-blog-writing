@@ -13,6 +13,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.css" />
     <style>
         .content-area {
             padding-bottom: 80px;
@@ -74,6 +75,7 @@
             justify-content: center;
             cursor: pointer;
         }
+
         .remove-image-btn {
             position: absolute;
             top: 8px;
@@ -288,7 +290,7 @@
                         <div class="px-4 py-2 border-b border-gray-100 flex justify-between items-center">
                             <h3 class="font-semibold">Follow Requests</h3>
                         </div>
-                        <div class="max-h-96 overflow-y-auto followRequestsContainer" >
+                        <div class="max-h-96 overflow-y-auto followRequestsContainer">
                             @foreach ($followRequests as $followRequest)
                                 <div class="px-4 py-3 hover:bg-gray-50 flex items-center follow-request-item"
                                     data-follower-id="fc971c3e-143c-491c-ad54-c3707130c7dd">
@@ -490,8 +492,8 @@
         <div id="mobilePendingRequestBlock"
             class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-full p-2 bg-white rounded-md shadow-lg py-1 hidden">
             <div class="px-4 py-2 border-b border-gray-100 flex justify-between items-center">
-                            <h3 class="font-semibold">Follow Requests</h3>
-                        </div>
+                <h3 class="font-semibold">Follow Requests</h3>
+            </div>
             <div class="max-h-96 overflow-y-auto followRequestsContainer">
                 @foreach ($followRequests as $followRequest)
                     <div class="px-4 py-3 hover:bg-gray-50 flex items-center follow-request-item"
@@ -547,7 +549,8 @@
                 </span>
             </a>
             <a href="#"
-                class="flex flex-col items-center text-gray-600 hover:text-blue-500 transition-colors px-2 relative" id="mobile-pending-request-btn">
+                class="flex flex-col items-center text-gray-600 hover:text-blue-500 transition-colors px-2 relative"
+                id="mobile-pending-request-btn">
                 <i class="fas fa-users text-xl"></i>
                 <span class="text-xs mt-1">Follow Request</span>
                 <span id="mobile-pendingRequestCount"
@@ -604,6 +607,7 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js"></script>
 
     <script>
         const currentUserId = "{{ auth()->id() }}";
@@ -776,7 +780,7 @@
                     </button>
                 </div>
             `;
-                
+
                 // Add the new request to the container
                 requestsContainer.insertBefore(requestElement, requestsContainer.firstChild);
 
@@ -1142,7 +1146,7 @@
 
         const mobilePendingRequestBtn = document.getElementById('mobile-pending-request-btn');
         const mobilePendingRequestBlock = document.getElementById('mobilePendingRequestBlock');
-        
+
 
         const mobileMenuToggles = document.querySelectorAll('.mobile-menu-toggle');
         const mobileMenu = document.getElementById('mobileMenu');
@@ -1609,12 +1613,12 @@
             messageDiv.className = `flex ${isSender ? 'justify-end' : ''} mb-4`;
             messageDiv.innerHTML = `
             ${!isSender ? `
-                                                                                                    <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-2 mt-1">
-                                                                                                        <img src="${senderAvatar}" 
-                                                                                             alt="User avatar" 
-                                                                                             class="w-full h-full object-cover rounded-full">
-                                                                                                    </div>
-                                                                                                ` : ''}
+                                                                                                        <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-2 mt-1">
+                                                                                                            <img src="${senderAvatar}" 
+                                                                                                 alt="User avatar" 
+                                                                                                 class="w-full h-full object-cover rounded-full">
+                                                                                                        </div>
+                                                                                                    ` : ''}
             <div>
                 <div class="${isSender ? 'bg-green-100' : 'bg-white'} rounded-lg ${isSender ? 'rounded-tr-none' : 'rounded-tl-none'} p-3 shadow-sm max-w-xs md:max-w-md">
                     <p class="text-gray-800">${message}</p>

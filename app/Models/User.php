@@ -30,7 +30,10 @@ class User extends Authenticatable
         'is_admin',
         'is_approve',
         'image',
-        'user_privacy'
+        'user_privacy',
+        'counsellor_name',
+        'university_name',
+        'year_of_admission'
     ];
 
     protected $dates = ['deleted_at'];
