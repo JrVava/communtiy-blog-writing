@@ -26,7 +26,11 @@ class PostController extends Controller
         $followingIds->push(auth()->id());
         $followingIds = $followingIds->merge($userIds)->unique()->values();
 
-        $suggestionFriends = User::whereNotIn('id',$followingIds)->where('is_admin','=',false)->get();
+        $suggestionFriends = User::whereNotIn('id', $followingIds)
+    ->where('is_admin', false)
+    ->inRandomOrder()
+    ->limit(5)
+    ->get();
         
         // Get posts from followed users AND the authenticated user
         $posts = Post::whereIn('user_id', $followingIds)
