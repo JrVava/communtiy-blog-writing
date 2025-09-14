@@ -151,43 +151,37 @@
             @if (isset($suggestionFriends) && $suggestionFriends->count() > 0)
 <div class="container mx-auto px-4 py-6">
     <h1 class="text-2xl font-bold mb-6">Suggestion Friends</h1>
-    <div class="relative overflow-hidden">
-        <div class="flex transition-transform duration-300 ease-in-out" id="friend-slider-inner">
-            @foreach ($suggestionFriends as $suggestionFriend)
-                <div class="w-1/5 flex-shrink-0 p-2"> <!-- Exactly 5 per row -->
-                    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
-                        <a href="{{ route('profile', ['user_id' => $suggestionFriend->id]) }}">
-                            <img src="@if (isset($suggestionFriend->currentProfileImage)) 
-                                        {{ Storage::url($suggestionFriend->currentProfileImage->path) }} 
-                                    @else 
-                                        {{ secure_asset('assets/img/dummy-user.jpg') }} 
-                                    @endif"
-                                alt="Friend" class="w-full h-[120px] object-cover">
-                            <div class="p-3">
-                                <h3 class="font-semibold text-sm truncate">{{ $suggestionFriend->full_name }}</h3>
+
+    <div class="relative">
+        <!-- parent with overflow hidden -->
+        <div id="friend-slider" class="w-full">
+            <div id="friend-slider-inner">
+                @foreach ($suggestionFriends as $suggestionFriend)
+                    <div class="friend-card"> <!-- class used by JS -->
+                        <div class="p-2 box-border">
+                            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
+                                <a href="{{ route('profile', ['user_id' => $suggestionFriend->id]) }}">
+                                    <img src="@if (isset($suggestionFriend->currentProfileImage)) {{ Storage::url($suggestionFriend->currentProfileImage->path) }} @else {{ secure_asset('assets/img/dummy-user.jpg') }} @endif"
+                                         alt="Friend">
+                                    <div class="p-3">
+                                        <h3 class="font-semibold text-sm truncate">{{ $suggestionFriend->full_name }}</h3>
+                                    </div>
+                                </a>
                             </div>
-                        </a>
+                        </div>
                     </div>
-                </div>
-            @endforeach
+                @endforeach
+            </div>
         </div>
 
-        <!-- Navigation buttons -->
+        <!-- nav -->
         <button id="prev-button"
-            class="absolute left-0 top-1/2 -translate-y-1/2 bg-white rounded-full p-2 shadow-md hover:bg-gray-200">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
-                viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M15 19l-7-7 7-7" />
-            </svg>
+                class="absolute left-0 top-1/2 -translate-y-1/2 bg-white rounded-full p-2 shadow-md hover:bg-gray-200">
+            ‹
         </button>
         <button id="next-button"
-            class="absolute right-0 top-1/2 -translate-y-1/2 bg-white rounded-full p-2 shadow-md hover:bg-gray-200">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
-                viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M9 5l7 7-7 7" />
-            </svg>
+                class="absolute right-0 top-1/2 -translate-y-1/2 bg-white rounded-full p-2 shadow-md hover:bg-gray-200">
+            ›
         </button>
     </div>
 </div>
@@ -1131,21 +1125,59 @@
         });
 
         // Suggestion Friend code Start Here
-        document.addEventListener('DOMContentLoaded', function () {
+      document.addEventListener('DOMContentLoaded', function () {
+    const container = document.getElementById('friend-slider'); // visible area
     const slider = document.getElementById('friend-slider-inner');
     const prevButton = document.getElementById('prev-button');
     const nextButton = document.getElementById('next-button');
-    const friends = document.querySelectorAll('#friend-slider-inner > div');
+    const cards = Array.from(slider.querySelectorAll('.friend-card'));
+
     let currentIndex = 0;
-    const cardsPerView = 5; // ALWAYS max 5
+    const cardsPerView = 5;
+
+    if (!container || !slider || cards.length === 0) return;
+
+    function setupSizing() {
+        const containerWidth = container.clientWidth || container.offsetWidth;
+        // pixel width per card so exactly 5 fit in the container
+        const cardWidth = Math.floor(containerWidth / cardsPerView);
+
+        // set each card to fixed pixel width (flex 0 0)
+        cards.forEach(card => {
+            card.style.flex = `0 0 ${cardWidth}px`;
+            card.style.maxWidth = `${cardWidth}px`;
+            card.style.boxSizing = 'border-box';
+        });
+
+        // set inner width to accommodate all cards (prevents wrapping or weird gaps)
+        slider.style.width = `${cardWidth * cards.length}px`;
+
+        // hide nav if not enough cards
+        if (cards.length <= cardsPerView) {
+            prevButton.classList.add('slider-hidden');
+            nextButton.classList.add('slider-hidden');
+            currentIndex = 0;
+        } else {
+            prevButton.classList.remove('slider-hidden');
+            nextButton.classList.remove('slider-hidden');
+        }
+
+        // clamp currentIndex
+        if (currentIndex > cards.length - cardsPerView) {
+            currentIndex = Math.max(0, cards.length - cardsPerView);
+        }
+        updateSlider();
+    }
 
     function updateSlider() {
-        const translateX = -currentIndex * (100 / cardsPerView);
-        slider.style.transform = `translateX(${translateX}%)`;
+        const containerWidth = container.clientWidth || container.offsetWidth;
+        const cardWidth = Math.floor(containerWidth / cardsPerView);
+        const translateX = -currentIndex * cardWidth;
+        slider.style.transform = `translateX(${translateX}px)`;
     }
 
     nextButton.addEventListener('click', function () {
-        if (currentIndex < friends.length - cardsPerView) {
+        if (currentIndex < cards.length - cardsPerView) {
             currentIndex++;
             updateSlider();
         }
@@ -1158,9 +1190,16 @@
         }
     });
 
-    updateSlider();
-});
+    // recompute sizes on resize (debounce)
+    let resizeTimer = null;
+    window.addEventListener('resize', function () {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(setupSizing, 120);
+    });
 
+    // initial setup
+    setupSizing();
+});
     </script>
 @endsection
 @endsection
